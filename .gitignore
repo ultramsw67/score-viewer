@@ -6,3 +6,5 @@
 검사/chrome-prof*/
 node_modules/
 검사/*.txt
+.omc/
+**/.omc/
