@@ -2,7 +2,7 @@
 // 넣기·같은 파일 거르기·보기·넘기기·가로 두 쪽·폭 맞춤·필기 저장·연주 목록 이어 넘기기·태그·검색·백업 왕복·안드로이드 패드 손가락 넘기기
 // 통과: bad [] 이고 console 에 EXC 없음
 const path = require('path'), fs = require('fs');
-const URL = 'http://127.0.0.1:8781/';
+const URL = process.env.SSV_URL || 'http://127.0.0.1:8781/';
 const PDF = ['a', 'b2', 'b3', 'c'].map(n => path.resolve(__dirname, 'pdf', n + '.pdf'));
 const UA_TAB = 'Mozilla/5.0 (Linux; Android 14; SM-X710N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36';
 module.exports = async (c) => {

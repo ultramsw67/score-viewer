@@ -277,7 +277,7 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.0.0';
+const VERSION = 'v1.0.1';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -620,7 +620,9 @@ async function draw() {
   const tok = ++V.renderTok;
   const two = twoUp(), k = two ? 2 : 1, box = boxSize(k);
   const pages = [V.page]; if (two && V.page + 1 <= V.n) pages.push(V.page + 1);
-  const r = await Promise.all(pages.map(n => renderPage(n, box)));
+  let r;
+  try { r = await Promise.all(pages.map(n => renderPage(n, box))); }
+  catch (e) { if (tok === V.renderTok && V.doc) console.warn(e); return; }  // 곡을 바꾸는 사이 취소된 그리기
   if (tok !== V.renderTok) return;
   stage.classList.toggle('fitw', OPT.fit === 'width');
   stage.innerHTML = '';
