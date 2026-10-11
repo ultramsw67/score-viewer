@@ -1,0 +1,8 @@
+# 악보(저작권물)는 절대 올리지 않는다
+*.pdf
+*.soodscore
+검사/*.png
+검사/out/
+검사/chrome-prof*/
+node_modules/
+검사/*.txt

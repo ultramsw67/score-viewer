@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1f3fae">
+<title>수드 악보 보기</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{
+  --bg:#f4f5f9; --card:#fff; --ink:#1b2033; --sub:#5d6478; --line:#dde1ea;
+  --main:#1f3fae; --main-ink:#fff; --soft:#e7ecfb; --accent:#f08a5d; --warn:#c0392b;
+  --radius:14px; --shadow:0 1px 3px rgba(20,30,60,.08),0 4px 14px rgba(20,30,60,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11141c; --card:#1a1f2b; --ink:#e9ecf4; --sub:#9aa3b8; --line:#2b3242;
+    --main:#5b7cf0; --main-ink:#fff; --soft:#232c45; --accent:#f39a72; --warn:#ff7a6b;
+    --shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11141c; --card:#1a1f2b; --ink:#e9ecf4; --sub:#9aa3b8; --line:#2b3242;
+  --main:#5b7cf0; --main-ink:#fff; --soft:#232c45; --accent:#f39a72; --warn:#ff7a6b;
+  --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;font-size:16px;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 80px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:10px;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:19px;letter-spacing:-.3px;display:flex;align-items:center;gap:8px;margin-right:auto}
+.brand img{width:30px;height:30px;border-radius:8px}
+.tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px}
+.tabs button{border:0;background:none;padding:8px 16px;border-radius:999px;font-weight:600;color:var(--sub);min-height:40px}
+.tabs button.on{background:var(--main);color:var(--main-ink)}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 14px;min-height:44px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.btn.main{background:var(--main);border-color:var(--main);color:var(--main-ink)}
+.btn.warn{color:var(--warn)}
+.btn.sm{min-height:36px;padding:6px 10px;font-size:14px}
+.iconbtn{border:1px solid var(--line);background:var(--card);border-radius:10px;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:20px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.bar input[type=search]{flex:1 1 220px;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px 12px;min-height:44px}
+.bar select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:0 10px;min-height:44px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 12px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:14px;min-height:34px}
+.chip.on{background:var(--soft);border-color:var(--main);color:var(--main);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.card .th{aspect-ratio:1/1.3;background:#fff;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--line);overflow:hidden;border:0;padding:0;width:100%}
+.card .th img{width:100%;height:100%;object-fit:cover;object-position:top}
+.card .th .none{color:#4a5063;font-size:13px;padding:10px;text-align:center}
+.card .meta{padding:8px 10px 10px;display:flex;flex-direction:column;gap:3px}
+.card .t{font-weight:700;font-size:15px;line-height:1.3;word-break:break-all;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .s{font-size:12.5px;color:var(--sub)}
+.card .more{position:absolute;top:6px;right:6px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(20,25,40,.6);color:#fff;font-size:18px}
+.card.missing .th{opacity:.5}
+.empty{text-align:center;color:var(--sub);padding:50px 10px;line-height:1.7}
+.empty b{color:var(--ink)}
+.drop{position:fixed;inset:0;background:rgba(31,63,174,.18);border:4px dashed var(--main);z-index:50;display:none;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--main)}
+.drop.on{display:flex}
+.list{display:flex;flex-direction:column;gap:10px}
+.row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.row .grow{flex:1;min-width:0}
+.row .t{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .s{font-size:13px;color:var(--sub)}
+.row .n{width:26px;text-align:center;color:var(--sub);font-weight:700}
+h2{font-size:18px;margin:18px 0 8px}
+.note{font-size:13.5px;color:var(--sub);line-height:1.6}
+dialog{border:0;border-radius:16px;padding:0;background:var(--card);color:var(--ink);width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 40px);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(10,14,25,.5)}
+dialog .dh{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);font-weight:800;font-size:17px}
+dialog .dh span{margin-right:auto}
+dialog .db{padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow:auto;max-height:calc(100vh - 170px)}
+dialog .df{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line);flex-wrap:wrap}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:14px;color:var(--sub);font-weight:600}
+label.f input,label.f textarea,label.f select{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;min-height:44px;color:var(--ink);font-weight:400}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1b2033;color:#fff;padding:12px 18px;border-radius:12px;z-index:200;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;max-width:calc(100vw - 32px);align-items:center;gap:10px}
+.toast.on{display:flex}
+.toast button{background:#fff;color:#1b2033;border:0;border-radius:8px;padding:6px 10px;font-weight:700}
+.prog{position:fixed;inset:0;background:rgba(10,14,25,.55);z-index:150;display:none;align-items:center;justify-content:center}
+.prog.on{display:flex}
+.prog div{background:var(--card);border-radius:14px;padding:20px 24px;min-width:260px;text-align:center}
+.prog progress{width:100%;margin-top:10px}
+
+/* 보기 화면 */
+#viewer{position:fixed;inset:0;background:#2a2d33;z-index:100;display:none;overflow:hidden;touch-action:pan-y pinch-zoom}
+#viewer.on{display:block}
+#viewer.dark{background:#000}
+#stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#viewer.inking #stage{top:68px;bottom:68px}
+#stage.fitw{overflow-y:auto;align-items:flex-start}
+.pg{position:relative;background:#fff;flex:0 0 auto;box-shadow:0 2px 6px rgba(0,0,0,.45)}
+.pg canvas{position:absolute;left:0;top:0;width:100%;height:100%}
+.pg canvas.ink{touch-action:none}
+#viewer:not(.inking) .pg canvas.ink{pointer-events:none}
+#viewer.night .pg canvas.pdf{filter:invert(1) hue-rotate(180deg)}
+#viewer.night .pg{background:#000}
+.vbar{position:absolute;left:0;right:0;display:flex;align-items:center;gap:6px;padding:8px 10px;background:rgba(18,20,26,.88);color:#fff;transition:transform .2s,opacity .2s;z-index:3;flex-wrap:wrap}
+.vbar.topb{top:0;padding-top:max(8px,env(safe-area-inset-top))}
+.vbar.botb{bottom:0;padding-bottom:max(8px,env(safe-area-inset-bottom));justify-content:center}
+#viewer.hidebars .vbar.topb{transform:translateY(-110%);opacity:0;pointer-events:none}
+#viewer.hidebars .vbar.botb{transform:translateY(110%);opacity:0;pointer-events:none}
+.vbar button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:10px;min-width:44px;height:44px;padding:0 10px;font-size:15px;font-weight:600}
+.vbar button.on{background:#f08a5d;border-color:#f08a5d}
+.vbar .vt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;padding:0 4px}
+.vbar .pn{font-variant-numeric:tabular-nums;opacity:.9;padding:0 6px;white-space:nowrap}
+.vbar input[type=range]{flex:1;max-width:420px}
+#inkbar{display:none}
+#viewer.inking #inkbar{display:flex}
+#viewer.inking #navbar{display:none}
+.sw{width:34px;height:34px;border-radius:50%;border:3px solid transparent;padding:0;min-width:0 !important}
+.sw.on{border-color:#fff;background-clip:padding-box}
+.banner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(18,20,26,.9);color:#fff;padding:16px 22px;border-radius:14px;font-size:18px;font-weight:700;z-index:4;display:none;text-align:center;line-height:1.5}
+.banner.on{display:block}
+.edgehint{position:absolute;top:0;bottom:0;width:6px;z-index:2;opacity:0;background:rgba(240,138,93,.7);transition:opacity .25s}
+.edgehint.l{left:0}.edgehint.r{right:0}
+.edgehint.on{opacity:1}
+.spin{color:#fff;font-size:15px;opacity:.8}
+@media (max-width:560px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+  .brand span{font-size:16px}
+  header.top .wrap{flex-wrap:nowrap;gap:6px}
+  .brand{min-width:0}
+  .brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tabs button{padding:8px 11px}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="brand"><img src="icons/icon-192.png" alt=""><span>수드 악보 보기</span></div>
+  <div class="tabs" role="tablist">
+    <button id="tabLib" class="on" role="tab">악보</button>
+    <button id="tabSets" role="tab">연주 목록</button>
+  </div>
+  <button class="iconbtn" id="btnSettings" title="설정·백업" aria-label="설정·백업">⚙</button>
+</div></header>
+
+<main class="wrap">
+  <section id="pLib">
+    <div class="bar">
+      <button class="btn main" id="btnAdd">＋ 악보 넣기</button>
+      <button class="btn" id="btnAddDir">📁 폴더째 넣기</button>
+      <input type="search" id="q" placeholder="제목·태그 검색" autocomplete="off">
+      <select id="sort" aria-label="정렬">
+        <option value="title">이름순</option>
+        <option value="opened">최근 본 순</option>
+        <option value="added">최근 넣은 순</option>
+      </select>
+    </div>
+    <div class="chips" id="tagChips"></div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="libEmpty" hidden>
+      <b>아직 넣은 악보가 없습니다.</b><br>
+      「＋ 악보 넣기」를 눌러 PDF 를 고르세요. PC 에서는 파일을 이 화면에 끌어다 놓아도 됩니다.<br>
+      악보는 이 기기 안에만 저장되고 인터넷에 올라가지 않습니다.
+    </div>
+  </section>
+
+  <section id="pSets" hidden>
+    <div class="bar">
+      <button class="btn main" id="btnNewSet">＋ 새 연주 목록</button>
+    </div>
+    <div class="list" id="setList"></div>
+    <div class="empty" id="setEmpty" hidden>
+      <b>연주 목록이 없습니다.</b><br>
+      공연·합주 순서대로 곡을 묶어 두면, 마지막 쪽에서 넘길 때 다음 곡이 바로 열립니다.
+    </div>
+  </section>
+</main>
+
+<input type="file" id="fileIn" accept="application/pdf,.pdf" multiple hidden>
+<input type="file" id="dirIn" webkitdirectory multiple hidden>
+<input type="file" id="backupIn" accept=".json,.soodscore,application/json,application/octet-stream" hidden>
+<div class="drop" id="drop">여기에 놓으면 악보를 넣습니다</div>
+<div class="toast" id="toast"><span></span></div>
+<div class="prog" id="prog"><div><div id="progT">넣는 중…</div><progress id="progBar" max="1" value="0"></progress></div></div>
+
+<!-- 악보 정보 -->
+<dialog id="dEdit">
+  <div class="dh"><span>악보 정보</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
+  <div class="db">
+    <label class="f">제목<input id="eTitle"></label>
+    <label class="f">태그 (쉼표로 나눔 — 예: 알토, 행진곡, 10월 공연)<input id="eTags"></label>
+    <label class="f">메모<textarea id="eMemo" rows="3"></textarea></label>
+    <label class="f">연주 목록에 넣기<select id="eSet"></select></label>
+    <div class="note" id="eInfo"></div>
+  </div>
+  <div class="df">
+    <button class="btn warn" id="eDel">악보 지우기</button>
+    <button class="btn" id="eInkClear">필기 모두 지우기</button>
+    <button class="btn main" id="eSave">저장</button>
+  </div>
+</dialog>
+
+<!-- 연주 목록 편집 -->
+<dialog id="dSet">
+  <div class="dh"><span>연주 목록</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
+  <div class="db">
+    <label class="f">이름<input id="sName" placeholder="예: 10월 정기 공연"></label>
+    <div class="list" id="sItems"></div>
+    <label class="f">곡 더하기<input type="search" id="sQ" placeholder="제목·태그로 찾기"></label>
+    <div class="list" id="sPick"></div>
+  </div>
+  <div class="df">
+    <button class="btn warn" id="sDel">목록 지우기</button>
+    <button class="btn" id="sPlay">▶ 연주 시작</button>
+    <button class="btn main" id="sSave">저장</button>
+  </div>
+</dialog>
+
+<!-- 설정·백업 -->
+<dialog id="dSettings">
+  <div class="dh"><span>설정·백업</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
+  <div class="db">
+    <h2 style="margin:0">보기</h2>
+    <label class="f">가로로 둘 때<select id="optTwo"><option value="auto">두 쪽씩 보기</option><option value="one">한 쪽씩 보기</option></select></label>
+    <label class="f">악보 열 때 전체 화면<select id="optFull"><option value="1">켜기</option><option value="0">끄기</option></select></label>
+    <label class="f">필기 입력<select id="optPen"><option value="any">손가락·펜 모두</option><option value="pen">펜만 (손바닥 닿아도 안 그림)</option></select></label>
+    <label class="f">앱 화면 색<select id="optTheme"><option value="">기기 설정 따름</option><option value="light">밝게</option><option value="dark">어둡게</option></select></label>
+    <h2 style="margin:6px 0 0">다른 기기로 옮기기·백업</h2>
+    <div class="note">악보 PDF 는 기기마다 따로 넣습니다. 아래 「목록·필기만」 파일을 다른 기기에서 가져온 뒤 같은 PDF 를 넣으면 태그·메모·연주 목록·필기가 그대로 붙습니다.</div>
+    <div class="bar" style="margin:0">
+      <button class="btn" id="bxMeta">목록·필기만 내보내기</button>
+      <button class="btn" id="bxAll">악보까지 전체 백업</button>
+      <button class="btn main" id="bxIn">백업 가져오기</button>
+    </div>
+    <div class="note" id="storageInfo"></div>
+    <div class="note">넘기기: 화면 오른쪽 누르기·→·PageDown·스페이스 = 다음, 왼쪽 누르기·←·PageUp = 앞. 블루투스 페이지 넘김 페달도 같은 키로 됩니다. 가운데를 누르면 메뉴가 나오고 숨습니다.</div>
+    <div class="note" id="verInfo"></div>
+  </div>
+  <div class="df"><button class="btn main" data-close>닫기</button></div>
+</dialog>
+
+<!-- 보기 화면 -->
+<div id="viewer" class="hidebars" aria-hidden="true">
+  <div id="stage"></div>
+  <div class="edgehint l" id="hintL"></div><div class="edgehint r" id="hintR"></div>
+  <div class="banner" id="vBanner"></div>
+  <div class="vbar topb">
+    <button id="vClose" aria-label="닫기">✕</button>
+    <div class="vt" id="vTitle"></div>
+    <span class="pn" id="vSetPos"></span>
+    <button id="vFit" title="맞춤">쪽 맞춤</button>
+    <button id="vTwo" title="두 쪽">두 쪽</button>
+    <button id="vNight" title="밤 모드">🌙</button>
+    <button id="vInk" title="필기">✎ 필기</button>
+    <button id="vFull" title="전체 화면">⛶</button>
+  </div>
+  <div class="vbar botb" id="navbar">
+    <button id="vPrev" aria-label="앞 쪽">◀</button>
+    <input type="range" id="vRange" min="1" max="1" value="1" aria-label="쪽 이동">
+    <span class="pn" id="vPage">1 / 1</span>
+    <button id="vNext" aria-label="다음 쪽">▶</button>
+  </div>
+  <div class="vbar botb" id="inkbar">
+    <button class="sw on" data-c="#d62828" style="background:#d62828" aria-label="빨강"></button>
+    <button class="sw" data-c="#1f3fae" style="background:#1f3fae" aria-label="파랑"></button>
+    <button class="sw" data-c="#111111" style="background:#111" aria-label="검정"></button>
+    <button class="sw" data-c="hl" style="background:#ffd60a" aria-label="형광펜"></button>
+    <button id="iThin">가늘게</button>
+    <button id="iErase">지우개</button>
+    <button id="iUndo">되돌리기</button>
+    <button id="iClear">이 쪽 지우기</button>
+    <button id="iPrev" aria-label="앞 쪽">◀</button><button id="iNext" aria-label="다음 쪽">▶</button>
+    <button id="iDone" class="on">완료</button>
+  </div>
+</div>
+
+<script type="module">
+import * as pdfjs from './vendor/pdf.min.mjs';
+pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
+const VERSION = 'v1.0.0';
+const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
+
+/* ---------- 저장소 (IndexedDB) ---------- */
+const DB = await new Promise((res, rej) => {
+  const r = indexedDB.open('sood-score', 1);
+  r.onupgradeneeded = () => {
+    const d = r.result;
+    d.createObjectStore('scores', { keyPath: 'id' });
+    d.createObjectStore('files', { keyPath: 'id' });
+    d.createObjectStore('ink', { keyPath: 'key' });
+    d.createObjectStore('sets', { keyPath: 'id' });
+  };
+  r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+});
+const tx = (store, mode, fn) => new Promise((res, rej) => {
+  const t = DB.transaction(store, mode); const s = t.objectStore(store); let out;
+  const r = fn(s); if (r) r.onsuccess = () => { out = r.result; };
+  t.oncomplete = () => res(out); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+});
+const db = {
+  all: s => tx(s, 'readonly', st => st.getAll()),
+  get: (s, k) => tx(s, 'readonly', st => st.get(k)),
+  put: (s, v) => tx(s, 'readwrite', st => st.put(v)),
+  del: (s, k) => tx(s, 'readwrite', st => st.delete(k)),
+};
+const inkOf = async id => (await db.all('ink')).filter(x => x.id === id);
+
+/* ---------- 설정 ---------- */
+const OPT = Object.assign({ two: 'auto', full: '1', pen: 'any', theme: '', sort: 'title', night: false, fit: 'page' },
+  (() => { try { return JSON.parse(localStorage.getItem('ssv.opt') || '{}'); } catch (e) { return {}; } })());
+const saveOpt = () => { try { localStorage.setItem('ssv.opt', JSON.stringify(OPT)); } catch (e) { } };
+const applyTheme = () => { if (OPT.theme) document.documentElement.dataset.theme = OPT.theme; else delete document.documentElement.dataset.theme; };
+applyTheme();
+
+/* ---------- 작은 도구 ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = s => String(s || '').toLowerCase().replace(/\s+/g, '');
+const byTitle = (a, b) => a.title.localeCompare(b.title, 'ko', { numeric: true });
+let toastTimer;
+function toast(msg, act, fn, ms = 3500) {
+  const t = $('#toast'); t.innerHTML = '<span>' + esc(msg) + '</span>';
+  if (act) { const b = document.createElement('button'); b.textContent = act; b.onclick = () => { t.classList.remove('on'); fn(); }; t.append(b); }
+  t.classList.add('on'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), act ? 7000 : ms);
+}
+function progress(on, text, v, max) {
+  $('#prog').classList.toggle('on', on);
+  if (text != null) $('#progT').textContent = text;
+  if (v != null) { $('#progBar').max = max || 1; $('#progBar').value = v; }
+}
+async function sha(buf) {
+  const h = await crypto.subtle.digest('SHA-256', buf);
+  return [...new Uint8Array(h)].slice(0, 16).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+const titleFromName = n => n.replace(/\.pdf$/i, '').replace(/[_]+/g, ' ').replace(/\s+/g, ' ').trim();
+const splitTags = s => [...new Set(String(s || '').split(/[,，#]/).map(x => x.trim()).filter(Boolean))];
+document.querySelectorAll('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+
+/* ---------- 악보 넣기 ---------- */
+let persisted = false;
+async function askPersist() {
+  if (persisted || !navigator.storage?.persist) return;
+  try { persisted = await navigator.storage.persisted() || await navigator.storage.persist(); } catch (e) { }
+}
+async function makeThumb(buf) {
+  const doc = await pdfjs.getDocument({ data: buf, ...PDF_OPTS }).promise;
+  try {
+    const p = await doc.getPage(1); const vp0 = p.getViewport({ scale: 1 });
+    const vp = p.getViewport({ scale: 320 / vp0.width });
+    const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+    const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+    await p.render({ canvasContext: g, viewport: vp }).promise;
+    return { thumb: c.toDataURL('image/jpeg', 0.72), pages: doc.numPages };
+  } finally { doc.destroy(); }
+}
+async function addFiles(list) {
+  const files = [...list].filter(f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf');
+  if (!files.length) { toast('PDF 파일이 없습니다.'); return; }
+  await askPersist();
+  let added = 0, same = 0, bad = 0, relinked = 0;
+  progress(true, '악보 넣는 중… 0 / ' + files.length, 0, files.length);
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    progress(true, '악보 넣는 중… ' + (i + 1) + ' / ' + files.length, i, files.length);
+    try {
+      const buf = await f.arrayBuffer();
+      const id = await sha(buf);
+      const old = await db.get('scores', id);
+      if (old && old.has) { same++; continue; }
+      const { thumb, pages } = await makeThumb(buf.slice(0));
+      const folderTags = (f.webkitRelativePath || '').split('/').slice(1, -1);
+      const rec = old ? Object.assign(old, { has: true, thumb, pages, size: f.size }) : {
+        id, title: titleFromName(f.name), fileName: f.name, size: f.size, pages, thumb, has: true,
+        tags: folderTags, memo: '', added: Date.now(), opened: 0, lastPage: 1,
+      };
+      await db.put('files', { id, blob: new Blob([buf], { type: 'application/pdf' }) });
+      await db.put('scores', rec);
+      old ? relinked++ : added++;
+    } catch (e) { console.warn('넣기 실패', f.name, e); bad++; }
+  }
+  progress(false);
+  const parts = [];
+  if (added) parts.push(added + '곡 넣음'); if (relinked) parts.push(relinked + '곡 필기·정보 연결');
+  if (same) parts.push(same + '곡은 이미 있음'); if (bad) parts.push(bad + '개는 열 수 없는 파일');
+  toast(parts.join(' · ') || '바뀐 것이 없습니다.');
+  renderLib();
+}
+$('#btnAdd').onclick = () => $('#fileIn').click();
+$('#btnAddDir').onclick = () => $('#dirIn').click();
+if (!('webkitdirectory' in document.createElement('input')) || /Android|iPhone|iPad/i.test(navigator.userAgent)) $('#btnAddDir').hidden = true;
+$('#fileIn').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+$('#dirIn').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+let dragN = 0;
+addEventListener('dragenter', e => { if (e.dataTransfer?.types?.includes('Files')) { dragN++; $('#drop').classList.add('on'); } });
+addEventListener('dragleave', () => { if (--dragN <= 0) { dragN = 0; $('#drop').classList.remove('on'); } });
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => { e.preventDefault(); dragN = 0; $('#drop').classList.remove('on'); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
+
+/* ---------- 악보 목록 ---------- */
+let SCORES = [], tagOn = null;
+$('#sort').value = OPT.sort;
+$('#sort').onchange = () => { OPT.sort = $('#sort').value; saveOpt(); renderLib(); };
+$('#q').oninput = () => renderLib(true);
+async function renderLib(keep) {
+  if (!keep) SCORES = await db.all('scores');
+  const q = norm($('#q').value);
+  const tags = {}; SCORES.forEach(s => (s.tags || []).forEach(t => tags[t] = (tags[t] || 0) + 1));
+  const tagNames = Object.keys(tags).sort((a, b) => a.localeCompare(b, 'ko', { numeric: true }));
+  if (tagOn && !tags[tagOn]) tagOn = null;
+  $('#tagChips').innerHTML = tagNames.length ? '<button class="chip' + (tagOn ? '' : ' on') + '" data-t="">전체 ' + SCORES.length + '</button>' +
+    tagNames.map(t => '<button class="chip' + (t === tagOn ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + ' ' + tags[t] + '</button>').join('') : '';
+  let list = SCORES.filter(s => (!tagOn || (s.tags || []).includes(tagOn)) &&
+    (!q || norm(s.title + ' ' + (s.tags || []).join(' ') + ' ' + s.memo + ' ' + s.fileName).includes(q)));
+  list.sort(OPT.sort === 'opened' ? (a, b) => (b.opened || 0) - (a.opened || 0) || byTitle(a, b)
+    : OPT.sort === 'added' ? (a, b) => b.added - a.added : byTitle);
+  $('#libEmpty').hidden = SCORES.length > 0;
+  $('#grid').innerHTML = list.map(s => '<div class="card' + (s.has ? '' : ' missing') + '" data-id="' + s.id + '">' +
+    '<button class="th" data-open>' + (s.thumb ? '<img src="' + s.thumb + '" alt="" loading="lazy">' : '') +
+    (s.has ? '' : '<div class="none">PDF 없음<br>같은 파일을 넣으면 연결됩니다</div>') + '</button>' +
+    '<div class="meta"><div class="t">' + esc(s.title) + '</div><div class="s">' + (s.pages || '?') + '쪽' +
+    ((s.tags || []).length ? ' · ' + esc(s.tags.join(', ')) : '') + '</div></div>' +
+    '<button class="more" data-edit aria-label="정보">⋯</button></div>').join('') +
+    (SCORES.length && !list.length ? '<div class="empty" style="grid-column:1/-1">찾는 악보가 없습니다.</div>' : '');
+}
+$('#tagChips').onclick = e => { const b = e.target.closest('.chip'); if (!b) return; tagOn = b.dataset.t || null; renderLib(true); };
+$('#grid').onclick = e => {
+  const card = e.target.closest('.card'); if (!card) return;
+  const s = SCORES.find(x => x.id === card.dataset.id);
+  if (e.target.closest('[data-edit]')) return openEdit(s);
+  if (!s.has) { toast('이 기기에 PDF 가 없습니다. 같은 파일을 「악보 넣기」로 넣으세요.'); return; }
+  openViewer([s.id], 0);
+};
+
+/* ---------- 악보 정보 고치기 ---------- */
+let editing;
+async function openEdit(s) {
+  editing = s;
+  $('#eTitle').value = s.title; $('#eTags').value = (s.tags || []).join(', '); $('#eMemo').value = s.memo || '';
+  const sets = (await db.all('sets')).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  $('#eSet').innerHTML = '<option value="">— 고르지 않음 —</option>' + sets.map(x => '<option value="' + x.id + '">' + esc(x.name) +
+    (x.items.includes(s.id) ? ' (이미 있음)' : '') + '</option>').join('');
+  const n = (await inkOf(s.id)).reduce((a, x) => a + x.strokes.length, 0);
+  $('#eInfo').textContent = '파일: ' + s.fileName + ' · ' + (s.pages || '?') + '쪽 · ' + ((s.size || 0) / 1048576).toFixed(1) + 'MB · 필기 ' + n + '획';
+  $('#dEdit').showModal();
+}
+$('#eSave').onclick = async () => {
+  const s = editing;
+  s.title = $('#eTitle').value.trim() || s.title; s.tags = splitTags($('#eTags').value); s.memo = $('#eMemo').value.trim();
+  await db.put('scores', s);
+  const sid = $('#eSet').value;
+  if (sid) { const set = await db.get('sets', sid); if (!set.items.includes(s.id)) { set.items.push(s.id); set.updated = Date.now(); await db.put('sets', set); } }
+  $('#dEdit').close(); renderLib(); renderSets();
+};
+$('#eDel').onclick = async () => {
+  const s = editing; $('#dEdit').close();
+  const backup = { score: s, file: await db.get('files', s.id), ink: await inkOf(s.id) };
+  await db.del('scores', s.id); await db.del('files', s.id);
+  for (const k of backup.ink) await db.del('ink', k.key);
+  renderLib();
+  toast('「' + s.title + '」을 지웠습니다.', '되살리기', async () => {
+    await db.put('scores', backup.score); if (backup.file) await db.put('files', backup.file);
+    for (const k of backup.ink) await db.put('ink', k);
+    renderLib();
+  });
+};
+$('#eInkClear').onclick = async () => {
+  const s = editing; const ink = await inkOf(s.id); if (!ink.length) { toast('지울 필기가 없습니다.'); return; }
+  for (const k of ink) await db.del('ink', k.key);
+  $('#dEdit').close();
+  toast('필기 ' + ink.length + '쪽 분량을 지웠습니다.', '되살리기', async () => { for (const k of ink) await db.put('ink', k); });
+};
+
+/* ---------- 연주 목록 ---------- */
+async function renderSets() {
+  const sets = (await db.all('sets')).sort((a, b) => (b.updated || 0) - (a.updated || 0));
+  const byId = Object.fromEntries((await db.all('scores')).map(s => [s.id, s]));
+  $('#setEmpty').hidden = sets.length > 0;
+  $('#setList').innerHTML = sets.map(x => '<div class="row" data-id="' + x.id + '"><div class="grow"><div class="t">' + esc(x.name) + '</div><div class="s">' +
+    x.items.length + '곡 · ' + esc(x.items.map(i => byId[i]?.title || '(없는 악보)').slice(0, 4).join(' → ')) + (x.items.length > 4 ? ' …' : '') +
+    '</div></div><button class="btn sm" data-edit>고치기</button><button class="btn sm main" data-play>▶ 연주</button></div>').join('');
+}
+let setEditing;
+$('#setList').onclick = async e => {
+  const row = e.target.closest('.row'); if (!row) return;
+  const set = await db.get('sets', row.dataset.id);
+  if (e.target.closest('[data-play]')) return playSet(set);
+  openSet(set);
+};
+$('#btnNewSet').onclick = () => openSet({ id: 's' + Date.now().toString(36), name: '', items: [], updated: Date.now(), isNew: true });
+async function openSet(set) {
+  setEditing = structuredClone(set);
+  $('#sName').value = set.name; $('#sQ').value = '';
+  SCORES = await db.all('scores');
+  drawSet(); $('#dSet').showModal();
+}
+function drawSet() {
+  const byId = Object.fromEntries(SCORES.map(s => [s.id, s]));
+  const it = setEditing.items;
+  $('#sItems').innerHTML = it.length ? it.map((id, i) => '<div class="row" data-i="' + i + '"><span class="n">' + (i + 1) + '</span><div class="grow"><div class="t">' +
+    esc(byId[id]?.title || '(없는 악보)') + '</div></div><button class="iconbtn" data-up aria-label="위로"' + (i ? '' : ' disabled') + '>↑</button>' +
+    '<button class="iconbtn" data-down aria-label="아래로"' + (i < it.length - 1 ? '' : ' disabled') + '>↓</button><button class="iconbtn" data-x aria-label="빼기">✕</button></div>').join('')
+    : '<div class="note">아래에서 곡을 찾아 「더하기」를 누르세요.</div>';
+  const q = norm($('#sQ').value);
+  const pick = SCORES.filter(s => !q || norm(s.title + ' ' + (s.tags || []).join(' ')).includes(q)).sort(byTitle).slice(0, 40);
+  $('#sPick').innerHTML = pick.map(s => '<div class="row" data-id="' + s.id + '"><div class="grow"><div class="t">' + esc(s.title) + '</div><div class="s">' +
+    esc((s.tags || []).join(', ')) + '</div></div><button class="btn sm" data-add>더하기</button></div>').join('') || '<div class="note">넣은 악보가 없습니다.</div>';
+}
+$('#sQ').oninput = drawSet;
+$('#sItems').onclick = e => {
+  const row = e.target.closest('.row'); if (!row) return; const i = +row.dataset.i, it = setEditing.items;
+  if (e.target.closest('[data-up]') && i > 0) [it[i - 1], it[i]] = [it[i], it[i - 1]];
+  else if (e.target.closest('[data-down]') && i < it.length - 1) [it[i + 1], it[i]] = [it[i], it[i + 1]];
+  else if (e.target.closest('[data-x]')) it.splice(i, 1);
+  drawSet();
+};
+$('#sPick').onclick = e => { const row = e.target.closest('.row'); if (!row || !e.target.closest('[data-add]')) return; setEditing.items.push(row.dataset.id); drawSet(); };
+async function saveSet() {
+  const s = setEditing; s.name = $('#sName').value.trim() || '이름 없는 목록'; s.updated = Date.now(); delete s.isNew;
+  await db.put('sets', s); renderSets(); return s;
+}
+$('#sSave').onclick = async () => { await saveSet(); $('#dSet').close(); };
+$('#sPlay').onclick = async () => { const s = await saveSet(); $('#dSet').close(); playSet(s); };
+$('#sDel').onclick = async () => {
+  const s = setEditing; $('#dSet').close(); if (s.isNew) return;
+  const old = await db.get('sets', s.id); await db.del('sets', s.id); renderSets();
+  toast('「' + old.name + '」 목록을 지웠습니다.', '되살리기', async () => { await db.put('sets', old); renderSets(); });
+};
+async function playSet(set) {
+  const ok = []; for (const id of set.items) { const s = await db.get('scores', id); if (s?.has) ok.push(id); }
+  if (!ok.length) { toast('이 기기에 있는 곡이 없습니다.'); return; }
+  if (ok.length < set.items.length) toast((set.items.length - ok.length) + '곡은 이 기기에 PDF 가 없어 건너뜁니다.');
+  openViewer(ok, 0, set.name);
+}
+
+/* ---------- 탭 ---------- */
+function showTab(w) {
+  $('#tabLib').classList.toggle('on', w === 'lib'); $('#tabSets').classList.toggle('on', w === 'sets');
+  $('#pLib').hidden = w !== 'lib'; $('#pSets').hidden = w !== 'sets';
+  if (w === 'sets') renderSets();
+}
+$('#tabLib').onclick = () => showTab('lib'); $('#tabSets').onclick = () => showTab('sets');
+
+/* ---------- 보기 화면 ---------- */
+const V = { queue: [], qi: 0, setName: '', doc: null, score: null, page: 1, n: 1, ink: {}, renderTok: 0, cache: new Map(), wake: null, inking: false,
+  tool: { c: '#d62828', w: 0.0035, erase: false }, undo: [] };
+const viewer = $('#viewer'), stage = $('#stage');
+const twoUp = () => OPT.two === 'auto' && innerWidth > innerHeight * 1.05 && V.n > 1 && OPT.fit === 'page';
+const step = () => twoUp() ? 2 : 1;
+
+async function openViewer(queue, qi, setName = '', startPage) {
+  if (OPT.full === '1' && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { });
+  V.queue = queue; V.qi = qi; V.setName = setName;
+  viewer.classList.add('on'); viewer.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
+  viewer.classList.toggle('night', !!OPT.night); $('#vNight').classList.toggle('on', !!OPT.night);
+  history.pushState({ viewer: 1 }, '');
+  wakeOn();
+  await loadScore(startPage);
+}
+async function loadScore(startPage) {
+  const id = V.queue[V.qi];
+  stage.innerHTML = '<div class="spin">여는 중…</div>';
+  if (V.doc) { V.doc.destroy(); V.doc = null; }
+  V.cache.clear(); V.undo = [];
+  const s = await db.get('scores', id), f = await db.get('files', id);
+  if (!s || !f) { stage.innerHTML = '<div class="spin">PDF 를 찾지 못했습니다.</div>'; return; }
+  V.score = s;
+  V.doc = await pdfjs.getDocument({ data: new Uint8Array(await f.blob.arrayBuffer()), ...PDF_OPTS }).promise;
+  V.n = V.doc.numPages;
+  V.ink = {}; (await inkOf(id)).forEach(x => V.ink[x.page] = x.strokes);
+  V.page = startPage === 'last' ? Math.max(1, V.n - (twoUp() ? (V.n % 2 ? 0 : 1) : 0)) : 1;
+  if (twoUp() && V.page % 2 === 0) V.page--;
+  s.opened = Date.now(); db.put('scores', s);
+  $('#vTitle').textContent = s.title;
+  $('#vSetPos').textContent = V.queue.length > 1 ? (V.setName ? V.setName + ' · ' : '') + (V.qi + 1) + '/' + V.queue.length + '곡' : '';
+  $('#vRange').max = V.n;
+  showBars(true);
+  await draw();
+  if (startPage == null && s.lastPage > 2 && V.queue.length === 1) {
+    const lp = s.lastPage;
+    toast('지난번 ' + lp + '쪽까지 봤습니다.', lp + '쪽으로', () => go(lp));
+  }
+}
+function closeViewer(fromPop) {
+  if (!viewer.classList.contains('on')) return;
+  if (V.inking) inkMode(false);
+  if (V.score) { V.score.lastPage = V.page; db.put('scores', V.score); }
+  viewer.classList.remove('on'); viewer.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
+  if (V.doc) { V.doc.destroy(); V.doc = null; } V.cache.clear(); stage.innerHTML = '';
+  wakeOff();
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
+  if (!fromPop) history.back();
+  renderLib();
+}
+addEventListener('popstate', () => closeViewer(true));
+$('#vClose').onclick = () => closeViewer();
+
+function boxSize(k) {
+  const W = stage.clientWidth, H = stage.clientHeight;
+  return OPT.fit === 'width' ? { w: W - 8, h: Infinity } : { w: (W - 8) / k, h: H - 8 };
+}
+async function renderPage(n, box) {
+  const key = n + '@' + Math.round(box.w) + 'x' + (box.h === Infinity ? 'w' : Math.round(box.h));
+  if (V.cache.has(key)) return V.cache.get(key);
+  const p = await V.doc.getPage(n); const vp0 = p.getViewport({ scale: 1 });
+  const css = Math.min(box.w / vp0.width, box.h / vp0.height);
+  const dpr = devicePixelRatio || 1;
+  let px = css * dpr; px = Math.min(px, 4096 / vp0.width, 4096 / vp0.height);
+  const vp = p.getViewport({ scale: px });
+  const c = document.createElement('canvas'); c.className = 'pdf';
+  c.width = Math.floor(vp.width); c.height = Math.floor(vp.height);
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+  await p.render({ canvasContext: g, viewport: vp }).promise;
+  const out = { c, cw: vp0.width * css, ch: vp0.height * css };
+  V.cache.set(key, out);
+  if (V.cache.size > 8) V.cache.delete(V.cache.keys().next().value);
+  return out;
+}
+async function draw() {
+  if (!V.doc) return;
+  const tok = ++V.renderTok;
+  const two = twoUp(), k = two ? 2 : 1, box = boxSize(k);
+  const pages = [V.page]; if (two && V.page + 1 <= V.n) pages.push(V.page + 1);
+  const r = await Promise.all(pages.map(n => renderPage(n, box)));
+  if (tok !== V.renderTok) return;
+  stage.classList.toggle('fitw', OPT.fit === 'width');
+  stage.innerHTML = '';
+  r.forEach((o, i) => {
+    const pg = document.createElement('div'); pg.className = 'pg'; pg.dataset.page = pages[i];
+    pg.style.width = o.cw + 'px'; pg.style.height = o.ch + 'px';
+    if (OPT.fit === 'width') pg.style.margin = '4px auto';
+    const pc = o.c; pg.append(pc);
+    const ic = document.createElement('canvas'); ic.className = 'ink';
+    const dpr = devicePixelRatio || 1; ic.width = Math.round(o.cw * dpr); ic.height = Math.round(o.ch * dpr);
+    pg.append(ic); stage.append(pg); paintInk(pg);
+  });
+  stage.scrollTop = 0;
+  $('#vPage').textContent = (pages.length > 1 ? pages[0] + '–' + pages[1] : pages[0]) + ' / ' + V.n;
+  $('#vRange').value = V.page;
+  $('#vFit').textContent = OPT.fit === 'width' ? '폭 맞춤' : '쪽 맞춤';
+  $('#vTwo').textContent = OPT.two === 'auto' ? '두 쪽' : '한 쪽'; $('#vTwo').classList.toggle('on', OPT.two === 'auto');
+  // 다음 쪽을 미리 그려 두면 넘길 때 바로 나온다
+  const nx = V.page + pages.length;
+  setTimeout(() => { if (tok === V.renderTok) for (let i = 0; i < k; i++) if (nx + i <= V.n) renderPage(nx + i, box).catch(() => { }); }, 60);
+}
+function flash(side) { const h = side < 0 ? $('#hintL') : $('#hintR'); h.classList.add('on'); setTimeout(() => h.classList.remove('on'), 220); }
+function banner(t, ms = 1400) { const b = $('#vBanner'); b.innerHTML = t; b.classList.add('on'); clearTimeout(banner.t); banner.t = setTimeout(() => b.classList.remove('on'), ms); }
+async function go(p) { V.page = Math.max(1, Math.min(V.n, p)); if (twoUp() && V.page % 2 === 0) V.page--; await draw(); }
+async function next() {
+  if (!V.doc) return;
+  if (OPT.fit === 'width' && stage.scrollTop + stage.clientHeight < stage.scrollHeight - 6) { stage.scrollBy({ top: stage.clientHeight * 0.85, behavior: 'smooth' }); flash(1); return; }
+  if (V.page + step() <= V.n) { flash(1); return go(V.page + step()); }
+  if (V.qi < V.queue.length - 1) {
+    V.score.lastPage = V.page; db.put('scores', V.score);
+    V.qi++; await loadScore(); banner('다음 곡<br>' + esc(V.score.title)); return;
+  }
+  banner(V.queue.length > 1 ? '마지막 곡의 끝입니다' : '마지막 쪽입니다', 1000);
+}
+async function prev() {
+  if (!V.doc) return;
+  if (OPT.fit === 'width' && stage.scrollTop > 6) { stage.scrollBy({ top: -stage.clientHeight * 0.85, behavior: 'smooth' }); flash(-1); return; }
+  if (V.page > 1) { flash(-1); return go(V.page - step()); }
+  if (V.qi > 0) { V.qi--; await loadScore('last'); banner('앞 곡<br>' + esc(V.score.title)); return; }
+  banner('첫 쪽입니다', 900);
+}
+$('#vNext').onclick = next; $('#vPrev').onclick = prev; $('#iNext').onclick = next; $('#iPrev').onclick = prev;
+$('#vRange').oninput = () => { $('#vPage').textContent = $('#vRange').value + ' / ' + V.n; };
+$('#vRange').onchange = () => go(+$('#vRange').value);
+$('#vFit').onclick = () => { OPT.fit = OPT.fit === 'page' ? 'width' : 'page'; saveOpt(); V.cache.clear(); go(V.page); };
+$('#vTwo').onclick = () => { OPT.two = OPT.two === 'auto' ? 'one' : 'auto'; saveOpt(); go(V.page); if (OPT.two === 'auto' && !twoUp()) toast('기기를 가로로 두면 두 쪽씩 보입니다.'); };
+$('#vNight').onclick = () => { OPT.night = !OPT.night; saveOpt(); viewer.classList.toggle('night', OPT.night); $('#vNight').classList.toggle('on', OPT.night); };
+$('#vFull').onclick = () => { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.().catch(() => toast('이 브라우저는 전체 화면을 지원하지 않습니다.')); };
+let barT;
+function showBars(auto) { viewer.classList.remove('hidebars'); clearTimeout(barT); if (auto && !V.inking) barT = setTimeout(() => viewer.classList.add('hidebars'), 2500); }
+function toggleBars() { if (viewer.classList.contains('hidebars')) showBars(false); else { clearTimeout(barT); viewer.classList.add('hidebars'); } }
+let rsT; addEventListener('resize', () => { if (!viewer.classList.contains('on')) return; clearTimeout(rsT); rsT = setTimeout(() => { V.cache.clear(); go(V.page); }, 200); });
+
+// 누르기·밀기로 넘기기
+let tp = null;
+stage.addEventListener('pointerdown', e => { if (V.inking || !e.isPrimary) return; tp = { x: e.clientX, y: e.clientY, t: Date.now(), id: e.pointerId }; });
+stage.addEventListener('pointerup', e => {
+  if (V.inking || !tp || e.pointerId !== tp.id) return;
+  const dx = e.clientX - tp.x, dy = e.clientY - tp.y, dt = Date.now() - tp.t; tp = null;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt < 700) return dx < 0 ? next() : prev();
+  if (Math.abs(dx) > 12 || Math.abs(dy) > 12 || dt > 600) return;
+  const f = e.clientX / innerWidth;
+  if (f < 0.35) prev(); else if (f > 0.65) next(); else toggleBars();
+});
+stage.addEventListener('pointercancel', () => tp = null);
+addEventListener('keydown', e => {
+  if (!viewer.classList.contains('on') || e.target.matches('input,textarea,select')) return;
+  const k = e.key;
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(k)) { e.preventDefault(); next(); }
+  else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); prev(); }
+  else if (k === 'Home') go(1); else if (k === 'End') go(V.n);
+  else if (k === 'Escape' && V.inking) inkMode(false);
+});
+
+// 화면 꺼짐 막기
+async function wakeOn() { try { V.wake = await navigator.wakeLock?.request('screen'); } catch (e) { } }
+function wakeOff() { try { V.wake?.release(); } catch (e) { } V.wake = null; }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && viewer.classList.contains('on')) wakeOn(); });
+
+/* ---------- 필기 ---------- */
+function paintInk(pg) {
+  const n = +pg.dataset.page, c = pg.querySelector('canvas.ink'), g = c.getContext('2d');
+  g.clearRect(0, 0, c.width, c.height);
+  for (const s of V.ink[n] || []) strokeOn(g, s, c.width, c.height);
+}
+function strokeOn(g, s, W, H) {
+  const p = s.p; if (!p.length) return;
+  g.save(); g.lineCap = 'round'; g.lineJoin = 'round';
+  g.strokeStyle = s.c; g.globalAlpha = s.a || 1; g.lineWidth = Math.max(1, s.w * W);
+  if (s.a && s.a < 1) g.globalCompositeOperation = 'multiply';
+  g.beginPath(); g.moveTo(p[0] * W, p[1] * H);
+  if (p.length === 2) g.lineTo(p[0] * W + 0.1, p[1] * H);
+  for (let i = 2; i < p.length; i += 2) g.lineTo(p[i] * W, p[i + 1] * H);
+  g.stroke(); g.restore();
+}
+async function saveInk(n) {
+  const key = V.score.id + '#' + n;
+  if ((V.ink[n] || []).length) await db.put('ink', { key, id: V.score.id, page: n, strokes: V.ink[n] });
+  else await db.del('ink', key);
+}
+function inkMode(on) {
+  V.inking = on; viewer.classList.toggle('inking', on); $('#vInk').classList.toggle('on', on);
+  if (on && OPT.fit === 'width') { OPT.fit = 'page'; saveOpt(); }
+  V.cache.clear(); go(V.page);
+  showBars(!on);
+}
+$('#vInk').onclick = () => inkMode(!V.inking);
+$('#iDone').onclick = () => inkMode(false);
+document.querySelectorAll('#inkbar .sw').forEach(b => b.onclick = () => {
+  document.querySelectorAll('#inkbar .sw').forEach(x => x.classList.remove('on')); b.classList.add('on');
+  V.tool.c = b.dataset.c; V.tool.erase = false; $('#iErase').classList.remove('on');
+});
+$('#iThin').onclick = () => { const thin = V.tool.w > 0.002; V.tool.w = thin ? 0.0018 : 0.0035; $('#iThin').classList.toggle('on', thin); };
+$('#iErase').onclick = () => { V.tool.erase = !V.tool.erase; $('#iErase').classList.toggle('on', V.tool.erase); };
+$('#iUndo').onclick = async () => {
+  const u = V.undo.pop(); if (!u) { banner('되돌릴 것이 없습니다', 800); return; }
+  V.ink[u.n] = u.before; await saveInk(u.n); stage.querySelectorAll('.pg').forEach(paintInk);
+};
+$('#iClear').onclick = async () => {
+  for (const pg of stage.querySelectorAll('.pg')) { const n = +pg.dataset.page; if ((V.ink[n] || []).length) { V.undo.push({ n, before: V.ink[n] }); V.ink[n] = []; await saveInk(n); } paintInk(pg); }
+};
+let cur = null;
+stage.addEventListener('pointerdown', e => {
+  if (!V.inking) return;
+  const c = e.target.closest('canvas.ink'); if (!c) return;
+  if (OPT.pen === 'pen' && e.pointerType !== 'pen') return;
+  e.preventDefault(); c.setPointerCapture(e.pointerId);
+  const pg = c.parentElement, n = +pg.dataset.page, r = c.getBoundingClientRect();
+  const pt = ev => [(ev.clientX - r.left) / r.width, (ev.clientY - r.top) / r.height];
+  if (V.tool.erase) { cur = { erase: true, n, pg, pt, before: (V.ink[n] || []).slice(), id: e.pointerId }; eraseAt(cur, pt(e)); return; }
+  const hl = V.tool.c === 'hl';
+  const s = { c: hl ? '#ffd60a' : V.tool.c, w: hl ? 0.012 : V.tool.w, a: hl ? 0.45 : 1, p: pt(e) };
+  cur = { s, n, pg, pt, c, id: e.pointerId, before: (V.ink[n] || []).slice() };
+  (V.ink[n] = V.ink[n] || []).push(s); paintInk(pg);
+});
+stage.addEventListener('pointermove', e => {
+  if (!cur || e.pointerId !== cur.id) return;
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+  if (cur.erase) { evs.forEach(ev => eraseAt(cur, cur.pt(ev))); return; }
+  for (const ev of evs) { const [x, y] = cur.pt(ev); cur.s.p.push(+x.toFixed(4), +y.toFixed(4)); }
+  const g = cur.c.getContext('2d'), p = cur.s.p, W = cur.c.width, H = cur.c.height;
+  if (cur.s.a < 1) { paintInk(cur.pg); return; }
+  g.save(); g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = cur.s.c; g.lineWidth = Math.max(1, cur.s.w * W);
+  g.beginPath(); const L = p.length; g.moveTo(p[Math.max(0, L - 2 * evs.length - 2)] * W, p[Math.max(1, L - 2 * evs.length - 1)] * H);
+  for (let i = Math.max(2, L - 2 * evs.length); i < L; i += 2) g.lineTo(p[i] * W, p[i + 1] * H);
+  g.stroke(); g.restore();
+});
+const endStroke = async e => {
+  if (!cur || e.pointerId !== cur.id) return;
+  const c0 = cur; cur = null;
+  if (c0.erase) { if (c0.changed) { V.undo.push({ n: c0.n, before: c0.before }); await saveInk(c0.n); } return; }
+  V.undo.push({ n: c0.n, before: c0.before }); paintInk(c0.pg); await saveInk(c0.n);
+};
+stage.addEventListener('pointerup', endStroke); stage.addEventListener('pointercancel', endStroke);
+function eraseAt(c0, [x, y]) {
+  const list = V.ink[c0.n] || [], R = 0.02;
+  const keep = list.filter(s => { for (let i = 0; i < s.p.length; i += 2) if (Math.hypot(s.p[i] - x, (s.p[i + 1] - y) * 1.3) < R) return false; return true; });
+  if (keep.length !== list.length) { V.ink[c0.n] = keep; c0.changed = true; paintInk(c0.pg); }
+}
+
+/* ---------- 설정·백업 ---------- */
+$('#btnSettings').onclick = async () => {
+  $('#optTwo').value = OPT.two; $('#optFull').value = OPT.full; $('#optPen').value = OPT.pen; $('#optTheme').value = OPT.theme;
+  $('#verInfo').innerHTML = '수드 악보 보기 ' + VERSION + ' · PDF 그리기: pdf.js (Apache-2.0) · <a href="LICENSES.txt" target="_blank">라이선스</a>';
+  let info = '';
+  try {
+    const e = await navigator.storage.estimate(); const p = await navigator.storage.persisted?.();
+    info = '이 기기에 쓴 공간 ' + (e.usage / 1048576).toFixed(0) + 'MB / 쓸 수 있는 공간 약 ' + (e.quota / 1073741824).toFixed(1) + 'GB · ' +
+      (p ? '기기가 공간이 모자라도 지우지 않도록 고정됨' : '아직 고정 전 — 홈 화면에 추가하면 지워질 걱정이 줄어듭니다');
+  } catch (e) { }
+  $('#storageInfo').textContent = info + ' · 악보 ' + (await db.all('scores')).length + '곡';
+  $('#dSettings').showModal();
+};
+$('#optTwo').onchange = () => { OPT.two = $('#optTwo').value; saveOpt(); };
+$('#optFull').onchange = () => { OPT.full = $('#optFull').value; saveOpt(); };
+$('#optPen').onchange = () => { OPT.pen = $('#optPen').value; saveOpt(); };
+$('#optTheme').onchange = () => { OPT.theme = $('#optTheme').value; saveOpt(); applyTheme(); };
+
+const today = () => new Date().toISOString().slice(0, 10);
+function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+async function metaJson() {
+  return { app: 'sood-score-viewer', ver: 1, date: Date.now(), scores: (await db.all('scores')).map(s => ({ ...s, has: undefined })), sets: await db.all('sets'), ink: await db.all('ink') };
+}
+$('#bxMeta').onclick = async () => {
+  const j = await metaJson();
+  download(new Blob([JSON.stringify(j)], { type: 'application/json' }), '수드 악보 목록·필기 ' + today() + '.json');
+};
+$('#bxAll').onclick = async () => {
+  progress(true, '백업 파일 만드는 중…', 0, 1);
+  const j = await metaJson(); const files = await db.all('files');
+  j.files = files.map(f => ({ id: f.id, size: f.blob.size }));
+  const head = new TextEncoder().encode(JSON.stringify(j));
+  const len = new TextEncoder().encode(String(head.length).padStart(12, '0'));
+  download(new Blob([new TextEncoder().encode('SOODSCORE1'), len, head, ...files.map(f => f.blob)]), '수드 악보 전체 백업 ' + today() + '.soodscore');
+  progress(false);
+  toast('전체 백업 ' + files.length + '곡을 내려받았습니다.');
+};
+$('#bxIn').onclick = () => $('#backupIn').click();
+$('#backupIn').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    progress(true, '백업 가져오는 중…', 0, 1);
+    const magic = new TextDecoder().decode(await f.slice(0, 10).arrayBuffer());
+    let j, blobs = {};
+    if (magic === 'SOODSCORE1') {
+      const len = +new TextDecoder().decode(await f.slice(10, 22).arrayBuffer());
+      j = JSON.parse(new TextDecoder().decode(await f.slice(22, 22 + len).arrayBuffer()));
+      let off = 22 + len; for (const x of j.files || []) { blobs[x.id] = f.slice(off, off + x.size, 'application/pdf'); off += x.size; }
+      await askPersist();
+    } else j = JSON.parse(await f.text());
+    if (j.app !== 'sood-score-viewer') throw new Error('다른 파일');
+    let nS = 0, nF = 0;
+    for (const s of j.scores || []) {
+      const old = await db.get('scores', s.id);
+      if (blobs[s.id] && !old?.has) { await db.put('files', { id: s.id, blob: blobs[s.id] }); nF++; }
+      const has = !!(old?.has || blobs[s.id]);
+      await db.put('scores', Object.assign({}, s, { has, thumb: old?.thumb || s.thumb })); nS++;
+    }
+    for (const x of j.sets || []) await db.put('sets', x);
+    for (const x of j.ink || []) await db.put('ink', x);
+    progress(false); $('#dSettings').close();
+    toast('가져왔습니다: 악보 정보 ' + nS + '곡' + (nF ? ' (PDF ' + nF + '곡 포함)' : '') + ' · 연주 목록 ' + (j.sets || []).length + '개');
+    renderLib(); renderSets();
+  } catch (err) { progress(false); console.warn(err); toast('이 파일은 수드 악보 보기 백업이 아닙니다.'); }
+};
+
+/* ---------- 시작 ---------- */
+await renderLib();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
+window.SSV = { V, OPT, db, addFiles, openViewer, closeViewer, next, prev, go, renderLib, VERSION };
+</script>
+</body>
+</html>
