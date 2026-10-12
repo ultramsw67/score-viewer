@@ -61,6 +61,13 @@ header.top .wrap{display:flex;align-items:center;gap:10px;padding-top:10px;paddi
 .card .s{font-size:12.5px;color:var(--sub)}
 .card .more{position:absolute;top:6px;right:6px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(20,25,40,.6);color:#fff;font-size:18px}
 .card.missing .th{opacity:.5}
+.card .fav{position:absolute;top:6px;left:6px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(20,25,40,.45);color:#fff;font-size:19px;line-height:1;padding:0}
+.card .fav.on{background:#f5b301;color:#3a2600;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.card.isfav{border-color:#f5b301}
+.chip.favchip.on{background:#fff6dc;border-color:#f5b301;color:#a86f00}
+.sood{display:flex;flex-direction:column;align-items:center;gap:2px;margin:14px 0 2px}
+.sood img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--card);box-shadow:0 1px 6px rgba(0,0,0,.18);background:var(--card)}
+.sood .wm{font-weight:800;font-size:20px;letter-spacing:.28em;margin-right:-.28em;color:var(--ink);opacity:.16;line-height:1.2;user-select:none}
 .empty{text-align:center;color:var(--sub);padding:50px 10px;line-height:1.7}
 .empty b{color:var(--ink)}
 .drop{position:fixed;inset:0;background:rgba(31,63,174,.18);border:4px dashed var(--main);z-index:50;display:none;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--main)}
@@ -102,6 +109,9 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 #viewer:not(.inking) .pg canvas.ink{pointer-events:none}
 #viewer.night .pg canvas.pdf{filter:invert(1) hue-rotate(180deg)}
 #viewer.night .pg{background:#000}
+.pg::after{content:"수트와후드";position:absolute;right:10px;bottom:5px;font-weight:800;font-size:14px;letter-spacing:.12em;color:#1f3b63;opacity:.14;pointer-events:none;z-index:2;font-family:"Pretendard","Malgun Gothic",sans-serif}
+#viewer.night .pg::after{color:#fff;opacity:.2}
+.vbar button.favon{background:#f5b301;border-color:#f5b301;color:#3a2600}
 .vbar{position:absolute;left:0;right:0;display:flex;align-items:center;gap:6px;padding:8px 10px;background:rgba(18,20,26,.88);color:#fff;transition:transform .2s,opacity .2s;z-index:3;flex-wrap:wrap}
 .vbar.topb{top:0;padding-top:max(8px,env(safe-area-inset-top))}
 .vbar.botb{bottom:0;padding-bottom:max(8px,env(safe-area-inset-bottom));justify-content:center}
@@ -144,6 +154,10 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 </div></header>
 
 <main class="wrap">
+  <div class="sood">
+    <img src="icons/sood-192.jpg" alt="수트와후드 대표 이미지" width="64" height="64">
+    <div class="wm" aria-label="수트와후드">수트와후드</div>
+  </div>
   <section id="pLib">
     <div class="bar">
       <button class="btn main" id="btnAdd">＋ 악보 넣기</button>
@@ -248,6 +262,7 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
     <button id="vClose" aria-label="닫기">✕</button>
     <div class="vt" id="vTitle"></div>
     <span class="pn" id="vSetPos"></span>
+    <button id="vFav" title="즐겨찾기" aria-label="즐겨찾기">☆</button>
     <button id="vFit" title="맞춤">쪽 맞춤</button>
     <button id="vTwo" title="두 쪽">두 쪽</button>
     <button id="vNight" title="밤 모드">🌙</button>
@@ -277,7 +292,7 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.0.1';
+const VERSION = 'v1.1.0';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -306,7 +321,7 @@ const db = {
 const inkOf = async id => (await db.all('ink')).filter(x => x.id === id);
 
 /* ---------- 설정 ---------- */
-const OPT = Object.assign({ two: 'auto', full: '1', pen: 'any', theme: '', sort: 'title', night: false, fit: 'page' },
+const OPT = Object.assign({ two: 'auto', full: '1', pen: 'any', theme: '', sort: 'title', night: false, fit: 'page', favOnly: false },
   (() => { try { return JSON.parse(localStorage.getItem('ssv.opt') || '{}'); } catch (e) { return {}; } })());
 const saveOpt = () => { try { localStorage.setItem('ssv.opt', JSON.stringify(OPT)); } catch (e) { } };
 const applyTheme = () => { if (OPT.theme) document.documentElement.dataset.theme = OPT.theme; else delete document.documentElement.dataset.theme; };
@@ -397,7 +412,7 @@ addEventListener('dragover', e => e.preventDefault());
 addEventListener('drop', e => { e.preventDefault(); dragN = 0; $('#drop').classList.remove('on'); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
 
 /* ---------- 악보 목록 ---------- */
-let SCORES = [], tagOn = null;
+let SCORES = [], tagOn = null, favOnly = !!OPT.favOnly;
 $('#sort').value = OPT.sort;
 $('#sort').onchange = () => { OPT.sort = $('#sort').value; saveOpt(); renderLib(); };
 $('#q').oninput = () => renderLib(true);
@@ -407,26 +422,36 @@ async function renderLib(keep) {
   const tags = {}; SCORES.forEach(s => (s.tags || []).forEach(t => tags[t] = (tags[t] || 0) + 1));
   const tagNames = Object.keys(tags).sort((a, b) => a.localeCompare(b, 'ko', { numeric: true }));
   if (tagOn && !tags[tagOn]) tagOn = null;
-  $('#tagChips').innerHTML = tagNames.length ? '<button class="chip' + (tagOn ? '' : ' on') + '" data-t="">전체 ' + SCORES.length + '</button>' +
+  const favN = SCORES.filter(s => s.fav).length;
+  if (favOnly && !favN) favOnly = false;
+  $('#tagChips').innerHTML = tagNames.length || favN ? '<button class="chip' + (tagOn || favOnly ? '' : ' on') + '" data-t="">전체 ' + SCORES.length + '</button>' +
+    '<button class="chip favchip' + (favOnly ? ' on' : '') + '" data-fav>★ 즐겨찾기 ' + favN + '</button>' +
     tagNames.map(t => '<button class="chip' + (t === tagOn ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + ' ' + tags[t] + '</button>').join('') : '';
-  let list = SCORES.filter(s => (!tagOn || (s.tags || []).includes(tagOn)) &&
+  let list = SCORES.filter(s => (!favOnly || s.fav) && (!tagOn || (s.tags || []).includes(tagOn)) &&
     (!q || norm(s.title + ' ' + (s.tags || []).join(' ') + ' ' + s.memo + ' ' + s.fileName).includes(q)));
   list.sort(OPT.sort === 'opened' ? (a, b) => (b.opened || 0) - (a.opened || 0) || byTitle(a, b)
     : OPT.sort === 'added' ? (a, b) => b.added - a.added : byTitle);
   $('#libEmpty').hidden = SCORES.length > 0;
-  $('#grid').innerHTML = list.map(s => '<div class="card' + (s.has ? '' : ' missing') + '" data-id="' + s.id + '">' +
+  $('#grid').innerHTML = list.map(s => '<div class="card' + (s.has ? '' : ' missing') + (s.fav ? ' isfav' : '') + '" data-id="' + s.id + '">' +
     '<button class="th" data-open>' + (s.thumb ? '<img src="' + s.thumb + '" alt="" loading="lazy">' : '') +
     (s.has ? '' : '<div class="none">PDF 없음<br>같은 파일을 넣으면 연결됩니다</div>') + '</button>' +
     '<div class="meta"><div class="t">' + esc(s.title) + '</div><div class="s">' + (s.pages || '?') + '쪽' +
     ((s.tags || []).length ? ' · ' + esc(s.tags.join(', ')) : '') + '</div></div>' +
+    '<button class="fav' + (s.fav ? ' on' : '') + '" data-fav aria-pressed="' + !!s.fav + '" aria-label="즐겨찾기' + (s.fav ? ' 끄기' : ' 켜기') + '">' + (s.fav ? '★' : '☆') + '</button>' +
     '<button class="more" data-edit aria-label="정보">⋯</button></div>').join('') +
     (SCORES.length && !list.length ? '<div class="empty" style="grid-column:1/-1">찾는 악보가 없습니다.</div>' : '');
 }
-$('#tagChips').onclick = e => { const b = e.target.closest('.chip'); if (!b) return; tagOn = b.dataset.t || null; renderLib(true); };
+$('#tagChips').onclick = e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  if (b.hasAttribute('data-fav')) { favOnly = !favOnly; tagOn = null; } else { tagOn = b.dataset.t || null; favOnly = false; }
+  OPT.favOnly = favOnly; saveOpt(); renderLib(true);
+};
+async function setFav(s, on) { s.fav = on; await db.put('scores', s); return on; }
 $('#grid').onclick = e => {
   const card = e.target.closest('.card'); if (!card) return;
   const s = SCORES.find(x => x.id === card.dataset.id);
   if (e.target.closest('[data-edit]')) return openEdit(s);
+  if (e.target.closest('[data-fav]')) return setFav(s, !s.fav).then(on => { renderLib(true); toast(on ? '★ 즐겨찾기에 넣었습니다.' : '즐겨찾기에서 뺐습니다.', null, null, 1800); });
   if (!s.has) { toast('이 기기에 PDF 가 없습니다. 같은 파일을 「악보 넣기」로 넣으세요.'); return; }
   openViewer([s.id], 0);
 };
@@ -570,7 +595,7 @@ async function loadScore(startPage) {
   V.page = startPage === 'last' ? Math.max(1, V.n - (twoUp() ? (V.n % 2 ? 0 : 1) : 0)) : 1;
   if (twoUp() && V.page % 2 === 0) V.page--;
   s.opened = Date.now(); db.put('scores', s);
-  $('#vTitle').textContent = s.title;
+  $('#vTitle').textContent = s.title; favBtn();
   $('#vSetPos').textContent = V.queue.length > 1 ? (V.setName ? V.setName + ' · ' : '') + (V.qi + 1) + '/' + V.queue.length + '곡' : '';
   $('#vRange').max = V.n;
   showBars(true);
@@ -667,6 +692,8 @@ async function prev() {
 $('#vNext').onclick = next; $('#vPrev').onclick = prev; $('#iNext').onclick = next; $('#iPrev').onclick = prev;
 $('#vRange').oninput = () => { $('#vPage').textContent = $('#vRange').value + ' / ' + V.n; };
 $('#vRange').onchange = () => go(+$('#vRange').value);
+function favBtn() { const on = !!V.score?.fav; $('#vFav').textContent = on ? '★' : '☆'; $('#vFav').classList.toggle('favon', on); $('#vFav').setAttribute('aria-pressed', on); }
+$('#vFav').onclick = async () => { if (!V.score) return; const on = await setFav(V.score, !V.score.fav); favBtn(); banner(on ? '★ 즐겨찾기' : '즐겨찾기 끔', 800); };
 $('#vFit').onclick = () => { OPT.fit = OPT.fit === 'page' ? 'width' : 'page'; saveOpt(); V.cache.clear(); go(V.page); };
 $('#vTwo').onclick = () => { OPT.two = OPT.two === 'auto' ? 'one' : 'auto'; saveOpt(); go(V.page); if (OPT.two === 'auto' && !twoUp()) toast('기기를 가로로 두면 두 쪽씩 보입니다.'); };
 $('#vNight').onclick = () => { OPT.night = !OPT.night; saveOpt(); viewer.classList.toggle('night', OPT.night); $('#vNight').classList.toggle('on', OPT.night); };

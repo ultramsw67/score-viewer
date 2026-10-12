@@ -35,6 +35,20 @@ module.exports = async (c) => {
   await setFiles('#fileIn', [PDF[0]]);
   await until(`document.querySelector('#toast').textContent.includes('이미')`, 10000);
   chk(await ev(`document.querySelectorAll('#grid .card').length===4`), '같은 파일은 다시 안 들어감');
+  chk(await ev(`document.querySelector('.sood .wm')?.textContent==='수트와후드' && document.querySelector('.sood img').naturalWidth>0`), '목록 위 수트와후드 이미지·워터마크');
+  // 즐겨찾기: 카드 ☆ 누르기 → ★ · 「★ 즐겨찾기」 칩으로 모아 보기 · 다시 누르면 끔
+  const idB2 = await ev(`SSV.db.all('scores').then(a=>a.find(s=>s.fileName==='b2.pdf').id)`);
+  await ev(`document.querySelector('#grid .card[data-id="${idB2}"] [data-fav]').click()`); await sleep(500);
+  chk(await ev(`SSV.db.get('scores','${idB2}').then(s=>s.fav===true)`) && await ev(`document.querySelector('#grid .card[data-id="${idB2}"]').classList.contains('isfav') && document.querySelector('#grid .card[data-id="${idB2}"] [data-fav]').textContent==='★'`), '즐겨찾기 켜기 (★ 표시·저장)');
+  chk(await ev(`SSV.V.doc===null && !document.querySelector('#viewer').classList.contains('on')`), '☆ 눌러도 악보가 열리지 않음');
+  await ev(`document.querySelector('#tagChips [data-fav]').click()`); await sleep(300);
+  chk(await ev(`document.querySelectorAll('#grid .card').length===1 && document.querySelector('#tagChips [data-fav]').textContent.includes('1')`), '「★ 즐겨찾기」 칩 = 즐겨찾기만 보기');
+  await c.go(URL + '?tf=' + Date.now());
+  chk(await ev(`document.querySelectorAll('#grid .card').length===1`), '새로고침해도 즐겨찾기 보기 유지');
+  await ev(`document.querySelector('#tagChips [data-t=""]').click()`); await sleep(300);
+  chk(await ev(`document.querySelectorAll('#grid .card').length===4`), '「전체」 누르면 다시 4곡');
+  await ev(`document.querySelector('#grid .card[data-id="${idB2}"] [data-fav]').click()`); await sleep(400);
+  chk(await ev(`SSV.db.get('scores','${idB2}').then(s=>!s.fav)`) && await ev(`document.querySelector('#grid .card[data-id="${idB2}"] [data-fav]').textContent==='☆'`), '즐겨찾기 끄기');
 
   // 3. 보기·넘기기 (가로 → 두 쪽)
   const idC = await ev(`SSV.db.all('scores').then(a=>a.find(s=>s.fileName==='c.pdf').id)`);
@@ -43,6 +57,9 @@ module.exports = async (c) => {
   await sleep(400);
   chk(await ev(blank) > 20, '쪽이 실제로 그려짐 (빈 화면 아님)');
   chk(await ev(`document.querySelectorAll('#stage .pg').length`) === 2, '가로 화면 = 두 쪽');
+  chk(await ev(`getComputedStyle(document.querySelector('#stage .pg'),'::after').content.includes('수트와후드')`), '악보 쪽 오른쪽 아래 수트와후드 워터마크');
+  await ev(`document.querySelector('#vFav').click()`); await sleep(400);
+  chk(await ev(`document.querySelector('#vFav').textContent==='★' && SSV.db.get('scores','${idC}').then(s=>s.fav===true)`), '보기 화면에서 즐겨찾기 켜기');
   await c.shot('s2-two.png', false);
   await c.send('Input.dispatchKeyEvent', { type: 'rawKeyDown', key: 'ArrowRight', code: 'ArrowRight', windowsVirtualKeyCode: 39 });
   await c.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'ArrowRight', code: 'ArrowRight', windowsVirtualKeyCode: 39 });
@@ -137,6 +154,7 @@ module.exports = async (c) => {
     chk(await ev(`SSV.db.all('ink').then(a=>a.length===1)`), '백업에서 필기 되살아남');
     chk(await ev(`SSV.db.all('sets').then(a=>a.length===1&&a[0].items.length===2)`), '백업에서 연주 목록 되살아남');
     chk(await ev(`SSV.db.all('files').then(a=>a.length===4)`), '백업에서 PDF 4곡 되살아남');
+    chk(await ev(`SSV.db.get('scores','${idC}').then(s=>s.fav===true)`), '백업에서 즐겨찾기 되살아남');
   }
   // 목록·필기만 가져오면 PDF 없는 곡 → 같은 PDF 넣으면 연결
   const js = fs.readdirSync(dl).find(f => f.endsWith('.json'));
