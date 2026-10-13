@@ -8,3 +8,4 @@ node_modules/
 검사/*.txt
 .omc/
 **/.omc/
+.impeccable/

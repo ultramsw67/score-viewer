@@ -135,6 +135,57 @@ module.exports = async (c) => {
   chk(await until(`SSV.V.score.id==='${idA}' && SSV.V.page>=3`), '첫 쪽에서 앞으로 = 앞 곡 끝');
   await ev(`SSV.closeViewer()`); await sleep(400);
 
+  // 6-1. 메트로놈 (v1.2.0): 창 열기 · 시작 · 박 표시 · 빠르기말 · 박자 · 강세 · 탭 · 넘겨도 계속 · M 키 · 곡에 저장 · 점검 빠르게 · 닫으면 멈춤
+  await ev(`document.querySelector('#grid .card[data-id="${idC}"] .th').click()`);
+  await until(`document.querySelectorAll('#stage .pg').length>0`); await sleep(400);
+  await ev(`document.querySelector('#vMet').click()`); await sleep(300);
+  chk(await ev(`!document.querySelector('#met').hidden && !document.querySelector('#mvis').hidden`), '메트로놈 창·표시 열림');
+  await ev(`document.querySelector('#mTerms button[data-v="Allegro"]').click()`); await sleep(100);
+  chk(await ev(`SSV.MO.bpm===138 && document.querySelector('#mBpm').value==='138' && document.querySelector('#mTerm').textContent.startsWith('Allegro')`), '빠르기말 Allegro → 138');
+  await ev(`document.querySelector('#mPlay').click()`);
+  chk(await until(`SSV.MET.on && SSV.MET.seen>=6`, 5000), '시작하면 박이 흐름 (소리 시계 기준)');
+  chk(await ev(`SSV.MET.ctx.state==='running' && document.querySelector('#vMet').classList.contains('run')`), '소리 켜짐·위 단추 초록');
+  chk(await until(`document.querySelector('#mEdge').getAnimations().length>0`, 3000), '테두리 빛 깜빡임');
+  chk(await until(`!!document.querySelector('#mvDots span.now')`, 3000), '박 점 표시');
+  await ev(`['pend','num','flash'].forEach(v=>document.querySelector('#mVisOpt button[data-v="'+v+'"]').click())`); await sleep(400);
+  const pa = await ev(`document.querySelector('#mvPend i').style.transform`); await sleep(170);
+  chk(await ev(`!document.querySelector('#mvPend').hidden && !document.querySelector('#mvNum').hidden && document.querySelector('#mvPend i').style.transform!==${JSON.stringify(pa)}`), '진자·큰 숫자 켜기 (진자가 움직임)');
+  chk(await until(`document.querySelector('#mFlash').getAnimations().length>0`, 3000), '화면 깜빡임');
+  await ev(`document.querySelector('#mMeter button[data-v="6/8"]').click()`); await sleep(300);
+  chk(await ev(`JSON.stringify(SSV.MO.acc)==='[3,1,1,2,1,1]' && document.querySelectorAll('#mvDots span').length===6 && document.querySelector('#mUnit').textContent==='♪='`), '6/8 = 6박·1·4박 강세·♪ 기준');
+  await ev(`document.querySelector('#mAcc button[data-i="1"]').click()`);
+  chk(await ev(`SSV.MO.acc[1]===0 && document.querySelector('#mAcc button[data-i="1"]').classList.contains('a0')`), '박 누르면 세기 바뀜 (약 → 쉼)');
+  await ev(`document.querySelector('#mMeter button[data-v="4/4"]').click()`);
+  await ev(`document.querySelector('#mSnd button[data-v="wood"]').click()`);
+  chk(await ev(`SSV.MO.snd==='wood' && document.querySelector('#mSnd button.on').dataset.v==='wood'`), '소리 바꾸기 (우드블록)');
+  for (let i = 0; i < 5; i++) { await ev(`document.querySelector('#mTap').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))`); await sleep(500); }
+  const tb = await ev(`SSV.MO.bpm`);
+  chk(tb >= 108 && tb <= 126, '탭 0.5초 간격 → 약 120 (' + tb + ')');
+  await c.shot('s12-met.png', false);
+  await c.send('Input.dispatchKeyEvent', { type: 'rawKeyDown', key: 'ArrowRight', code: 'ArrowRight', windowsVirtualKeyCode: 39 });
+  await c.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'ArrowRight', code: 'ArrowRight', windowsVirtualKeyCode: 39 }); await sleep(600);
+  chk(await ev(`SSV.V.page===3 && SSV.MET.on`), '메트로놈 켠 채 페달(→)로 넘김');
+  const key = async k => { await c.send('Input.dispatchKeyEvent', { type: 'keyDown', key: k, code: 'KeyM', text: k, windowsVirtualKeyCode: 77 }); await c.send('Input.dispatchKeyEvent', { type: 'keyUp', key: k, code: 'KeyM', windowsVirtualKeyCode: 77 }); await sleep(300); };
+  await key('m');
+  chk(await ev(`!SSV.MET.on && document.querySelector('#mPlay').textContent.includes('시작')`), 'M 키로 멈춤');
+  await ev(`document.querySelector('#mBpm').value='96'; document.querySelector('#mBpm').dispatchEvent(new Event('change'))`);
+  await ev(`document.querySelector('#mSave').click()`); await sleep(400);
+  chk(await ev(`SSV.db.get('scores','${idC}').then(s=>s.met&&s.met.bpm===96&&s.met.meter==='4/4')`) && await ev(`document.querySelector('#mSave').textContent.includes('저장됨')`), '이 곡 빠르기로 저장 (96)');
+  // 점점 빠르게: 240, 2마디마다 +5 → 약 2초 뒤 245
+  await ev(`document.querySelector('#mBpm').value='240'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mTrBars').value='2'; document.querySelector('#mTrBars').dispatchEvent(new Event('change',{bubbles:true})); document.querySelector('#mTrOn').click()`);
+  await key('m');
+  chk(await ev(`SSV.MO.trMax===280`), '점점 빠르게: 최고가 지금보다 낮으면 +40 (280)');
+  chk(await until(`SSV.MO.bpm>=245`, 6000), '점점 빠르게 (2마디마다 +5)');
+  await ev(`document.querySelector('#mTrOn').click()`);
+  await ev(`document.querySelector('#mClose').click()`); await sleep(200);
+  chk(await ev(`document.querySelector('#met').hidden && SSV.MET.on && !document.querySelector('#mvis').hidden`), '창 접어도 소리·표시 계속');
+  await ev(`SSV.closeViewer()`); await sleep(400);
+  chk(await ev(`!SSV.MET.on`), '악보 닫으면 메트로놈 멈춤');
+  await ev(`document.querySelector('#grid .card[data-id="${idC}"] .th').click()`);
+  await until(`document.querySelectorAll('#stage .pg').length>0`); await sleep(300);
+  chk(await ev(`SSV.MO.bpm===96`), '곡을 다시 열면 저장한 빠르기(96)');
+  await ev(`SSV.closeViewer()`); await sleep(400);
+
   // 7. 백업 왕복: 전체 백업 → 다 지우기 → 가져오기
   await ev(`document.querySelector('#btnSettings').click()`); await sleep(500);
   await c.shot('s7-settings.png', false);
@@ -155,6 +206,7 @@ module.exports = async (c) => {
     chk(await ev(`SSV.db.all('sets').then(a=>a.length===1&&a[0].items.length===2)`), '백업에서 연주 목록 되살아남');
     chk(await ev(`SSV.db.all('files').then(a=>a.length===4)`), '백업에서 PDF 4곡 되살아남');
     chk(await ev(`SSV.db.get('scores','${idC}').then(s=>s.fav===true)`), '백업에서 즐겨찾기 되살아남');
+    chk(await ev(`SSV.db.get('scores','${idC}').then(s=>s.met&&s.met.bpm===96)`), '백업에서 곡 빠르기 되살아남');
   }
   // 목록·필기만 가져오면 PDF 없는 곡 → 같은 PDF 넣으면 연결
   const js = fs.readdirSync(dl).find(f => f.endsWith('.json'));
