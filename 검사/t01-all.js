@@ -147,9 +147,9 @@ module.exports = async (c) => {
   chk(await ev(`SSV.MET.ctx.state==='running' && document.querySelector('#vMet').classList.contains('run')`), '소리 켜짐·위 단추 초록');
   chk(await until(`document.querySelector('#mEdge').getAnimations().length>0`, 3000), '테두리 빛 깜빡임');
   chk(await until(`!!document.querySelector('#mvDots span.now')`, 3000), '박 점 표시');
-  await ev(`['num','flash'].forEach(v=>document.querySelector('#mVisOpt button[data-v="'+v+'"]').click())`); await sleep(400);
+  await ev(`['flash'].forEach(v=>document.querySelector('#mVisOpt button[data-v="'+v+'"]').click())`); await sleep(400);
   const pa = await ev(`document.querySelector('#mvArm').getAttribute('transform')`); await sleep(170);
-  chk(await ev(`!document.querySelector('#mvPend').hidden && !document.querySelector('#mvNum').hidden && document.querySelector('#mvArm').getAttribute('transform')!==${JSON.stringify(pa)}`), '메트로놈 그림(기본 켜짐)·큰 숫자 켜기 (그림이 흔들림)');
+  chk(await ev(`!document.querySelector('#mvPend').hidden && !document.querySelector('#mvNum').hidden && document.querySelector('#mvArm').getAttribute('transform')!==${JSON.stringify(pa)}`), '메트로놈 그림·큰 숫자 기본 켜짐 (그림이 흔들림)');
   chk(await until(`document.querySelector('#mFlash').getAnimations().length>0`, 3000), '화면 깜빡임');
   await ev(`document.querySelector('#mMeter button[data-v="6/8"]').click()`); await sleep(300);
   chk(await ev(`JSON.stringify(SSV.MO.acc)==='[3,1,1,2,1,1]' && document.querySelectorAll('#mvDots span').length===6 && document.querySelector('#mUnit').textContent==='♪='`), '6/8 = 6박·1·4박 강세·♪ 기준');
@@ -194,7 +194,8 @@ module.exports = async (c) => {
   const ySlow = await wy(50), yFast = await wy(200);
   chk(ySlow < yFast, '추: 느리면 위·빠르면 아래 (' + ySlow + ' < ' + yFast + ')');
   await ev(`document.querySelector('#vMet').click()`);
-  await ev(`document.querySelector('#mBpm').value='240'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mMeter button[data-v="4/4"]').click(); document.querySelector('#mNumMode button[data-v="bar"]').click()`);
+  await ev(`document.querySelector('#mBpm').value='240'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mMeter button[data-v="4/4"]').click(); document.querySelector('#mVisOpt button[data-v="num"]').click(); document.querySelector('#mNumMode button[data-v="bar"]').click()`);
+  chk(await ev(`SSV.MO.vis.includes('num') && !document.querySelector('#mvNumW').hidden`), '큰 숫자 꺼진 채 「마디 수」 고르면 큰 숫자 같이 켜짐');
   await sleep(2600);
   chk(await ev(`(()=>{const k=SSV.MET.k, bar=Math.ceil(k/4), n=+document.querySelector('#mvNum').textContent; return Math.abs(n-bar)<=1 && n<k && document.querySelector('#mvNumL').textContent==='마디' && document.querySelector('#mBarN').textContent.includes('마디')})()`), '큰 숫자 = 마디 (4/4 에서 박 수보다 작음)');
   await ev(`document.querySelector('#mMeter button[data-v="1/4"]').click()`); await sleep(1300);

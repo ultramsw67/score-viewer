@@ -507,7 +507,7 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.2.4';
+const VERSION = 'v1.2.5';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -1065,6 +1065,7 @@ const MO = OPT.met = Object.assign({ pre: 0, preStop: false, bpm: 100, meter: '4
   pos: 'tc', size: 'm', col: 'warm', tr: false, trBars: 4, trStep: 5, trMax: 160 }, OPT.met || {});
 if (!Array.isArray(MO.acc) || MO.acc.length !== beatsOf(MO.meter)) MO.acc = defAcc(MO.meter);
 if (!MO.v2) { MO.vis = [...new Set(MO.vis.concat('pend', 'dock'))]; MO.v2 = 1; }  // v1.2.2: 메트로놈 그림·ON/OFF 스위치를 처음부터 보이게
+if (!MO.v3) { if (!MO.vis.includes('num')) MO.vis = MO.vis.concat('num'); MO.v3 = 1; }  // v1.2.5: 큰 숫자(박·마디)를 처음부터 보이게
 if (!('vibrate' in navigator)) MO.vis = MO.vis.filter(v => v !== 'vib');
 const oneBeat = () => MO.meter === '1/4';  // 「박만」은 한 박이 한 마디 → 마디 대신 박으로 센다
 const progTxt = () => oneBeat() ? M.kr + '박째' : M.barN + '마디 ' + (M.cur + 1) + '박';
@@ -1258,7 +1259,7 @@ $('#mClose').onclick = () => metPanel(false);
 $('#mPlay').onclick = metToggle; $('#mvOn').onclick = metToggle;
 $('#mPre').onclick = e => { const b = e.target.closest('button'); if (!b) return; MO.pre = +b.dataset.v; saveOpt(); metDraw(); };
 $('#mPreAfter').onclick = e => { const b = e.target.closest('button'); if (!b) return; MO.preStop = b.dataset.v === 'stop'; saveOpt(); metDraw(); };
-$('#mNumMode').onclick = e => { const b = e.target.closest('button'); if (!b) return; MO.numMode = b.dataset.v; saveOpt(); metDraw(); };
+$('#mNumMode').onclick = e => { const b = e.target.closest('button'); if (!b) return; MO.numMode = b.dataset.v; if (!has('num')) MO.vis = MO.vis.concat('num'); saveOpt(); metDraw(); };  // 큰 숫자가 꺼져 있으면 골라도 안 보임 → 같이 켬
 function hold(btn, fn) {
   let t1, t2; const stop = () => { clearTimeout(t1); clearInterval(t2); };
   btn.addEventListener('pointerdown', e => { e.preventDefault(); fn(); t1 = setTimeout(() => t2 = setInterval(fn, 70), 450); });
