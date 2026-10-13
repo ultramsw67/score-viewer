@@ -507,7 +507,7 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.2.5';
+const VERSION = 'v1.2.6';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -1040,7 +1040,7 @@ const METERS = [['1/4', '박만'], ['2/4', '2/4'], ['3/4', '3/4'], ['4/4', '4/4'
 const SUBS = [[1, '그대로 ♩'], [2, '둘 ♫'], [3, '셋잇단'], [4, '넷 ♬']];
 const SNDS = [['click', '클릭'], ['tick', '똑딱'], ['wood', '우드블록'], ['beep', '삐'], ['bell', '카우벨'], ['hat', '하이햇'], ['drum', '드럼']];
 const VISS = [['pend', '메트로놈 그림'], ['dots', '박 점'], ['num', '큰 숫자'], ['edge', '테두리 빛'], ['flash', '화면 깜빡임'], ['vib', '진동'], ['dock', '멈춰도 화면에 두기']];
-const NUMMODES = [['beat', '박 1·2·3·4'], ['bar', '마디 수']];
+const NUMMODES = [['beat', '박 수'], ['bar', '마디 수']];
 const POSS = [['tc', '위 가운데'], ['tr', '오른쪽 위'], ['bl', '왼쪽 아래'], ['br', '오른쪽 아래']];
 const SIZES = [['s', '작게'], ['m', '보통'], ['l', '크게'], ['xl', '아주 크게']];
 const COLS = { warm: ['호박', '#ffb547', '#e9edf5'], blue: ['파랑', '#7c9cff', '#e9edf5'], green: ['초록', '#3ddc97', '#ffd166'], red: ['빨강', '#ff5a4f', '#ffffff'] };  // [이름, 첫 박, 나머지 박]
@@ -1068,7 +1068,7 @@ if (!MO.v2) { MO.vis = [...new Set(MO.vis.concat('pend', 'dock'))]; MO.v2 = 1; }
 if (!MO.v3) { if (!MO.vis.includes('num')) MO.vis = MO.vis.concat('num'); MO.v3 = 1; }  // v1.2.5: 큰 숫자(박·마디)를 처음부터 보이게
 if (!('vibrate' in navigator)) MO.vis = MO.vis.filter(v => v !== 'vib');
 const oneBeat = () => MO.meter === '1/4';  // 「박만」은 한 박이 한 마디 → 마디 대신 박으로 센다
-const progTxt = () => oneBeat() ? M.kr + '박째' : M.barN + '마디 ' + (M.cur + 1) + '박';
+const progTxt = () => oneBeat() ? M.kr + '박' : M.kr + '박 · ' + M.barN + '마디';  // 박 수(누적) · 마디 수 — 마디 안 몇 번째 박인지는 박 점이 보여 줌
 const PRES = [[0, '없음'], [1, '1마디'], [2, '2마디']], PREAFTER = [['go', '이어서 계속'], ['stop', '예비박만 듣기']];
 const weightY = b => 22 + (Math.max(40, Math.min(208, b)) - 40) / 168 * 64;  // 진짜 메트로놈처럼 추가 위 = 느리게, 아래 = 빠르게
 const M = { on: false, ctx: null, out: null, noise: null, timer: 0, next: 0, beat: 0, sub: 0, bar: 0, q: [], k: 0, beatT: 0, cur: -1, barN: 0, seen: 0, taps: [] };
@@ -1154,11 +1154,11 @@ function mShow(e) {
   M.k++; M.beatT = e.t; M.cur = e.beat; M.barN = e.bar + 1; M.inPre = e.pre; if (!e.pre) M.kr++;
   const lvl = e.lvl, [, c1, c2] = COLS[MO.col] || COLS.warm, col = lvl === 3 ? c1 : c2, str = [0, .45, .7, 1][lvl];
   $('#mBarN').textContent = e.pre ? '예비 ' + e.preBar + '/' + MO.pre + '마디 ' + (e.beat + 1) + '박' : progTxt();
-  $('#mvBpm').textContent = unitOf(MO.meter) + MO.bpm + ' · ' + (e.pre ? '예비박' : oneBeat() ? M.kr + '박째' : M.barN + '마디');
+  $('#mvBpm').textContent = unitOf(MO.meter) + MO.bpm + ' · ' + (e.pre ? '예비박' : progTxt());
   $('#mvNumL').textContent = e.pre ? '예비' : MO.numMode === 'bar' && !oneBeat() ? '마디' : '박'; $('#mvNumL').classList.toggle('pre', e.pre);
   if (has('dots')) $('#mvDots').querySelectorAll('span').forEach((s, i) => s.classList.toggle('now', i === e.beat));
   $('#mAcc').querySelectorAll('button').forEach((s, i) => s.classList.toggle('now', i === e.beat));
-  if (has('num')) { const n = $('#mvNum'); n.textContent = MO.numMode === 'bar' && !e.pre ? (oneBeat() ? M.kr : M.barN) : e.beat + 1; n.classList.toggle('a3', lvl === 3); n.classList.toggle('pre', e.pre); n.style.opacity = lvl ? 1 : .35; if (lvl) n.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 160, easing: 'ease-out' }); }
+  if (has('num')) { const n = $('#mvNum'); n.textContent = e.pre ? e.beat + 1 : MO.numMode === 'bar' && !oneBeat() ? M.barN : M.kr; n.classList.toggle('a3', lvl === 3); n.classList.toggle('pre', e.pre); n.style.opacity = lvl ? 1 : .35; if (lvl) n.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 160, easing: 'ease-out' }); }
   if (!lvl) return;  // 쉼 박: 빛·진동 없음
   const dur = Math.max(80, Math.min(260, 60000 / MO.bpm * 0.6));
   if (has('edge')) { const x = $('#mEdge'); x.style.setProperty('--mc', col); x.animate([{ opacity: str }, { opacity: 0 }], { duration: dur, easing: 'ease-out' }); }
