@@ -111,14 +111,15 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 #viewer.night .pg{background:#000}
 .pg::after{content:"수트와후드";position:absolute;right:10px;bottom:5px;font-weight:800;font-size:14px;letter-spacing:.12em;color:#1f3b63;opacity:.14;pointer-events:none;z-index:2;font-family:"Pretendard","Malgun Gothic",sans-serif}
 #viewer.night .pg::after{color:#fff;opacity:.2}
-.vbar button.favon{background:#f5b301;border-color:#f5b301;color:#3a2600}
-.vbar{position:absolute;left:0;right:0;display:flex;align-items:center;gap:6px;padding:8px 10px;background:rgba(18,20,26,.88);color:#fff;transition:transform .2s,opacity .2s;z-index:3;flex-wrap:wrap}
+.vbar button.favon{background:rgba(255,181,71,.14);border-color:rgba(255,181,71,.4);color:#ffc970}
+.vbar{position:absolute;left:0;right:0;display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(14,16,20,.82);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);color:#fff;transition:transform .2s,opacity .2s;z-index:3;flex-wrap:wrap}
 .vbar.topb{top:0;padding-top:max(8px,env(safe-area-inset-top))}
 .vbar.botb{bottom:0;padding-bottom:max(8px,env(safe-area-inset-bottom));justify-content:center}
 #viewer.hidebars .vbar.topb{transform:translateY(-110%);opacity:0;pointer-events:none}
 #viewer.hidebars .vbar.botb{transform:translateY(110%);opacity:0;pointer-events:none}
-.vbar button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:10px;min-width:44px;height:44px;padding:0 10px;font-size:15px;font-weight:600}
-.vbar button.on{background:#f08a5d;border-color:#f08a5d}
+.vbar button{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);color:#eef0f3;border-radius:12px;min-width:44px;height:44px;padding:0 12px;font-size:14px;font-weight:600;letter-spacing:-.1px;transition:background .15s}
+.vbar button:hover{background:rgba(255,255,255,.13)}
+.vbar button.on{background:#f4f5f7;border-color:#f4f5f7;color:#111318}
 .vbar .vt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;padding:0 4px}
 .vbar .pn{font-variant-numeric:tabular-nums;opacity:.9;padding:0 6px;white-space:nowrap}
 .vbar input[type=range]{flex:1;max-width:420px}
@@ -133,68 +134,128 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 .edgehint.l{left:0}.edgehint.r{right:0}
 .edgehint.on{opacity:1}
 .spin{color:#fff;font-size:15px;opacity:.8}
-/* 메트로놈 (v1.2.0) */
-#vMet.run{background:#2e9e6b;border-color:#2e9e6b}
-#met{position:absolute;right:10px;bottom:70px;z-index:5;width:min(390px,calc(100% - 20px));max-height:calc(100% - 150px);overflow:auto;overscroll-behavior:contain;background:rgba(22,25,34,.97);color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:12px 14px 14px;box-shadow:0 12px 40px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:9px;font-size:15px}
-#met button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:10px;min-height:40px;padding:0 10px;font-weight:600}
-#met button.on{background:#f08a5d;border-color:#f08a5d}
-#met .mh{display:flex;align-items:center;gap:8px}
-#met .mh b{font-size:17px;margin-right:auto}
-#met .mh span{font-size:13px;color:#c8cede;font-variant-numeric:tabular-nums}
-#met .mtempo{display:flex;align-items:center;gap:8px}
-#met .mtempo button{width:54px;height:54px;font-size:26px;padding:0;touch-action:none}
+/* 메트로놈 (v1.2.0 · v1.2.1 디자인 다듬기) — 색은 하나로: 선택 = 흰 면, 첫 박 = --c1, 나머지 박 = --c2 */
+#viewer{--mk-panel:rgba(18,20,26,.94);--mk-line:rgba(255,255,255,.08);--mk-fill:rgba(255,255,255,.06);--mk-fill2:rgba(255,255,255,.11);
+  --mk-ink:#f4f5f7;--mk-sub:#9ba2ae;--mk-dim:#6d7481;--c1:#ffb547;--c2:#e9edf5}
+#vMet.run{background:rgba(255,181,71,.14);border-color:rgba(255,181,71,.4);color:#ffd08a}
+#vMet.run::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#ffb547;margin-right:7px;vertical-align:1px;animation:mkpulse 1s ease-in-out infinite}
+@keyframes mkpulse{50%{opacity:.25}}
+#met{position:absolute;right:12px;bottom:72px;z-index:5;width:min(372px,calc(100% - 24px));max-height:calc(100% - 152px);overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;
+  background:var(--mk-panel);-webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);color:var(--mk-ink);
+  border:1px solid var(--mk-line);border-radius:22px;padding:14px 16px 16px;box-shadow:0 24px 60px rgba(0,0,0,.55),0 2px 8px rgba(0,0,0,.3);
+  display:flex;flex-direction:column;gap:12px;font-size:14px;letter-spacing:-.1px}
+#met>*,#met .mpane>*{flex-shrink:0}
+#met button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#met .mh{display:flex;align-items:center;gap:10px;min-height:32px}
+#met .mh b{font-size:15px;font-weight:700;letter-spacing:-.2px}
+#met .mh span{margin-right:auto;font-size:12px;color:var(--mk-sub);font-variant-numeric:tabular-nums;background:var(--mk-fill);border-radius:999px;padding:3px 9px}
+#met .mh span:empty{visibility:hidden}
+#met .mic{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--mk-sub);background:var(--mk-fill)}
+#met .mic:hover{background:var(--mk-fill2);color:var(--mk-ink)}
+#met .mhero{display:flex;align-items:center;gap:6px;padding:4px 0 0}
+#met .mround{width:46px;height:46px;border-radius:50%;background:var(--mk-fill);font-size:22px;font-weight:400;line-height:1;touch-action:none;flex:0 0 auto}
+#met .mround:hover{background:var(--mk-fill2)}
+#met .mround:active{transform:scale(.94)}
 #met .mbpm{flex:1;text-align:center;min-width:0}
-#met .mbpm div{display:flex;align-items:baseline;justify-content:center;gap:4px}
-#met .mbpm em{font-style:normal;font-size:20px;color:#c8cede}
-#met .mbpm input{width:120px;background:transparent;border:0;border-bottom:1px dashed rgba(255,255,255,.3);color:#fff;font-size:44px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;padding:0;-moz-appearance:textfield}
-#met .mbpm input::-webkit-inner-spin-button{display:none}
-#met .mbpm small{display:block;color:#c8cede;font-size:13px;margin-top:2px}
-#met input[type=range]{width:100%;accent-color:#f08a5d;min-height:30px}
-#met .mrow{display:flex;gap:8px;align-items:center}
-#met .mrow>*{flex:1}
-#mPlay{font-size:17px;min-height:50px !important;background:#2e9e6b !important;border-color:#2e9e6b !important}
-#mPlay.on{background:#d9534f !important;border-color:#d9534f !important}
-#mTap{min-height:50px !important;touch-action:none}
-#met .mlab{font-size:13px;color:#aab3c8;font-weight:700;margin-top:3px}
-#met .mlab small{font-weight:400}
-#met .mchips{display:flex;flex-wrap:wrap;gap:6px}
-#met .mchips button{min-height:36px;font-size:14px}
-#met .macc{display:flex;gap:6px;flex-wrap:wrap}
-#met .macc button{width:40px;height:56px;padding:0 0 4px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;font-size:12px}
-#met .macc i{display:block;width:16px;border-radius:3px}
-#met .macc .a3 i{height:30px;background:var(--c1)}
-#met .macc .a2 i{height:20px;background:var(--c2)}
-#met .macc .a1 i{height:10px;background:var(--c2);opacity:.6}
-#met .macc .a0 i{height:2px;background:#888}
-#met .macc button.now{border-color:#fff}
-#met .mrow2{display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center}
-#met .mrow2 label{display:flex;align-items:center;gap:6px;font-size:14px;color:#c8cede}
-#met select,#met input.sm{background:#2a2f3f;color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:8px;min-height:38px;padding:0 6px}
-#met input.sm{width:64px}
-#met details summary{cursor:pointer;font-weight:700;color:#c8cede;font-size:14px;padding:6px 0}
-#met details .mrow2{margin:4px 0 8px}
-#met .note{color:#aab3c8;font-size:12.5px}
-#mvis{position:absolute;z-index:4;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:calc(6px*var(--s));background:rgba(18,20,26,.74);color:#fff;border-radius:16px;padding:calc(8px*var(--s)) calc(12px*var(--s));--s:1}
-#mvis.s-s{--s:.75}#mvis.s-l{--s:1.5}#mvis.s-xl{--s:2.3}
-#mvis.p-tc{top:70px;left:50%;transform:translateX(-50%)}
-#mvis.p-tr{top:70px;right:10px}
-#mvis.p-bl{bottom:74px;left:10px}
-#mvis.p-br{bottom:74px;right:10px}
-#mvis .mvd{display:flex;gap:calc(7px*var(--s));flex-wrap:wrap;justify-content:center;max-width:calc(300px*var(--s))}
-#mvis .mvd span{width:calc(16px*var(--s));height:calc(16px*var(--s));border-radius:50%;background:rgba(255,255,255,.22)}
-#mvis .mvd span.a3{box-shadow:inset 0 0 0 calc(2px*var(--s)) var(--c1)}
-#mvis .mvd span.a0{background:transparent;box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)}
-#mvis .mvd span.now{background:var(--c2);transform:scale(1.25)}
+#met .mnum{display:flex;align-items:baseline;justify-content:center;gap:2px}
+#met .mnum em{font-style:normal;font-size:17px;color:var(--mk-sub);font-weight:500}
+#met .mbpm input{width:3.1ch;background:transparent;border:0;outline:0;color:var(--mk-ink);font-size:56px;font-weight:700;letter-spacing:-2px;text-align:center;font-variant-numeric:tabular-nums;padding:0;line-height:1.05;-moz-appearance:textfield;border-radius:8px}
+#met .mbpm input:focus{background:var(--mk-fill)}
+#met .mbpm input::-webkit-inner-spin-button,#met .mbpm input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+#met .mbpm small{display:block;color:var(--mk-sub);font-size:12.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#met input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;margin:0;--p:50%}
+#met input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--mk-ink) var(--p),rgba(255,255,255,.14) var(--p))}
+#met input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;margin-top:-8px;box-shadow:0 1px 3px rgba(0,0,0,.5),0 0 0 4px rgba(255,255,255,.08)}
+#met input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:rgba(255,255,255,.14)}
+#met input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:var(--mk-ink)}
+#met input[type=range]::-moz-range-thumb{width:20px;height:20px;border:0;border-radius:50%;background:#fff}
+#met .mact{display:flex;gap:8px}
+#met .mghost{flex:1;min-height:46px;border-radius:14px;background:var(--mk-fill);font-weight:600;font-size:14px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+#met .mghost:hover{background:var(--mk-fill2)}
+#met .mghost.on{background:rgba(255,181,71,.14);color:#ffd08a}
+#met .mprim{flex:1.25;min-height:46px;border-radius:14px;background:#f4f5f7;color:#111318;font-weight:700;font-size:15px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+#met .mprim:hover{background:#fff}
+#met .mprim.on{background:rgba(255,255,255,.1);color:var(--mk-ink);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+#met svg{width:15px;height:15px;fill:currentColor;flex:0 0 auto}
+#mTap{touch-action:none}
+#mTap:active{background:rgba(255,255,255,.2)}
+#met .mterms{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px;mask-image:linear-gradient(to right,transparent,#000 16px,#000 calc(100% - 16px),transparent)}
+#met .mterms::-webkit-scrollbar{display:none}
+#met .mterms button{flex:0 0 auto;border-radius:12px;background:var(--mk-fill);padding:7px 11px;display:flex;flex-direction:column;align-items:flex-start;line-height:1.2}
+#met .mterms button b{font-size:13px;font-weight:600}
+#met .mterms button span{font-size:11px;color:var(--mk-sub);font-variant-numeric:tabular-nums}
+#met .mterms button.on{background:#f4f5f7;color:#111318}
+#met .mterms button.on span{color:#555b66}
+#met .mtabs{display:flex;background:var(--mk-fill);border-radius:12px;padding:3px;gap:2px;margin-top:2px}
+#met .mtabs button{flex:1;min-height:34px;border-radius:9px;font-size:13px;font-weight:600;color:var(--mk-sub)}
+#met .mtabs button.on{background:rgba(255,255,255,.14);color:var(--mk-ink);box-shadow:0 1px 2px rgba(0,0,0,.3)}
+#met .mpane{display:flex;flex-direction:column;gap:8px}
+#met .mlab{font-size:12px;color:var(--mk-sub);font-weight:600;margin-top:4px;display:flex;justify-content:space-between;gap:8px}
+#met .mlab small{font-weight:400;color:var(--mk-dim)}
+#met .seg{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--w,52px),1fr));gap:4px;background:rgba(0,0,0,.22);border-radius:12px;padding:4px}
+#met .seg button{min-height:36px;border-radius:9px;font-size:13px;font-weight:600;color:#c3c8d2;padding:0 6px;white-space:nowrap}
+#met .seg button:hover{background:var(--mk-fill)}
+#met .seg button.on{background:#f4f5f7;color:#111318}
+#met #mSub,#met #mSnd,#met #mPos,#met #mSize{--w:76px}
+#met #mMeter{grid-template-columns:repeat(6,1fr)}
+@media (max-width:560px){#met{max-height:calc(100% - 210px)}}
+#met .macc{display:flex;gap:4px;background:rgba(0,0,0,.22);border-radius:12px;padding:6px;flex-wrap:wrap}
+#met .macc button{flex:1 0 32px;max-width:52px;height:62px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;padding:0 0 6px;font-size:11px;color:var(--mk-sub);font-variant-numeric:tabular-nums}
+#met .macc button:hover{background:var(--mk-fill)}
+#met .macc i{display:block;width:14px;border-radius:4px;transition:height .15s}
+#met .macc .a3 i{height:32px;background:var(--c1)}
+#met .macc .a2 i{height:22px;background:var(--c2)}
+#met .macc .a1 i{height:12px;background:var(--c2);opacity:.45}
+#met .macc .a0 i{height:3px;background:var(--mk-dim)}
+#met .macc button.now{background:rgba(255,255,255,.1);color:var(--mk-ink)}
+#met .mvolrow{display:flex;align-items:center;gap:10px}
+#met .mvolrow input{flex:1}
+#met .mvolrow .mic.on{background:rgba(255,181,71,.16);color:#ffd08a}
+#met .mtoggles{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+#met .mtoggles button{min-height:42px;border-radius:12px;background:var(--mk-fill);display:flex;align-items:center;gap:9px;padding:0 12px;font-weight:600;font-size:13px;color:#c3c8d2;text-align:left}
+#met .mtoggles button::before{content:"";width:16px;height:16px;border-radius:5px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.3);flex:0 0 auto}
+#met .mtoggles button.on{background:rgba(255,255,255,.12);color:var(--mk-ink)}
+#met .mtoggles button.on::before{background:#f4f5f7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='%23111318' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat;box-shadow:none}
+#met .mswatch{display:flex;gap:10px}
+#met .mswatch button{display:flex;align-items:center;gap:8px;border-radius:999px;padding:5px 12px 5px 6px;background:var(--mk-fill);font-size:12.5px;font-weight:600;color:#c3c8d2}
+#met .mswatch button i{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--a) 50%,var(--b) 50%)}
+#met .mswatch button.on{background:rgba(255,255,255,.14);color:var(--mk-ink);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+#met .mtrain{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;color:#c3c8d2}
+#met .mtrain label{display:flex;align-items:center;gap:6px}
+#met select,#met input.sm{background:var(--mk-fill);color:var(--mk-ink);border:0;border-radius:9px;min-height:36px;padding:0 8px;font:inherit;font-weight:600;font-variant-numeric:tabular-nums}
+#met select option{background:#1b1e25}
+#met input.sm{width:62px;text-align:center}
+#met .mfoot{margin:2px 0 0;color:var(--mk-dim);font-size:11.5px;line-height:1.55}
+#met .msave{display:flex;gap:6px}
+#met .msave .mghost{min-height:40px;font-size:13px;font-weight:600}
+#met .msave .mghost.on{background:rgba(255,181,71,.12);color:#ffd08a}
+#met #mForget{flex:0 0 auto}
+/* 박 표시 */
+#mvis{position:absolute;z-index:4;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:calc(8px*var(--s));
+  background:rgba(16,18,23,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:var(--mk-ink);border:1px solid var(--mk-line);
+  border-radius:calc(18px*var(--s));padding:calc(10px*var(--s)) calc(14px*var(--s));box-shadow:0 10px 30px rgba(0,0,0,.4);--s:1}
+#mvis.s-s{--s:.78}#mvis.s-l{--s:1.45}#mvis.s-xl{--s:2.2}
+#mvis.p-tc{top:72px;left:50%;transform:translateX(-50%)}
+#mvis.p-tr{top:72px;right:12px}
+#mvis.p-bl{bottom:76px;left:12px}
+#mvis.p-br{bottom:76px;right:12px}
+#mvis .mvd{display:flex;gap:calc(8px*var(--s));flex-wrap:wrap;justify-content:center;max-width:calc(260px*var(--s))}
+#mvis .mvd span{width:calc(11px*var(--s));height:calc(11px*var(--s));border-radius:50%;background:rgba(255,255,255,.16);transition:transform .08s,background .08s}
+#mvis .mvd span.a3{box-shadow:0 0 0 calc(1.5px*var(--s)) var(--c1)}
+#mvis .mvd span.a0{background:transparent;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+#mvis .mvd span.now{background:var(--c2);transform:scale(1.35)}
 #mvis .mvd span.now.a3{background:var(--c1)}
-#mvis .mvn{font-size:calc(46px*var(--s));font-weight:900;line-height:1;font-variant-numeric:tabular-nums;color:var(--c2);min-width:1.2em;text-align:center}
+#mvis .mvn{font-size:calc(50px*var(--s));font-weight:700;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;color:var(--c2);min-width:1.1em;text-align:center}
 #mvis .mvn.a3{color:var(--c1)}
-#mvis .mvp{width:calc(90px*var(--s));height:calc(64px*var(--s));position:relative}
-#mvis .mvp i{position:absolute;left:50%;bottom:0;width:calc(4px*var(--s));height:calc(62px*var(--s));margin-left:calc(-2px*var(--s));background:#fff;border-radius:2px;transform-origin:50% 100%}
-#mvis .mvp i::after{content:"";position:absolute;left:50%;top:calc(12px*var(--s));width:calc(14px*var(--s));height:calc(10px*var(--s));transform:translateX(-50%);background:var(--c1);border-radius:3px}
-#mvis .mvb{display:flex;align-items:center;gap:8px;font-size:calc(13px*var(--s));font-weight:700;white-space:nowrap}
-#mvis .mvb button{pointer-events:auto;width:34px;height:34px;border-radius:8px;border:0;background:#d9534f;color:#fff;font-size:14px;padding:0}
+#mvis .mvp{width:calc(84px*var(--s));height:calc(62px*var(--s));position:relative}
+#mvis .mvp::after{content:"";position:absolute;left:50%;bottom:calc(-3px*var(--s));width:calc(8px*var(--s));height:calc(8px*var(--s));margin-left:calc(-4px*var(--s));border-radius:50%;background:var(--mk-sub)}
+#mvis .mvp i{position:absolute;left:50%;bottom:0;width:calc(2px*var(--s));height:calc(60px*var(--s));margin-left:calc(-1px*var(--s));background:var(--c2);border-radius:2px;transform-origin:50% 100%}
+#mvis .mvp i::after{content:"";position:absolute;left:50%;top:calc(10px*var(--s));width:calc(12px*var(--s));height:calc(8px*var(--s));transform:translateX(-50%);background:var(--c1);border-radius:calc(3px*var(--s))}
+#mvis .mvb{display:flex;align-items:center;gap:calc(8px*var(--s));font-size:calc(12px*var(--s));font-weight:600;color:var(--mk-sub);white-space:nowrap;font-variant-numeric:tabular-nums}
+#mvis .mvb button{pointer-events:auto;width:calc(28px*var(--s));height:calc(28px*var(--s));border-radius:50%;border:0;background:rgba(255,255,255,.1);color:var(--mk-ink);padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+#mvis .mvb button i{width:calc(9px*var(--s));height:calc(9px*var(--s));border-radius:2px;background:currentColor}
 #mEdge,#mFlash{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0}
-#mEdge{box-shadow:inset 0 0 0 12px var(--mc,#f08a5d),inset 0 0 60px 16px var(--mc,#f08a5d)}
+#mEdge{box-shadow:inset 0 0 0 8px var(--mc,#ffb547),inset 0 0 48px 10px var(--mc,#ffb547)}
 #mFlash{background:var(--mc,#fff)}
 @media (max-width:560px){
   .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
@@ -326,39 +387,51 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
     <div class="mvp" id="mvPend"><i></i></div>
     <div class="mvn" id="mvNum">1</div>
     <div class="mvd" id="mvDots"></div>
-    <div class="mvb"><span id="mvBpm"></span><button id="mvStop" aria-label="메트로놈 멈춤" title="멈춤">■</button></div>
+    <div class="mvb"><span id="mvBpm"></span><button id="mvStop" aria-label="메트로놈 멈춤" title="멈춤"><i></i></button></div>
   </div>
   <div id="met" hidden role="region" aria-label="메트로놈">
-    <div class="mh"><b>♩ 메트로놈</b><span id="mBarN"></span><button id="mClose" aria-label="메트로놈 창 접기" title="창 접기 (소리는 계속)">✕</button></div>
-    <div class="mtempo">
-      <button id="mMinus" aria-label="느리게 (누르고 있으면 계속)">−</button>
-      <div class="mbpm"><div><em id="mUnit">♩=</em><input id="mBpm" type="number" min="20" max="300" inputmode="numeric" aria-label="빠르기 BPM"></div><small id="mTerm"></small></div>
-      <button id="mPlus" aria-label="빠르게 (누르고 있으면 계속)">＋</button>
+    <div class="mh"><b>메트로놈</b><span id="mBarN"></span><button id="mClose" class="mic" aria-label="메트로놈 창 접기" title="창 접기 (소리는 계속)"><svg viewBox="0 0 16 16"><path d="M4.3 3.2L8 6.9l3.7-3.7 1.1 1.1L9.1 8l3.7 3.7-1.1 1.1L8 9.1l-3.7 3.7-1.1-1.1L6.9 8 3.2 4.3z"/></svg></button></div>
+    <div class="mhero">
+      <button id="mMinus" class="mround" aria-label="느리게 (누르고 있으면 계속)">−</button>
+      <div class="mbpm"><div class="mnum"><em id="mUnit">♩=</em><input id="mBpm" type="number" min="20" max="300" inputmode="numeric" aria-label="빠르기 BPM"></div><small id="mTerm"></small></div>
+      <button id="mPlus" class="mround" aria-label="빠르게 (누르고 있으면 계속)">+</button>
     </div>
     <input type="range" id="mRange" min="20" max="300" aria-label="빠르기 막대">
-    <div class="mrow"><button id="mTap" title="박자대로 여러 번 누르면 그 빠르기로 맞춤">👆 탭으로 맞추기</button><button id="mPlay">▶ 시작</button></div>
-    <div class="mlab">빠르기말</div><div class="mchips" id="mTerms"></div>
-    <div class="mlab">박자</div><div class="mchips" id="mMeter"></div>
-    <div class="mlab">한 박 나누기</div><div class="mchips" id="mSub"></div>
-    <div class="mlab">박마다 세기 <small>— 누를 때마다 강 → 보통 → 약 → 쉼</small></div><div class="macc" id="mAcc"></div>
-    <div class="mlab">소리</div><div class="mchips" id="mSnd"></div>
-    <div class="mrow"><label class="mrow2" style="flex:2">크기<input type="range" id="mVol" min="0" max="100" aria-label="소리 크기"></label><button id="mMute">🔇 소리 끄기</button></div>
-    <div class="mlab">눈으로 보기 <small>— 여러 개 고를 수 있음</small></div><div class="mchips" id="mVisOpt"></div>
-    <div class="mrow2">
-      <label>위치<select id="mPos"></select></label>
-      <label>크기<select id="mSize"></select></label>
-      <label>빛 색<select id="mCol"></select></label>
+    <div class="mact">
+      <button id="mTap" class="mghost" title="박자대로 여러 번 누르면 그 빠르기로 맞춤"><svg viewBox="0 0 16 16"><path d="M6.5 1.5a1.5 1.5 0 0 1 1.5 1.5v4.2l3.6.9a1.6 1.6 0 0 1 1.2 1.8l-.6 3.6a1.5 1.5 0 0 1-1.5 1.3H6.6a1.5 1.5 0 0 1-1.2-.6L2.6 10.5a1.2 1.2 0 0 1 1.8-1.6L5 9.6V3a1.5 1.5 0 0 1 1.5-1.5z"/></svg>탭으로 맞추기</button>
+      <button id="mPlay" class="mprim"></button>
     </div>
-    <details id="mTrain"><summary>점점 빠르게 연습</summary>
-      <div class="mrow2">
-        <label><select id="mTrBars"></select>마디마다</label>
-        <label>+<select id="mTrStep"></select></label>
-        <label>최고<input id="mTrMax" class="sm" type="number" min="20" max="300" inputmode="numeric"></label>
+    <div class="mterms" id="mTerms" aria-label="빠르기말"></div>
+    <div class="mtabs" role="tablist">
+      <button data-tab="beat" class="on" role="tab">박자</button><button data-tab="sound" role="tab">소리</button><button data-tab="look" role="tab">보기</button><button data-tab="prac" role="tab">연습</button>
+    </div>
+    <section class="mpane" data-pane="beat">
+      <div class="mlab">박자</div><div class="seg" id="mMeter"></div>
+      <div class="mlab">한 박 나누기</div><div class="seg" id="mSub"></div>
+      <div class="mlab">박마다 세기<small>누를 때마다 강 · 보통 · 약 · 쉼</small></div><div class="macc" id="mAcc"></div>
+    </section>
+    <section class="mpane" data-pane="sound" hidden>
+      <div class="mlab">소리</div><div class="seg" id="mSnd"></div>
+      <div class="mlab">크기</div>
+      <div class="mvolrow"><button id="mMute" class="mic" aria-label="소리 끄기"></button><input type="range" id="mVol" min="0" max="100" aria-label="소리 크기"></div>
+    </section>
+    <section class="mpane" data-pane="look" hidden>
+      <div class="mlab">표시<small>여러 개 고를 수 있음</small></div><div class="mtoggles" id="mVisOpt"></div>
+      <div class="mlab">위치</div><div class="seg" id="mPos"></div>
+      <div class="mlab">크기</div><div class="seg" id="mSize"></div>
+      <div class="mlab">색</div><div class="mswatch" id="mCol"></div>
+    </section>
+    <section class="mpane" data-pane="prac" hidden>
+      <div class="mlab">점점 빠르게</div>
+      <div class="mtrain">
+        <label><select id="mTrBars" aria-label="몇 마디마다"></select>마디마다</label>
+        <label>+<select id="mTrStep" aria-label="올릴 빠르기"></select></label>
+        <label>최고<input id="mTrMax" class="sm" type="number" min="20" max="300" inputmode="numeric" aria-label="최고 빠르기"></label>
       </div>
-      <button id="mTrOn">점점 빠르게 켜기</button>
-    </details>
-    <div class="mrow"><button id="mSave">이 곡 빠르기로 저장</button><button id="mForget" hidden style="flex:0 0 auto">저장 지우기</button></div>
-    <div class="note">M 키로 시작·멈춤. 창을 접어도 소리는 계속 납니다. 블루투스 스피커·이어폰은 소리가 조금 늦게 들릴 수 있습니다.</div>
+      <button id="mTrOn" class="mghost"></button>
+    </section>
+    <div class="msave"><button id="mSave" class="mghost"></button><button id="mForget" class="mghost" hidden>지우기</button></div>
+    <p class="mfoot">M 키로 시작·멈춤 · 창을 접어도 소리는 계속 납니다 · 블루투스 스피커·이어폰은 소리가 조금 늦게 들릴 수 있습니다</p>
   </div>
   <div class="vbar topb">
     <button id="vClose" aria-label="닫기">✕</button>
@@ -395,7 +468,7 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.2.0';
+const VERSION = 'v1.2.1';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -925,12 +998,17 @@ const TEMPI = [
 const TERM_KO = { Grave: '아주 느리고 무겁게', Largo: '아주 느리고 폭넓게', Larghetto: '조금 느리게', Adagio: '느리게', Andante: '걷는 빠르기로', Andantino: 'Andante 보다 조금 빠르게',
   Moderato: '보통 빠르기로', Allegretto: '조금 빠르게', Allegro: '빠르게', Vivace: '활발하게', Presto: '매우 빠르게', Prestissimo: '가장 빠르게' };
 const METERS = [['1/4', '박만'], ['2/4', '2/4'], ['3/4', '3/4'], ['4/4', '4/4'], ['5/4', '5/4'], ['2/2', '2/2'], ['3/8', '3/8'], ['6/8', '6/8'], ['7/8', '7/8'], ['9/8', '9/8'], ['12/8', '12/8']];
-const SUBS = [[1, '나누지 않음'], [2, '둘로 ♫'], [3, '셋으로 (셋잇단)'], [4, '넷으로 ♬']];
-const SNDS = [['click', '클릭'], ['tick', '똑딱 (태엽식)'], ['wood', '우드블록'], ['beep', '삐'], ['bell', '카우벨'], ['hat', '하이햇'], ['drum', '드럼 (킥·스네어)']];
-const VISS = [['dots', '● 박 점'], ['pend', '진자'], ['num', '큰 숫자'], ['edge', '테두리 빛'], ['flash', '화면 깜빡임'], ['vib', '진동']];
+const SUBS = [[1, '그대로 ♩'], [2, '둘 ♫'], [3, '셋잇단'], [4, '넷 ♬']];
+const SNDS = [['click', '클릭'], ['tick', '똑딱'], ['wood', '우드블록'], ['beep', '삐'], ['bell', '카우벨'], ['hat', '하이햇'], ['drum', '드럼']];
+const VISS = [['dots', '박 점'], ['pend', '진자'], ['num', '큰 숫자'], ['edge', '테두리 빛'], ['flash', '화면 깜빡임'], ['vib', '진동']];
 const POSS = [['tc', '위 가운데'], ['tr', '오른쪽 위'], ['bl', '왼쪽 아래'], ['br', '오른쪽 아래']];
 const SIZES = [['s', '작게'], ['m', '보통'], ['l', '크게'], ['xl', '아주 크게']];
-const COLS = { warm: ['살구·파랑', '#f08a5d', '#5b9cf0'], green: ['초록·노랑', '#2ecc71', '#f5c518'], red: ['빨강·흰색', '#ff3b30', '#ffffff'] };
+const COLS = { warm: ['호박', '#ffb547', '#e9edf5'], blue: ['파랑', '#7c9cff', '#e9edf5'], green: ['초록', '#3ddc97', '#ffd166'], red: ['빨강', '#ff5a4f', '#ffffff'] };  // [이름, 첫 박, 나머지 박]
+const ICO = { play: '<svg viewBox="0 0 16 16"><path d="M4.5 2.6v10.8a.6.6 0 0 0 .9.5l8.6-5.4a.6.6 0 0 0 0-1L5.4 2.1a.6.6 0 0 0-.9.5z"/></svg>',
+  stop: '<svg viewBox="0 0 16 16"><rect x="3.5" y="3.5" width="9" height="9" rx="1.6"/></svg>',
+  vol: '<svg viewBox="0 0 16 16"><path d="M2 6h2.5L8 3v10L4.5 10H2zM10.5 5.2a3.8 3.8 0 0 1 0 5.6l-.8-.8a2.7 2.7 0 0 0 0-4z"/><path d="M12.3 3.4a6.3 6.3 0 0 1 0 9.2l-.8-.8a5.2 5.2 0 0 0 0-7.6z"/></svg>',
+  mute: '<svg viewBox="0 0 16 16"><path d="M2 6h2.5L8 3v10L4.5 10H2zM10 5.8l.8-.8 1.7 1.7 1.7-1.7.8.8-1.7 1.7 1.7 1.7-.8.8-1.7-1.7-1.7 1.7-.8-.8 1.7-1.7z"/></svg>' };
+const fillRange = el => el.style.setProperty('--p', ((el.value - el.min) / (el.max - el.min) * 100) + '%');
 const beatsOf = m => +m.split('/')[0];
 function defAcc(m) {
   const [n, d] = m.split('/').map(Number);
@@ -1076,30 +1154,31 @@ const chips = (el, list, isOn) => { el.innerHTML = list.map(([v, t]) => '<button
 const opts = (el, list, cur) => { el.innerHTML = list.map(([v, t]) => '<option value="' + v + '"' + (String(v) === String(cur) ? ' selected' : '') + '>' + esc(t) + '</option>').join(''); };
 function metTempoUI() {
   if (document.activeElement !== $('#mBpm')) $('#mBpm').value = MO.bpm;
-  $('#mRange').value = MO.bpm; $('#mUnit').textContent = unitOf(MO.meter);
+  $('#mRange').value = MO.bpm; fillRange($('#mRange')); $('#mUnit').textContent = unitOf(MO.meter);
   const tn = tempoName(MO.bpm); $('#mTerm').textContent = tn + ' · ' + TERM_KO[tn];
   $('#mTerms').querySelectorAll('button').forEach(b => b.classList.toggle('on', TEMPI.find(x => x[0] === b.dataset.v)[1] === MO.bpm));
   metUI();
 }
 function metDraw() {
   const [, c1, c2] = COLS[MO.col] || COLS.warm; viewer.style.setProperty('--c1', c1); viewer.style.setProperty('--c2', c2);
-  chips($('#mTerms'), TEMPI.map(([n, b]) => [n, n + ' ' + b]), () => false);
+  $('#mTerms').innerHTML = TEMPI.map(([n, b]) => '<button data-v="' + n + '" title="' + esc(TERM_KO[n]) + '"><b>' + n + '</b><span>' + b + '</span></button>').join('');
   chips($('#mMeter'), METERS, v => v === MO.meter);
   chips($('#mSub'), SUBS, v => +v === MO.sub);
   chips($('#mSnd'), SNDS, v => v === MO.snd);
   chips($('#mVisOpt'), VISS.filter(([v]) => v !== 'vib' || 'vibrate' in navigator), v => has(v));
   $('#mAcc').innerHTML = MO.acc.map((a, i) => '<button class="a' + a + (i === M.cur ? ' now' : '') + '" data-i="' + i + '" aria-label="' + (i + 1) + '박 ' + ['쉼', '약', '보통', '강'][a] + '"><i></i>' + (i + 1) + '</button>').join('');
-  $('#mVol').value = MO.vol; $('#mMute').classList.toggle('on', MO.mute); $('#mMute').textContent = MO.mute ? '🔇 소리 꺼짐' : '🔇 소리 끄기';
-  opts($('#mPos'), POSS, MO.pos); opts($('#mSize'), SIZES, MO.size); opts($('#mCol'), Object.entries(COLS).map(([k, v]) => [k, v[0]]), MO.col);
+  $('#mVol').value = MO.vol; $('#mMute').classList.toggle('on', MO.mute); $('#mMute').innerHTML = MO.mute ? ICO.mute : ICO.vol; $('#mMute').setAttribute('aria-label', MO.mute ? '소리 켜기' : '소리 끄기'); $('#mMute').title = MO.mute ? '소리 꺼짐 — 누르면 켬' : '소리 끄기 (눈으로만)'; fillRange($('#mVol'));
+  chips($('#mPos'), POSS, v => v === MO.pos); chips($('#mSize'), SIZES, v => v === MO.size);
+  $('#mCol').innerHTML = Object.entries(COLS).map(([k, v]) => '<button data-v="' + k + '" class="' + (k === MO.col ? 'on' : '') + '" aria-pressed="' + (k === MO.col) + '"><i style="--a:' + v[1] + ';--b:' + v[2] + '"></i>' + v[0] + '</button>').join('');
   opts($('#mTrBars'), [[2, 2], [4, 4], [8, 8], [16, 16]], MO.trBars); opts($('#mTrStep'), [[1, 1], [2, 2], [5, 5], [10, 10]], MO.trStep);
-  $('#mTrMax').value = MO.trMax; $('#mTrOn').classList.toggle('on', MO.tr); $('#mTrOn').textContent = MO.tr ? '점점 빠르게 켜짐 (누르면 끔)' : '점점 빠르게 켜기';
+  $('#mTrMax').value = MO.trMax; $('#mTrOn').classList.toggle('on', MO.tr); $('#mTrOn').textContent = MO.tr ? '점점 빠르게 켜짐 · 누르면 끔' : '점점 빠르게 켜기';
   metTempoUI();
 }
 function metUI() {
   const on = M.on, open = !met.hidden;
   $('#vMet').classList.toggle('run', on);
   $('#vMet').textContent = on ? '♩ ' + MO.bpm : '♩ 메트로놈';
-  $('#mPlay').classList.toggle('on', on); $('#mPlay').textContent = on ? '■ 멈춤' : '▶ 시작';
+  $('#mPlay').classList.toggle('on', on); $('#mPlay').innerHTML = on ? ICO.stop + '멈춤' : ICO.play + '시작';
   if (!on) $('#mBarN').textContent = '';
   mvis.hidden = !(on || open);
   mvis.className = 'p-' + MO.pos + ' s-' + MO.size;
@@ -1109,7 +1188,7 @@ function metUI() {
   const dots = MO.acc.map((a, i) => '<span class="a' + a + (i === M.cur ? ' now' : '') + '"></span>').join('');
   if ($('#mvDots').dataset.k !== MO.acc.join('')) { $('#mvDots').innerHTML = dots; $('#mvDots').dataset.k = MO.acc.join(''); }
   const s = V.score, saved = s?.met && s.met.bpm === MO.bpm && s.met.meter === MO.meter;
-  $('#mSave').textContent = saved ? '✓ 이 곡에 저장됨 (' + metLabel(s.met) + ')' : '이 곡 빠르기로 저장 (' + metLabel(MO) + ')';
+  $('#mSave').textContent = saved ? '✓ 이 곡에 저장됨 · ' + metLabel(s.met) : '이 곡 빠르기로 저장 · ' + metLabel(MO);
   $('#mSave').classList.toggle('on', !!saved); $('#mForget').hidden = !s?.met;
 }
 
@@ -1143,12 +1222,20 @@ $('#mSnd').onclick = e => {
   const b = e.target.closest('button'); if (!b) return; MO.snd = b.dataset.v; saveOpt(); metDraw();
   if (!M.on && M.ctx && M.ctx.state === 'running') mSound(M.ctx.currentTime + 0.02, 3);  // 고른 소리 미리 듣기
 };
-$('#mVol').oninput = () => { MO.vol = +$('#mVol').value; if (MO.mute && MO.vol > 0) MO.mute = false; saveOpt(); mGain(); $('#mMute').classList.toggle('on', MO.mute); };
+$('#mVol').oninput = () => { MO.vol = +$('#mVol').value; if (MO.mute && MO.vol > 0) MO.mute = false; saveOpt(); mGain(); fillRange($('#mVol')); if (!MO.mute) { $('#mMute').classList.remove('on'); $('#mMute').innerHTML = ICO.vol; } };
 $('#mMute').onclick = () => { MO.mute = !MO.mute; saveOpt(); mGain(); metDraw(); };
 $('#mVisOpt').onclick = e => { const b = e.target.closest('button'); if (!b) return; const v = b.dataset.v; MO.vis = has(v) ? MO.vis.filter(x => x !== v) : MO.vis.concat(v); saveOpt(); metDraw(); };
-$('#mPos').onchange = () => { MO.pos = $('#mPos').value; saveOpt(); metUI(); };
-$('#mSize').onchange = () => { MO.size = $('#mSize').value; saveOpt(); metUI(); };
-$('#mCol').onchange = () => { MO.col = $('#mCol').value; saveOpt(); metDraw(); };
+$('#mPos').onclick = e => { const b = e.target.closest('button'); if (!b) return; MO.pos = b.dataset.v; saveOpt(); metDraw(); };
+$('#mSize').onclick = e => { const b = e.target.closest('button'); if (!b) return; MO.size = b.dataset.v; saveOpt(); metDraw(); };
+$('#mCol').onclick = e => { const b = e.target.closest('button'); if (!b) return; MO.col = b.dataset.v; saveOpt(); metDraw(); };
+// 창 안 탭: 박자 · 소리 · 보기 · 연습 (고른 탭은 기억)
+function metTab(t) {
+  MO.tab = t;
+  met.querySelectorAll('.mtabs button').forEach(b => { b.classList.toggle('on', b.dataset.tab === t); b.setAttribute('aria-selected', b.dataset.tab === t); });
+  met.querySelectorAll('.mpane').forEach(x => x.hidden = x.dataset.pane !== t);
+}
+met.querySelector('.mtabs').onclick = e => { const b = e.target.closest('button'); if (b) { metTab(b.dataset.tab); saveOpt(); } };
+metTab(MO.tab || 'beat');
 $('#mTrBars').onchange = () => { MO.trBars = +$('#mTrBars').value; saveOpt(); };
 $('#mTrStep').onchange = () => { MO.trStep = +$('#mTrStep').value; saveOpt(); };
 $('#mTrMax').onchange = () => { MO.trMax = Math.max(20, Math.min(300, Math.round(+$('#mTrMax').value) || 160)); $('#mTrMax').value = MO.trMax; saveOpt(); };
