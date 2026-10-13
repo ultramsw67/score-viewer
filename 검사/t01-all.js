@@ -222,6 +222,20 @@ module.exports = async (c) => {
   chk(await ev(`!document.querySelector('#mvis').hidden && !SSV.MO.hid && document.querySelector('#mvis').classList.contains('p-free')`), '위 ♩ 단추 = 다시 보임 (옮긴 자리 그대로)');
   await ev(`document.querySelector('#mPos button[data-v="tc"]').click(); document.querySelector('#mClose').click()`); await sleep(200);
   chk(await ev(`!SSV.MO.xy && document.querySelector('#mvis').classList.contains('p-tc')`), '보기 탭 위치 고르면 정해진 자리로');
+  // v1.2.4: 예비박 1마디 (240, 4/4 → 1초) — 「계속」이면 1마디부터 이어짐, 「예비박만」이면 첫 박에서 멈춤
+  await ev(`document.querySelector('#vMet').click()`); await sleep(200);
+  await ev(`document.querySelector('#mBpm').value='240'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mPre button[data-v="1"]').click()`);
+  chk(await ev(`SSV.MO.pre===1 && !document.querySelector('#mPreAfter').hidden && document.querySelector('#mPlay').textContent.includes('예비 1마디')`), '예비박 1마디 고르기 (시작 단추에 표시)');
+  await ev(`document.querySelector('#mPreAfter button[data-v="go"]').click(); document.querySelector('#mPlay').click()`);
+  chk(await until(`document.querySelector('#mBarN').textContent.startsWith('예비 1/1마디') && document.querySelector('#mvNumL').textContent==='예비' && document.querySelector('#mvNum').classList.contains('pre')`, 3000), '예비박 동안 「예비」 표시');
+  chk(await until(`document.querySelector('#mBarN').textContent.startsWith('1마디') && SSV.MET.on`, 3000), '예비박 뒤 1마디부터 계속');
+  await sleep(1100);
+  chk(await ev(`document.querySelector('#mBarN').textContent.startsWith('2마디') && document.querySelector('#mvNumL').textContent==='박'`), '이어서 2마디 (예비박은 마디 수에 안 들어감)');
+  await ev(`document.querySelector('#mPlay').click(); document.querySelector('#mPreAfter button[data-v="stop"]').click(); document.querySelector('#mPlay').click()`);
+  chk(await until(`SSV.MET.on && document.querySelector('#mBarN').textContent.startsWith('예비')`, 3000), '「예비박만」 시작');
+  chk(await until(`!SSV.MET.on`, 4000) && await ev(`SSV.MET.k===4`), '「예비박만」 = 4박 세고 멈춤');
+  await ev(`document.querySelector('#mPre button[data-v="0"]').click(); document.querySelector('#mBpm').value='96'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mClose').click()`);
+  chk(await ev(`document.querySelector('#mPreAfter').hidden && !document.querySelector('#mPlay').textContent.includes('예비')`), '예비박 없음으로 되돌림');
   await ev(`SSV.closeViewer()`); await sleep(400);
 
   // 7. 백업 왕복: 전체 백업 → 다 지우기 → 가져오기

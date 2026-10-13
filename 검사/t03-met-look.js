@@ -7,10 +7,10 @@ module.exports = async (c) => {
   await c.send('Emulation.setUserAgentOverride', { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/129.0.0.0' });
   await c.size(1280, 800, false);
   await c.go(URL + '?look=' + Date.now());
-  await ev(`SSV.OPT.met.vis=['dots','pend','num','edge']; SSV.OPT.met.tab='beat'; 1`);
+  await ev(`SSV.OPT.met.vis=['dots','pend','num','edge']; SSV.OPT.met.tab='beat'; SSV.OPT.met.pre=0; SSV.OPT.met.xy=null; SSV.OPT.met.hid=false; 1`);
   await ev(`SSV.db.all('scores').then(a=>SSV.openViewer([a.find(s=>s.fileName==='c.pdf').id],0))`); await sleep(1500);
   await ev(`document.querySelector('#vMet').click()`); await sleep(300);
-  await ev(`document.querySelector('#mPlay').click()`); await sleep(1300);
+  await ev(`document.querySelector('#mPlay').click()`); await sleep(700);
   for (const t of ['beat', 'sound', 'look', 'prac']) {
     await ev(`document.querySelector('.mtabs button[data-tab="${t}"]').click()`); await sleep(350);
     chk(await ev(`[...document.querySelectorAll('#met .mpane')].filter(p=>!p.hidden).map(p=>p.dataset.pane).join()==='${t}'`), '탭 ' + t + ' 만 보임');
