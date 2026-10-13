@@ -203,6 +203,25 @@ module.exports = async (c) => {
   await ev(`document.querySelector('#mvOn').click()`); await sleep(200);
   chk(await ev(`!SSV.MET.on && document.querySelector('#mvOn b').textContent==='OFF' && !document.querySelector('#mvis').hidden`), '스위치 OFF = 멈춤 (그림은 남음)');
   await c.shot('s15-met-switch.png', false);
+  // v1.2.3: 손잡이 끌어 옮기기 (자리 기억) · ✕ 숨기기 → 위 ♩ 단추로 다시
+  const g0 = JSON.parse(await ev(`JSON.stringify(document.querySelector('#mvGrip').getBoundingClientRect())`));
+  const gx = g0.x + g0.width / 2, gy = g0.y + g0.height / 2;
+  const mm = (type, x, y) => c.send('Input.dispatchMouseEvent', { type, x, y, button: 'left', buttons: type === 'mouseReleased' ? 0 : 1, clickCount: 1 });
+  await mm('mousePressed', gx, gy); for (let k = 1; k <= 10; k++) await mm('mouseMoved', gx - k * 50, gy + k * 30); await mm('mouseReleased', gx - 500, gy + 300); await sleep(300);
+  const m1 = JSON.parse(await ev(`JSON.stringify(document.querySelector('#mvis').getBoundingClientRect())`));
+  chk(m1.x < g0.x - 400 && m1.y > g0.y + 250 && await ev(`Array.isArray(SSV.MO.xy) && document.querySelector('#mvis').classList.contains('p-free')`), '손잡이 끌어 왼쪽 아래로 옮김');
+  chk(await ev(`SSV.V.page`) === 1, '끄는 동안 쪽은 안 넘어감');
+  await mm('mousePressed', gx, gy); for (let k = 1; k <= 10; k++) await mm('mouseMoved', gx - k * 400, gy + k * 400); await mm('mouseReleased', gx - 4000, gy + 4000); await sleep(300);
+  chk(await ev(`(()=>{const r=document.querySelector('#mvis').getBoundingClientRect();return r.left>=0 && r.bottom<=innerHeight+1})()`), '화면 밖으로는 안 나감');
+  await ev(`document.querySelector('#mvHide').click()`); await sleep(300);
+  chk(await ev(`document.querySelector('#mvis').hidden && SSV.MO.hid===true`), '✕ 누르면 메트로놈 사라짐');
+  await ev(`SSV.closeViewer()`); await sleep(300);
+  await ev(`document.querySelector('#grid .card[data-id="${idC}"] .th').click()`); await until(`document.querySelectorAll('#stage .pg').length>0`); await sleep(300);
+  chk(await ev(`document.querySelector('#mvis').hidden`), '숨긴 상태는 다시 열어도 유지');
+  await ev(`document.querySelector('#vMet').click()`); await sleep(300);
+  chk(await ev(`!document.querySelector('#mvis').hidden && !SSV.MO.hid && document.querySelector('#mvis').classList.contains('p-free')`), '위 ♩ 단추 = 다시 보임 (옮긴 자리 그대로)');
+  await ev(`document.querySelector('#mPos button[data-v="tc"]').click(); document.querySelector('#mClose').click()`); await sleep(200);
+  chk(await ev(`!SSV.MO.xy && document.querySelector('#mvis').classList.contains('p-tc')`), '보기 탭 위치 고르면 정해진 자리로');
   await ev(`SSV.closeViewer()`); await sleep(400);
 
   // 7. 백업 왕복: 전체 백업 → 다 지우기 → 가져오기
