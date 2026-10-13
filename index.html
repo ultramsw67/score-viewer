@@ -196,7 +196,7 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 #met .seg button{min-height:36px;border-radius:9px;font-size:13px;font-weight:600;color:#c3c8d2;padding:0 6px;white-space:nowrap}
 #met .seg button:hover{background:var(--mk-fill)}
 #met .seg button.on{background:#f4f5f7;color:#111318}
-#met #mSub,#met #mSnd,#met #mPos,#met #mSize{--w:76px}
+#met #mSub,#met #mSnd,#met #mPos,#met #mSize,#met #mNumMode{--w:76px}
 #met #mMeter{grid-template-columns:repeat(6,1fr)}
 @media (max-width:560px){#met{max-height:calc(100% - 210px)}}
 #met .macc{display:flex;gap:4px;background:rgba(0,0,0,.22);border-radius:12px;padding:6px;flex-wrap:wrap}
@@ -247,10 +247,17 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 #mvis .mvd span.now.a3{background:var(--c1)}
 #mvis .mvn{font-size:calc(50px*var(--s));font-weight:700;letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;color:var(--c2);min-width:1.1em;text-align:center}
 #mvis .mvn.a3{color:var(--c1)}
-#mvis .mvp{width:calc(84px*var(--s));height:calc(62px*var(--s));position:relative}
-#mvis .mvp::after{content:"";position:absolute;left:50%;bottom:calc(-3px*var(--s));width:calc(8px*var(--s));height:calc(8px*var(--s));margin-left:calc(-4px*var(--s));border-radius:50%;background:var(--mk-sub)}
-#mvis .mvp i{position:absolute;left:50%;bottom:0;width:calc(2px*var(--s));height:calc(60px*var(--s));margin-left:calc(-1px*var(--s));background:var(--c2);border-radius:2px;transform-origin:50% 100%}
-#mvis .mvp i::after{content:"";position:absolute;left:50%;top:calc(10px*var(--s));width:calc(12px*var(--s));height:calc(8px*var(--s));transform:translateX(-50%);background:var(--c1);border-radius:calc(3px*var(--s))}
+#mvis .mvp{width:calc(78px*var(--s));height:calc(102px*var(--s))}
+#mvis .mvp svg{width:100%;height:100%;display:block;overflow:visible}
+#mvis .mvp .wt{fill:var(--c1);transition:transform .25s ease}
+#mvis .mvp .rod{stroke:var(--c2)}
+#mvis .mvnw{display:flex;flex-direction:column;align-items:center;gap:calc(2px*var(--s))}
+#mvis .mvnw small{font-size:calc(11px*var(--s));color:var(--mk-sub);font-weight:600;letter-spacing:.05em}
+#mvis .msw{pointer-events:auto;display:inline-flex;align-items:center;gap:calc(6px*var(--s));height:calc(28px*var(--s));padding:0 calc(10px*var(--s)) 0 calc(3px*var(--s));border-radius:999px;border:0;cursor:pointer;
+  background:rgba(255,255,255,.12);color:var(--mk-sub);font-weight:800;font-size:calc(11px*var(--s));letter-spacing:.08em;transition:background .2s}
+#mvis .msw i{width:calc(22px*var(--s));height:calc(22px*var(--s));border-radius:50%;background:#c3c8d2;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:transform .2s,background .2s}
+#mvis .msw[aria-checked="true"]{background:var(--c1);color:#1a1205;flex-direction:row-reverse;padding:0 calc(3px*var(--s)) 0 calc(10px*var(--s))}
+#mvis .msw[aria-checked="true"] i{background:#fff}
 #mvis .mvb{display:flex;align-items:center;gap:calc(8px*var(--s));font-size:calc(12px*var(--s));font-weight:600;color:var(--mk-sub);white-space:nowrap;font-variant-numeric:tabular-nums}
 #mvis .mvb button{pointer-events:auto;width:calc(28px*var(--s));height:calc(28px*var(--s));border-radius:50%;border:0;background:rgba(255,255,255,.1);color:var(--mk-ink);padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
 #mvis .mvb button i{width:calc(9px*var(--s));height:calc(9px*var(--s));border-radius:2px;background:currentColor}
@@ -384,10 +391,23 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
   <div class="banner" id="vBanner"></div>
   <div id="mEdge" aria-hidden="true"></div><div id="mFlash" aria-hidden="true"></div>
   <div id="mvis" class="p-tc s-m" hidden aria-hidden="true">
-    <div class="mvp" id="mvPend"><i></i></div>
-    <div class="mvn" id="mvNum">1</div>
+    <div class="mvp" id="mvPend"><svg viewBox="0 0 100 130" aria-hidden="true">
+      <defs><linearGradient id="mkWood" x1="0" x2="1"><stop offset="0" stop-color="#3f2416"/><stop offset=".5" stop-color="#7b4a2b"/><stop offset="1" stop-color="#3f2416"/></linearGradient></defs>
+      <path d="M13 121 L87 121 L65 11 Q50 4 35 11 Z" fill="url(#mkWood)"/>
+      <path d="M31 111 L69 111 L58 21 L42 21 Z" fill="#1a110b"/>
+      <g stroke="#e9d9bf" stroke-opacity=".45" stroke-width="1">
+        <line x1="46" y1="28" x2="54" y2="28"/><line x1="47" y1="38" x2="53" y2="38"/><line x1="46" y1="48" x2="54" y2="48"/><line x1="47" y1="58" x2="53" y2="58"/>
+        <line x1="46" y1="68" x2="54" y2="68"/><line x1="47" y1="78" x2="53" y2="78"/><line x1="46" y1="88" x2="54" y2="88"/><line x1="47" y1="98" x2="53" y2="98"/></g>
+      <rect x="9" y="119" width="82" height="7" rx="2.5" fill="#2e1a0f"/>
+      <g id="mvArm" transform="rotate(-24 50 107)">
+        <line class="rod" x1="50" y1="107" x2="50" y2="12" stroke-width="2.2" stroke-linecap="round"/>
+        <path id="mvWeight" class="wt" d="M43 -5 h14 l-2.5 10 h-9 z"/>
+      </g>
+      <circle cx="50" cy="107" r="3.6" fill="#d8b47a"/>
+    </svg></div>
+    <div class="mvnw" id="mvNumW"><div class="mvn" id="mvNum">1</div><small id="mvNumL">박</small></div>
     <div class="mvd" id="mvDots"></div>
-    <div class="mvb"><span id="mvBpm"></span><button id="mvStop" aria-label="메트로놈 멈춤" title="멈춤"><i></i></button></div>
+    <div class="mvb"><span id="mvBpm"></span><button id="mvOn" class="msw" role="switch" aria-checked="false" aria-label="메트로놈 켜기·끄기" title="메트로놈 켜기·끄기 (M 키)"><i></i><b>OFF</b></button></div>
   </div>
   <div id="met" hidden role="region" aria-label="메트로놈">
     <div class="mh"><b>메트로놈</b><span id="mBarN"></span><button id="mClose" class="mic" aria-label="메트로놈 창 접기" title="창 접기 (소리는 계속)"><svg viewBox="0 0 16 16"><path d="M4.3 3.2L8 6.9l3.7-3.7 1.1 1.1L9.1 8l3.7 3.7-1.1 1.1L8 9.1l-3.7 3.7-1.1-1.1L6.9 8 3.2 4.3z"/></svg></button></div>
@@ -417,6 +437,7 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
     </section>
     <section class="mpane" data-pane="look" hidden>
       <div class="mlab">표시<small>여러 개 고를 수 있음</small></div><div class="mtoggles" id="mVisOpt"></div>
+      <div class="mlab">큰 숫자로 셀 것</div><div class="seg" id="mNumMode"></div>
       <div class="mlab">위치</div><div class="seg" id="mPos"></div>
       <div class="mlab">크기</div><div class="seg" id="mSize"></div>
       <div class="mlab">색</div><div class="mswatch" id="mCol"></div>
@@ -468,7 +489,7 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.2.1';
+const VERSION = 'v1.2.2';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -1000,7 +1021,8 @@ const TERM_KO = { Grave: '아주 느리고 무겁게', Largo: '아주 느리고 
 const METERS = [['1/4', '박만'], ['2/4', '2/4'], ['3/4', '3/4'], ['4/4', '4/4'], ['5/4', '5/4'], ['2/2', '2/2'], ['3/8', '3/8'], ['6/8', '6/8'], ['7/8', '7/8'], ['9/8', '9/8'], ['12/8', '12/8']];
 const SUBS = [[1, '그대로 ♩'], [2, '둘 ♫'], [3, '셋잇단'], [4, '넷 ♬']];
 const SNDS = [['click', '클릭'], ['tick', '똑딱'], ['wood', '우드블록'], ['beep', '삐'], ['bell', '카우벨'], ['hat', '하이햇'], ['drum', '드럼']];
-const VISS = [['dots', '박 점'], ['pend', '진자'], ['num', '큰 숫자'], ['edge', '테두리 빛'], ['flash', '화면 깜빡임'], ['vib', '진동']];
+const VISS = [['pend', '메트로놈 그림'], ['dots', '박 점'], ['num', '큰 숫자'], ['edge', '테두리 빛'], ['flash', '화면 깜빡임'], ['vib', '진동'], ['dock', '멈춰도 화면에 두기']];
+const NUMMODES = [['beat', '박 1·2·3·4'], ['bar', '마디 수']];
 const POSS = [['tc', '위 가운데'], ['tr', '오른쪽 위'], ['bl', '왼쪽 아래'], ['br', '오른쪽 아래']];
 const SIZES = [['s', '작게'], ['m', '보통'], ['l', '크게'], ['xl', '아주 크게']];
 const COLS = { warm: ['호박', '#ffb547', '#e9edf5'], blue: ['파랑', '#7c9cff', '#e9edf5'], green: ['초록', '#3ddc97', '#ffd166'], red: ['빨강', '#ff5a4f', '#ffffff'] };  // [이름, 첫 박, 나머지 박]
@@ -1024,7 +1046,11 @@ const metLabel = x => unitOf(x.meter) + x.bpm + ' · ' + (x.meter === '1/4' ? '�
 const MO = OPT.met = Object.assign({ bpm: 100, meter: '4/4', sub: 1, acc: null, snd: 'click', vol: 80, mute: false, vis: ['dots', 'edge'],
   pos: 'tc', size: 'm', col: 'warm', tr: false, trBars: 4, trStep: 5, trMax: 160 }, OPT.met || {});
 if (!Array.isArray(MO.acc) || MO.acc.length !== beatsOf(MO.meter)) MO.acc = defAcc(MO.meter);
+if (!MO.v2) { MO.vis = [...new Set(MO.vis.concat('pend', 'dock'))]; MO.v2 = 1; }  // v1.2.2: 메트로놈 그림·ON/OFF 스위치를 처음부터 보이게
 if (!('vibrate' in navigator)) MO.vis = MO.vis.filter(v => v !== 'vib');
+const oneBeat = () => MO.meter === '1/4';  // 「박만」은 한 박이 한 마디 → 마디 대신 박으로 센다
+const progTxt = () => oneBeat() ? M.k + '박째' : M.barN + '마디 ' + (M.cur + 1) + '박';
+const weightY = b => 22 + (Math.max(40, Math.min(208, b)) - 40) / 168 * 64;  // 진짜 메트로놈처럼 추가 위 = 느리게, 아래 = 빠르게
 const M = { on: false, ctx: null, out: null, noise: null, timer: 0, next: 0, beat: 0, sub: 0, bar: 0, q: [], k: 0, beatT: 0, cur: -1, barN: 0, seen: 0, taps: [] };
 const mvis = $('#mvis'), met = $('#met');
 const has = v => MO.vis.includes(v);
@@ -1090,7 +1116,7 @@ function mFrame() {
   while (M.q.length && M.q[0].t <= now) mShow(M.q.shift());
   if (has('pend')) {
     const f = M.beatT ? Math.min(1, Math.max(0, (now - M.beatT) / (60 / MO.bpm))) : 0;
-    $('#mvPend i').style.transform = 'rotate(' + (30 * Math.cos(Math.PI * (M.k % 2 + f))).toFixed(1) + 'deg)';
+    $('#mvArm').setAttribute('transform', 'rotate(' + (24 * Math.cos(Math.PI * (M.k % 2 + f))).toFixed(2) + ' 50 107)');
   }
   requestAnimationFrame(mFrame);
 }
@@ -1099,11 +1125,11 @@ function mShow(e) {
   if (e.sub !== 0) return;
   M.k++; M.beatT = e.t; M.cur = e.beat; M.barN = e.bar + 1;
   const lvl = e.lvl, [, c1, c2] = COLS[MO.col] || COLS.warm, col = lvl === 3 ? c1 : c2, str = [0, .45, .7, 1][lvl];
-  $('#mBarN').textContent = M.barN + '마디 ' + (e.beat + 1) + '박';
-  $('#mvBpm').textContent = unitOf(MO.meter) + MO.bpm + ' · ' + M.barN + '마디';
+  $('#mBarN').textContent = progTxt();
+  $('#mvBpm').textContent = unitOf(MO.meter) + MO.bpm + ' · ' + (oneBeat() ? M.k + '박째' : M.barN + '마디');
   if (has('dots')) $('#mvDots').querySelectorAll('span').forEach((s, i) => s.classList.toggle('now', i === e.beat));
   $('#mAcc').querySelectorAll('button').forEach((s, i) => s.classList.toggle('now', i === e.beat));
-  if (has('num')) { const n = $('#mvNum'); n.textContent = e.beat + 1; n.classList.toggle('a3', lvl === 3); n.style.opacity = lvl ? 1 : .35; if (lvl) n.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 160, easing: 'ease-out' }); }
+  if (has('num')) { const n = $('#mvNum'); n.textContent = MO.numMode === 'bar' ? (oneBeat() ? M.k : M.barN) : e.beat + 1; n.classList.toggle('a3', lvl === 3); n.style.opacity = lvl ? 1 : .35; if (lvl) n.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 160, easing: 'ease-out' }); }
   if (!lvl) return;  // 쉼 박: 빛·진동 없음
   const dur = Math.max(80, Math.min(260, 60000 / MO.bpm * 0.6));
   if (has('edge')) { const x = $('#mEdge'); x.style.setProperty('--mc', col); x.animate([{ opacity: str }, { opacity: 0 }], { duration: dur, easing: 'ease-out' }); }
@@ -1168,6 +1194,7 @@ function metDraw() {
   chips($('#mVisOpt'), VISS.filter(([v]) => v !== 'vib' || 'vibrate' in navigator), v => has(v));
   $('#mAcc').innerHTML = MO.acc.map((a, i) => '<button class="a' + a + (i === M.cur ? ' now' : '') + '" data-i="' + i + '" aria-label="' + (i + 1) + '박 ' + ['쉼', '약', '보통', '강'][a] + '"><i></i>' + (i + 1) + '</button>').join('');
   $('#mVol').value = MO.vol; $('#mMute').classList.toggle('on', MO.mute); $('#mMute').innerHTML = MO.mute ? ICO.mute : ICO.vol; $('#mMute').setAttribute('aria-label', MO.mute ? '소리 켜기' : '소리 끄기'); $('#mMute').title = MO.mute ? '소리 꺼짐 — 누르면 켬' : '소리 끄기 (눈으로만)'; fillRange($('#mVol'));
+  chips($('#mNumMode'), NUMMODES, v => v === (MO.numMode || 'beat'));
   chips($('#mPos'), POSS, v => v === MO.pos); chips($('#mSize'), SIZES, v => v === MO.size);
   $('#mCol').innerHTML = Object.entries(COLS).map(([k, v]) => '<button data-v="' + k + '" class="' + (k === MO.col ? 'on' : '') + '" aria-pressed="' + (k === MO.col) + '"><i style="--a:' + v[1] + ';--b:' + v[2] + '"></i>' + v[0] + '</button>').join('');
   opts($('#mTrBars'), [[2, 2], [4, 4], [8, 8], [16, 16]], MO.trBars); opts($('#mTrStep'), [[1, 1], [2, 2], [5, 5], [10, 10]], MO.trStep);
@@ -1180,11 +1207,14 @@ function metUI() {
   $('#vMet').textContent = on ? '♩ ' + MO.bpm : '♩ 메트로놈';
   $('#mPlay').classList.toggle('on', on); $('#mPlay').innerHTML = on ? ICO.stop + '멈춤' : ICO.play + '시작';
   if (!on) $('#mBarN').textContent = '';
-  mvis.hidden = !(on || open);
+  mvis.hidden = !(on || open || has("dock"));  // 멈춰도 화면에 두기 = 그림과 ON/OFF 스위치가 늘 보임
   mvis.className = 'p-' + MO.pos + ' s-' + MO.size;
-  $('#mvPend').hidden = !has('pend'); $('#mvNum').hidden = !has('num'); $('#mvDots').hidden = !has('dots');
-  $('#mvStop').hidden = !on;
-  if (!on) { $('#mvBpm').textContent = unitOf(MO.meter) + MO.bpm; $('#mvNum').textContent = '1'; $('#mvPend i').style.transform = 'rotate(-30deg)'; }
+  $('#mvPend').hidden = !has('pend'); $('#mvDots').hidden = !has('dots');
+  $('#mvOn').setAttribute('aria-checked', on); $('#mvOn b').textContent = on ? 'ON' : 'OFF';
+  $('#mvNumL').textContent = MO.numMode === 'bar' && !oneBeat() ? '마디' : '박';
+  $('#mvNumW').hidden = !has('num');
+  $('#mvWeight').setAttribute('transform', 'translate(0 ' + weightY(MO.bpm).toFixed(1) + ')');
+  if (!on) { $('#mvBpm').textContent = unitOf(MO.meter) + MO.bpm; $('#mvNum').textContent = '1'; $('#mvNum').classList.remove('a3'); $('#mvDots').querySelectorAll('.now').forEach(x => x.classList.remove('now')); $('#mAcc').querySelectorAll('.now').forEach(x => x.classList.remove('now')); $('#mvArm').setAttribute('transform', 'rotate(-24 50 107)'); }
   const dots = MO.acc.map((a, i) => '<span class="a' + a + (i === M.cur ? ' now' : '') + '"></span>').join('');
   if ($('#mvDots').dataset.k !== MO.acc.join('')) { $('#mvDots').innerHTML = dots; $('#mvDots').dataset.k = MO.acc.join(''); }
   const s = V.score, saved = s?.met && s.met.bpm === MO.bpm && s.met.meter === MO.meter;
@@ -1195,7 +1225,8 @@ function metUI() {
 // 조작
 $('#vMet').onclick = () => metPanel(met.hidden);
 $('#mClose').onclick = () => metPanel(false);
-$('#mPlay').onclick = metToggle; $('#mvStop').onclick = metStop;
+$('#mPlay').onclick = metToggle; $('#mvOn').onclick = metToggle;
+$('#mNumMode').onclick = e => { const b = e.target.closest('button'); if (!b) return; MO.numMode = b.dataset.v; saveOpt(); metDraw(); };
 function hold(btn, fn) {
   let t1, t2; const stop = () => { clearTimeout(t1); clearInterval(t2); };
   btn.addEventListener('pointerdown', e => { e.preventDefault(); fn(); t1 = setTimeout(() => t2 = setInterval(fn, 70), 450); });

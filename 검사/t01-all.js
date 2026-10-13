@@ -147,9 +147,9 @@ module.exports = async (c) => {
   chk(await ev(`SSV.MET.ctx.state==='running' && document.querySelector('#vMet').classList.contains('run')`), '소리 켜짐·위 단추 초록');
   chk(await until(`document.querySelector('#mEdge').getAnimations().length>0`, 3000), '테두리 빛 깜빡임');
   chk(await until(`!!document.querySelector('#mvDots span.now')`, 3000), '박 점 표시');
-  await ev(`['pend','num','flash'].forEach(v=>document.querySelector('#mVisOpt button[data-v="'+v+'"]').click())`); await sleep(400);
-  const pa = await ev(`document.querySelector('#mvPend i').style.transform`); await sleep(170);
-  chk(await ev(`!document.querySelector('#mvPend').hidden && !document.querySelector('#mvNum').hidden && document.querySelector('#mvPend i').style.transform!==${JSON.stringify(pa)}`), '진자·큰 숫자 켜기 (진자가 움직임)');
+  await ev(`['num','flash'].forEach(v=>document.querySelector('#mVisOpt button[data-v="'+v+'"]').click())`); await sleep(400);
+  const pa = await ev(`document.querySelector('#mvArm').getAttribute('transform')`); await sleep(170);
+  chk(await ev(`!document.querySelector('#mvPend').hidden && !document.querySelector('#mvNum').hidden && document.querySelector('#mvArm').getAttribute('transform')!==${JSON.stringify(pa)}`), '메트로놈 그림(기본 켜짐)·큰 숫자 켜기 (그림이 흔들림)');
   chk(await until(`document.querySelector('#mFlash').getAnimations().length>0`, 3000), '화면 깜빡임');
   await ev(`document.querySelector('#mMeter button[data-v="6/8"]').click()`); await sleep(300);
   chk(await ev(`JSON.stringify(SSV.MO.acc)==='[3,1,1,2,1,1]' && document.querySelectorAll('#mvDots span').length===6 && document.querySelector('#mUnit').textContent==='♪='`), '6/8 = 6박·1·4박 강세·♪ 기준');
@@ -184,6 +184,25 @@ module.exports = async (c) => {
   await ev(`document.querySelector('#grid .card[data-id="${idC}"] .th').click()`);
   await until(`document.querySelectorAll('#stage .pg').length>0`); await sleep(300);
   chk(await ev(`SSV.MO.bpm===96`), '곡을 다시 열면 저장한 빠르기(96)');
+  // v1.2.2: 화면 메트로놈 그림 + ON/OFF 스위치 (창을 안 열어도 늘 보임) · 추 높이 = 빠르기 · 마디 세기
+  chk(await ev(`!document.querySelector('#mvis').hidden && document.querySelector('#met').hidden && !document.querySelector('#mvPend').hidden && document.querySelector('#mvOn b').textContent==='OFF'`), '멈춰도 메트로놈 그림·OFF 스위치 보임');
+  await ev(`document.querySelector('#mvOn').click()`);
+  chk(await until(`SSV.MET.on && SSV.MET.seen>=3 && document.querySelector('#mvOn').getAttribute('aria-checked')==='true' && document.querySelector('#mvOn b').textContent==='ON'`, 4000), '스위치 ON = 시작');
+  const arm1 = await ev(`document.querySelector('#mvArm').getAttribute('transform')`); await sleep(180);
+  chk(await ev(`document.querySelector('#mvArm').getAttribute('transform')!==${JSON.stringify(arm1)}`), '메트로놈 그림 흔들림');
+  const wy = async b => { await ev(`document.querySelector('#vMet').click()`); await ev(`document.querySelector('#mBpm').value='${b}'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mClose').click()`); return ev(`+document.querySelector('#mvWeight').getAttribute('transform').match(/translate\\(0 ([\\d.]+)/)[1]`); };
+  const ySlow = await wy(50), yFast = await wy(200);
+  chk(ySlow < yFast, '추: 느리면 위·빠르면 아래 (' + ySlow + ' < ' + yFast + ')');
+  await ev(`document.querySelector('#vMet').click()`);
+  await ev(`document.querySelector('#mBpm').value='240'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mMeter button[data-v="4/4"]').click(); document.querySelector('#mNumMode button[data-v="bar"]').click()`);
+  await sleep(2600);
+  chk(await ev(`(()=>{const k=SSV.MET.k, bar=Math.ceil(k/4), n=+document.querySelector('#mvNum').textContent; return Math.abs(n-bar)<=1 && n<k && document.querySelector('#mvNumL').textContent==='마디' && document.querySelector('#mBarN').textContent.includes('마디')})()`), '큰 숫자 = 마디 (4/4 에서 박 수보다 작음)');
+  await ev(`document.querySelector('#mMeter button[data-v="1/4"]').click()`); await sleep(1300);
+  chk(await ev(`document.querySelector('#mBarN').textContent.endsWith('박째') && document.querySelector('#mvBpm').textContent.includes('박째') && document.querySelector('#mvNumL').textContent==='박'`), '「박만」은 마디 대신 박으로 셈');
+  await ev(`document.querySelector('#mMeter button[data-v="4/4"]').click(); document.querySelector('#mNumMode button[data-v="beat"]').click(); document.querySelector('#mBpm').value='96'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mClose').click()`);
+  await ev(`document.querySelector('#mvOn').click()`); await sleep(200);
+  chk(await ev(`!SSV.MET.on && document.querySelector('#mvOn b').textContent==='OFF' && !document.querySelector('#mvis').hidden`), '스위치 OFF = 멈춤 (그림은 남음)');
+  await c.shot('s15-met-switch.png', false);
   await ev(`SSV.closeViewer()`); await sleep(400);
 
   // 7. 백업 왕복: 전체 백업 → 다 지우기 → 가져오기
