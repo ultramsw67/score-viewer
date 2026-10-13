@@ -194,20 +194,11 @@ module.exports = async (c) => {
   const ySlow = await wy(50), yFast = await wy(200);
   chk(ySlow < yFast, '추: 느리면 위·빠르면 아래 (' + ySlow + ' < ' + yFast + ')');
   await ev(`document.querySelector('#vMet').click()`);
-  await ev(`document.querySelector('#mBpm').value='240'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mMeter button[data-v="4/4"]').click(); document.querySelector('#mVisOpt button[data-v="num"]').click(); document.querySelector('#mNumMode button[data-v="bar"]').click()`);
-  chk(await ev(`SSV.MO.vis.includes('num') && !document.querySelector('#mvNumW').hidden`), '큰 숫자 꺼진 채 「마디 수」 고르면 큰 숫자 같이 켜짐');
-  await sleep(2600);
-  chk(await ev(`(()=>{const k=SSV.MET.k, bar=Math.ceil(k/4), n=+document.querySelector('#mvNum').textContent; return Math.abs(n-bar)<=1 && n<k && document.querySelector('#mvNumL').textContent==='마디' && document.querySelector('#mBarN').textContent.includes('마디')})()`), '큰 숫자 = 마디 (4/4 에서 박 수보다 작음)');
-  await ev(`document.querySelector('#mMeter button[data-v="1/4"]').click()`); await sleep(1300);
-  chk(await ev(`/^\\d+박$/.test(document.querySelector('#mBarN').textContent) && !document.querySelector('#mvBpm').textContent.includes('마디') && document.querySelector('#mvNumL').textContent==='박 (마디 없음)' && +document.querySelector('#mvNum').textContent===SSV.MET.kr && !document.querySelector('#mNumNote').hidden && document.querySelector('#mMeter button[data-v="1/4"]').textContent==='강세 없음'`), '「강세 없음」(1/4)은 마디 없음 → 박으로 셈·안내 보임');
-  await ev(`document.querySelector('#mTo44').click()`); await sleep(200);
-  chk(await ev(`SSV.MO.meter==='4/4' && document.querySelector('#mNumNote').hidden`), '안내의 「4/4 로 바꾸기」');
-  // v1.2.6: 「박 수」 = 누적 박 (4 를 넘어 계속 올라감), 「마디 수」 = 마디
-  await ev(`document.querySelector('#mMeter button[data-v="4/4"]').click(); document.querySelector('#mNumMode button[data-v="beat"]').click(); document.querySelector('#mPlay').click(); document.querySelector('#mPlay').click()`); await sleep(2200);
-  chk(await ev(`(()=>{const n=+document.querySelector('#mvNum').textContent; return n>4 && Math.abs(n-SSV.MET.kr)<=1 && document.querySelector('#mvNumL').textContent==='박' && /^\\d+박 · \\d+마디$/.test(document.querySelector('#mBarN').textContent)})()`), '「박 수」 = 1·2·3·4·5… 누적 (4 넘어 계속)');
-  await ev(`document.querySelector('#mNumMode button[data-v="bar"]').click()`); await sleep(1300);
-  chk(await ev(`+document.querySelector('#mvNum').textContent===SSV.MET.barN && SSV.MET.barN===Math.ceil(SSV.MET.kr/4) && document.querySelector('#mvNumL').textContent==='마디'`), '「마디 수」 = 진행된 마디 (박 수 ÷ 4 올림)');
-  await ev(`document.querySelector('#mMeter button[data-v="4/4"]').click(); document.querySelector('#mNumMode button[data-v="beat"]').click(); document.querySelector('#mBpm').value='96'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mClose').click()`);
+  // v1.2.8: 큰 숫자 = 박 수(누적, 4 넘어 계속) — 마디 수 표시는 뺌 (10/13 사용자)
+  await ev(`document.querySelector('#mBpm').value='240'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mMeter button[data-v="4/4"]').click(); document.querySelector('#mPlay').click(); document.querySelector('#mPlay').click()`); await sleep(2200);
+  chk(await ev(`(()=>{const n=+document.querySelector('#mvNum').textContent; return n>4 && Math.abs(n-SSV.MET.kr)<=1 && document.querySelector('#mvNumL').textContent==='박' && /^\\d+박$/.test(document.querySelector('#mBarN').textContent) && !document.querySelector('#mvBpm').textContent.includes('마디')})()`), '큰 숫자 = 박 수 1·2·3·4·5… 누적 (마디 수 표시 없음)');
+  chk(await ev(`!document.querySelector('#mNumMode') && document.querySelector('#mMeter button[data-v="1/4"]').textContent==='강세 없음'`), '「마디 수」 고르기 없음·「강세 없음」 이름');
+  await ev(`document.querySelector('#mBpm').value='96'; document.querySelector('#mBpm').dispatchEvent(new Event('change')); document.querySelector('#mClose').click()`);
   await ev(`document.querySelector('#mvOn').click()`); await sleep(200);
   chk(await ev(`!SSV.MET.on && document.querySelector('#mvOn b').textContent==='OFF' && !document.querySelector('#mvis').hidden`), '스위치 OFF = 멈춤 (그림은 남음)');
   await c.shot('s15-met-switch.png', false);
@@ -236,9 +227,9 @@ module.exports = async (c) => {
   chk(await ev(`SSV.MO.pre===1 && !document.querySelector('#mPreAfter').hidden && document.querySelector('#mPlay').textContent.includes('예비 1마디')`), '예비박 1마디 고르기 (시작 단추에 표시)');
   await ev(`document.querySelector('#mPreAfter button[data-v="go"]').click(); document.querySelector('#mPlay').click()`);
   chk(await until(`document.querySelector('#mBarN').textContent.startsWith('예비 1/1마디') && document.querySelector('#mvNumL').textContent==='예비' && document.querySelector('#mvNum').classList.contains('pre')`, 3000), '예비박 동안 「예비」 표시');
-  chk(await until(`SSV.MET.on && !SSV.MET.inPre && SSV.MET.barN===1 && document.querySelector('#mBarN').textContent.endsWith(' 1마디')`, 3000), '예비박 뒤 1마디부터 계속');
+  chk(await until(`SSV.MET.on && !SSV.MET.inPre && SSV.MET.kr>=1 && SSV.MET.kr<=4 && /^\\d+박$/.test(document.querySelector('#mBarN').textContent)`, 3000), '예비박 뒤 1박부터 이어서 셈');
   await sleep(1100);
-  chk(await ev(`document.querySelector('#mBarN').textContent.endsWith(' 2마디') && SSV.MET.kr>=5 && SSV.MET.kr<=8`), '이어서 2마디 (예비박은 박·마디 수에 안 들어감)');
+  chk(await ev(`SSV.MET.kr>=5 && SSV.MET.kr<=8 && document.querySelector('#mBarN').textContent===SSV.MET.kr+'박'`), '이어서 5~8박 (예비박은 박 수에 안 들어감)');
   await ev(`document.querySelector('#mPlay').click(); document.querySelector('#mPreAfter button[data-v="stop"]').click(); document.querySelector('#mPlay').click()`);
   chk(await until(`SSV.MET.on && document.querySelector('#mBarN').textContent.startsWith('예비')`, 3000), '「예비박만」 시작');
   chk(await until(`!SSV.MET.on`, 4000) && await ev(`SSV.MET.k===4`), '「예비박만」 = 4박 세고 멈춤');
