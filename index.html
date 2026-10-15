@@ -68,6 +68,46 @@ header.top .wrap{display:flex;align-items:center;gap:10px;padding-top:10px;paddi
 .card .fav.on{background:#f5b301;color:#3a2600;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .card.isfav{border-color:#f5b301}
 .chip.favchip.on{background:#fff6dc;border-color:#f5b301;color:#a86f00}
+/* 폴더 (v1.4.0) — PC 는 왼쪽 폴더 막대, 폰은 위 가로 줄 */
+.libwrap{display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px;align-items:start;margin-top:10px}
+.fside{position:sticky;top:74px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:2px;max-height:calc(100vh - 96px);overflow:auto;box-shadow:var(--shadow)}
+.fside .fh{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12.5px;font-weight:700;color:var(--sub);padding:12px 6px 4px 10px}
+.fside .fh button{border:0;background:var(--soft);color:var(--main);border-radius:8px;min-height:32px;padding:0 10px;font-weight:700;font-size:13px}
+.fside .fnote{font-size:12.5px;color:var(--sub);padding:4px 10px 8px;line-height:1.5}
+.fi{display:flex;align-items:center;gap:8px;border-radius:10px;padding:0 4px 0 10px;min-height:42px;cursor:pointer;color:var(--ink);user-select:none}
+.fi:hover{background:var(--well)}
+.fi.on{background:var(--soft);color:var(--main);font-weight:700}
+.fi .ic{width:20px;text-align:center;flex:0 0 auto;font-size:15px}
+.fi .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fi .ct{font-size:12.5px;color:var(--sub);font-variant-numeric:tabular-nums;font-weight:600}
+.fi .fm{border:0;background:none;color:var(--sub);width:32px;height:32px;border-radius:8px;font-size:17px;flex:0 0 auto;padding:0}
+.fi .fm:hover{background:var(--card);color:var(--main)}
+.fi.dropok{outline:2px dashed var(--main);outline-offset:-2px;background:var(--soft)}
+.ftitle{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 0}
+.ftitle h2{margin:0;font-size:21px;letter-spacing:-.3px}
+.ftitle span{color:var(--sub);font-size:14px;font-weight:600}
+.btn.on{background:var(--soft);border-color:var(--main)}
+.card .fd{font-size:12px;color:var(--main);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .th img{-webkit-user-drag:none}
+.grid.sel .card .fav,.grid.sel .card .more{display:none}
+.grid.sel .card{cursor:pointer}
+.grid.sel .card::after{content:"";position:absolute;top:8px;left:8px;width:28px;height:28px;border-radius:50%;border:2px solid #fff;background:rgba(20,25,40,.35);box-shadow:0 1px 4px rgba(0,0,0,.3);pointer-events:none}
+.grid.sel .card.picked{outline:3px solid var(--main);outline-offset:-2px}
+.grid.sel .card.picked::after{background:var(--main) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/18px no-repeat;border-color:#fff}
+.selbar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:40;background:var(--card);border:1px solid var(--line);box-shadow:0 12px 34px rgba(0,0,0,.22);border-radius:14px;padding:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:center;width:max-content;max-width:calc(100vw - 24px)}
+.selbar b{padding:0 8px;font-size:15px}
+.selbar .btn:disabled{opacity:.4;pointer-events:none}
+body.selecting .toast{bottom:calc(var(--selh,70px) + 30px)}
+.mvrow{cursor:pointer}
+.mvrow:hover{border-color:var(--main);background:var(--soft)}
+@media (max-width:760px){
+  .libwrap{display:block}
+  .fside{position:static;flex-direction:row;overflow-x:auto;max-height:none;padding:6px;gap:4px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+  .fside .fh{padding:0 4px;flex:0 0 auto}
+  .fside .fh span,.fside .fnote{display:none}
+  .fi{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;min-height:40px}
+  .fi .nm{overflow:visible}
+}
 .sood{display:flex;flex-direction:column;align-items:center;gap:2px;margin:14px 0 2px}
 .sood img{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--card);box-shadow:0 1px 6px rgba(0,0,0,.18);background:var(--card)}
 .sood .wm{font-weight:800;font-size:20px;letter-spacing:.28em;margin-right:-.28em;color:var(--ink);opacity:.16;line-height:1.2;user-select:none}
@@ -115,13 +155,6 @@ label.f input,label.f textarea,label.f select{border:1px solid var(--line);backg
 #viewer.night .pg{background:#000;box-shadow:none}
 .pg::after{content:"수트와후드";position:absolute;right:10px;bottom:5px;font-weight:800;font-size:14px;letter-spacing:.12em;color:#1f3b63;opacity:.14;pointer-events:none;z-index:2;font-family:"Pretendard","Malgun Gothic",sans-serif}
 #viewer.night .pg::after{color:#fff;opacity:.2}
-/* 반쪽 넘기기: 위 = 다음 쪽 위 절반, 아래 = 지금 쪽 아래 절반 */
-.halfw{position:relative;flex:0 0 auto}
-.halfw .pg{position:absolute;left:50%;top:0;transform:translateX(-50%)}
-.halfw .pg.top{clip-path:inset(0 0 50% 0)}
-.halfw .pg.bot{clip-path:inset(50% 0 0 0)}
-.halfw::after{content:"";position:absolute;left:-14px;right:-14px;top:50%;border-top:2px dashed var(--vb-acc);opacity:.6;z-index:3;pointer-events:none}
-.halfw .hl{position:absolute;right:-6px;z-index:3;transform:translateX(100%);font:700 11px/1.3 "Pretendard","Malgun Gothic",sans-serif;color:var(--vb-acc);background:var(--vb-bg);border-radius:6px;padding:2px 6px;white-space:nowrap}
 /* 점프 단추 (도돌이·D.S.) */
 .jmp{position:absolute;z-index:3;transform:translate(-50%,-50%);border:1.5px solid #1470e0;background:rgba(255,255,255,.94);color:#1470e0;border-radius:999px;padding:4px 11px 4px 8px;font:700 12.5px/1.2 "Pretendard","Malgun Gothic",sans-serif;white-space:nowrap;box-shadow:0 2px 10px rgba(20,112,224,.28);cursor:pointer;display:inline-flex;align-items:center;gap:4px}
 .jmp svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -195,14 +228,6 @@ html,body{overscroll-behavior-x:none}
 #vMoreM button svg{width:21px;height:21px;fill:none;stroke:var(--vb-acc);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 #vMoreM button:hover{background:var(--vb-hover)}
 #vMoreM button small{margin-left:auto;color:var(--vb-sub);font-weight:500;font-size:12px}
-/* 자동 스크롤 조절기 */
-#autoC{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:4px;background:var(--vb-bg);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid var(--vb-line);border-radius:999px;padding:5px;box-shadow:0 10px 30px rgba(16,28,56,.2);color:var(--vb-ink)}
-#viewer:not(.hidebars) #autoC{bottom:76px}
-#autoC button{width:40px;height:40px;border-radius:50%;border:0;background:var(--vb-hover);color:var(--vb-acc);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;font-weight:600;padding:0}
-#autoC button svg{width:18px;height:18px;fill:currentColor}
-#autoC #aPlay{background:var(--vb-acc);color:#fff}
-#autoC b{min-width:88px;text-align:center;font-size:13.5px;font-variant-numeric:tabular-nums}
-#autoC b small{display:block;font-size:10.5px;color:var(--vb-sub);font-weight:600}
 /* 패널 공통 (메트로놈·여백·튜너·도장) — 밝은 카드, 밤 모드면 어둡게 */
 #viewer{--mk-panel:rgba(18,20,26,.94);--mk-line:rgba(255,255,255,.08);--mk-fill:rgba(255,255,255,.06);--mk-fill2:rgba(255,255,255,.11);
   --mk-ink:#f4f5f7;--mk-sub:#9ba2ae;--mk-dim:#6d7481;--c1:#ffb547;--c2:#e9edf5}
@@ -446,22 +471,29 @@ html,body{overscroll-behavior-x:none}
     <div class="wm" aria-label="수트와후드">수트와후드</div>
   </div>
   <section id="pLib">
-    <div class="bar">
-      <button class="btn main" id="btnAdd">＋ 악보 넣기</button>
-      <button class="btn" id="btnAddDir">📁 폴더째 넣기</button>
-      <input type="search" id="q" placeholder="제목·태그 검색" autocomplete="off">
-      <select id="sort" aria-label="정렬">
-        <option value="title">이름순</option>
-        <option value="opened">최근 본 순</option>
-        <option value="added">최근 넣은 순</option>
-      </select>
-    </div>
-    <div class="chips" id="tagChips"></div>
-    <div class="grid" id="grid"></div>
-    <div class="empty" id="libEmpty" hidden>
-      <b>아직 넣은 악보가 없습니다.</b><br>
-      「＋ 악보 넣기」를 눌러 PDF 를 고르세요. PC 에서는 파일을 이 화면에 끌어다 놓아도 됩니다.<br>
-      악보는 이 기기 안에만 저장되고 인터넷에 올라가지 않습니다.
+    <div class="libwrap">
+      <aside class="fside" id="fside" aria-label="폴더"></aside>
+      <div class="libmain">
+        <div class="ftitle"><h2 id="fTitle">모든 악보</h2><span id="fCount"></span><button class="btn sm" id="fRename" hidden>이름 바꾸기·지우기</button></div>
+        <div class="bar">
+          <button class="btn main" id="btnAdd">＋ 악보 넣기</button>
+          <button class="btn" id="btnAddDir">📁 폴더째 넣기</button>
+          <button class="btn" id="btnSel" title="여러 곡을 골라 폴더로 옮기기·즐겨찾기·지우기">☑ 고르기</button>
+          <input type="search" id="q" placeholder="제목·태그 검색 (모든 폴더)" autocomplete="off">
+          <select id="sort" aria-label="정렬">
+            <option value="title">이름순</option>
+            <option value="opened">최근 본 순</option>
+            <option value="added">최근 넣은 순</option>
+          </select>
+        </div>
+        <div class="chips" id="tagChips"></div>
+        <div class="grid" id="grid"></div>
+        <div class="empty" id="libEmpty" hidden>
+          <b>아직 넣은 악보가 없습니다.</b><br>
+          「＋ 악보 넣기」를 눌러 PDF 를 고르세요. PC 에서는 파일을 이 화면에 끌어다 놓아도 됩니다.<br>
+          악보는 이 기기 안에만 저장되고 인터넷에 올라가지 않습니다.
+        </div>
+      </div>
     </div>
   </section>
 
@@ -480,6 +512,14 @@ html,body{overscroll-behavior-x:none}
 <input type="file" id="fileIn" accept="application/pdf,.pdf" multiple hidden>
 <input type="file" id="dirIn" webkitdirectory multiple hidden>
 <input type="file" id="backupIn" accept=".json,.soodscore,application/json,application/octet-stream" hidden>
+<div class="selbar" id="selbar" hidden>
+  <b id="selN">0곡 고름</b>
+  <button class="btn sm" id="selAll">보이는 것 모두 고르기</button>
+  <button class="btn sm main" id="selMove">📁 폴더로 옮기기</button>
+  <button class="btn sm" id="selFav">★ 즐겨찾기</button>
+  <button class="btn sm warn" id="selDel">지우기</button>
+  <button class="btn sm" id="selEnd">끝내기</button>
+</div>
 <div class="drop" id="drop">여기에 놓으면 악보를 넣습니다</div>
 <div class="toast" id="toast"><span></span></div>
 <div class="prog" id="prog"><div><div id="progT">넣는 중…</div><progress id="progBar" max="1" value="0"></progress></div></div>
@@ -489,6 +529,7 @@ html,body{overscroll-behavior-x:none}
   <div class="dh"><span>악보 정보</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
   <div class="db">
     <label class="f">제목<input id="eTitle"></label>
+    <label class="f">폴더<select id="eFolder"></select></label>
     <label class="f">태그 (쉼표로 나눔 — 예: 알토, 행진곡, 10월 공연)<input id="eTags"></label>
     <label class="f">메모<textarea id="eMemo" rows="3"></textarea></label>
     <label class="f">연주 목록에 넣기<select id="eSet"></select></label>
@@ -499,6 +540,28 @@ html,body{overscroll-behavior-x:none}
     <button class="btn" id="eInkClear">필기 모두 지우기</button>
     <button class="btn main" id="eSave">저장</button>
   </div>
+</dialog>
+
+<!-- 폴더 이름 (v1.4.0) -->
+<dialog id="dFolder">
+  <div class="dh"><span id="fdTitle">새 폴더</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
+  <div class="db">
+    <label class="f">폴더 이름<input id="fdName" maxlength="40" placeholder="예: 10월 정기 공연" autocomplete="off"></label>
+    <div class="note" id="fdErr" style="color:var(--warn);font-weight:600" hidden></div>
+    <div><div class="note">눌러서 고르면 이름 칸에 들어갑니다 (고쳐서 저장해도 됩니다)</div><div class="chips" id="fdSug" style="margin:8px 0 0"></div></div>
+    <div class="note" id="fdInfo"></div>
+  </div>
+  <div class="df">
+    <button class="btn warn" id="fdDel">폴더 지우기</button>
+    <button class="btn main" id="fdSave">저장</button>
+  </div>
+</dialog>
+
+<!-- 폴더로 옮기기 (v1.4.0) -->
+<dialog id="dMove">
+  <div class="dh"><span id="mvTitle">폴더로 옮기기</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
+  <div class="db"><div class="list" id="mvList"></div></div>
+  <div class="df"><button class="btn main" id="mvNew">＋ 새 폴더 만들어 옮기기</button></div>
 </dialog>
 
 <!-- 연주 목록 편집 -->
@@ -654,13 +717,6 @@ html,body{overscroll-behavior-x:none}
     <div id="spGroups"></div>
     <div class="mlab">크기</div><div class="seg" id="spSize"></div>
   </div>
-  <div id="autoC" hidden>
-    <button id="aSlow" aria-label="느리게">−</button>
-    <b id="aSpd"></b>
-    <button id="aFast" aria-label="빠르게">+</button>
-    <button id="aPlay" aria-label="멈춤·다시"></button>
-    <button id="aStop" aria-label="자동 스크롤 끄기"><svg viewBox="0 0 16 16"><path d="M4.3 3.2L8 6.9l3.7-3.7 1.1 1.1L9.1 8l3.7 3.7-1.1 1.1L8 9.1l-3.7 3.7-1.1-1.1L6.9 8 3.2 4.3z"/></svg></button>
-  </div>
   <div id="vMoreM" hidden role="menu">
     <button id="mnCrop" role="menuitem"><svg viewBox="0 0 24 24"><path d="M7 3v14h14"/><path d="M3 7h14v14"/></svg>여백 자르기·오선 크게<small id="mnCropS"></small></button>
     <button id="mnPages" role="menuitem"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>쪽 순서·반복<small id="mnPagesS"></small></button>
@@ -674,8 +730,6 @@ html,body{overscroll-behavior-x:none}
     <button id="vFav" title="즐겨찾기" aria-label="즐겨찾기"><svg viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg><span>즐겨찾기</span></button>
     <button id="vFit" title="쪽 맞춤 ↔ 폭 맞춤"><svg viewBox="0 0 24 24"><rect x="6" y="3.5" width="12" height="17" rx="1.5"/><path d="M9 8h6M9 11h6M9 14h4"/></svg><span>쪽 맞춤</span></button>
     <button id="vTwo" title="두 쪽 ↔ 한 쪽"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="8" height="15" rx="1.2"/><rect x="13" y="4.5" width="8" height="15" rx="1.2"/></svg><span>두 쪽</span></button>
-    <button id="vHalf" title="반쪽 넘기기 — 아래 절반을 보는 동안 위에 다음 쪽이 먼저 나옴"><svg viewBox="0 0 24 24"><rect x="6" y="3.5" width="12" height="17" rx="1.5"/><path d="M3.5 12h17" stroke-dasharray="2.2 2.2"/></svg><span>반쪽 넘기기</span></button>
-    <button id="vAuto" title="자동 스크롤"><svg viewBox="0 0 24 24"><path d="M12 4v12.5M7.5 12L12 16.5 16.5 12M6 20h12"/></svg><span>자동 스크롤</span></button>
     <button id="vNight" title="밤 모드"><svg viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg><span>밤 모드</span></button>
     <span class="vsep"></span>
     <button id="vMet" title="메트로놈 (M 키)" aria-label="메트로놈"><svg viewBox="0 0 24 24"><path d="M8.6 3.5h6.8l3.6 17H5z"/><path d="M12 17l4.6-10"/><path d="M7.8 17h8.4"/></svg><span>메트로놈</span></button>
@@ -757,15 +811,15 @@ html,body{overscroll-behavior-x:none}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.3.2';
+const VERSION = 'v1.4.0';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
 const DB = await new Promise((res, rej) => {
-  const r = indexedDB.open('sood-score', 2);  // v2 (v1.3.0): 녹음 takes 더함
+  const r = indexedDB.open('sood-score', 3);  // v2 (v1.3.0): 녹음 takes · v3 (v1.4.0): 폴더 folders
   r.onupgradeneeded = () => {
     const d = r.result;
-    for (const [s, k] of [['scores', 'id'], ['files', 'id'], ['ink', 'key'], ['sets', 'id'], ['takes', 'id']])
+    for (const [s, k] of [['scores', 'id'], ['files', 'id'], ['ink', 'key'], ['sets', 'id'], ['takes', 'id'], ['folders', 'id']])
       if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { keyPath: k });
   };
   r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
@@ -784,7 +838,7 @@ const db = {
 const inkOf = async id => (await db.all('ink')).filter(x => x.id === id);
 
 /* ---------- 설정 ---------- */
-const OPT = Object.assign({ two: 'auto', full: 'touch', pen: 'any', theme: '', sort: 'title', night: false, fit: 'page', favOnly: false },
+const OPT = Object.assign({ two: 'auto', full: 'touch', pen: 'any', theme: '', sort: 'title', night: false, fit: 'page', view: '' },
   (() => { try { return JSON.parse(localStorage.getItem('ssv.opt') || '{}'); } catch (e) { return {}; } })());
 const saveOpt = () => { try { localStorage.setItem('ssv.opt', JSON.stringify(OPT)); } catch (e) { } };
 // v1.3.2: 노트북(마우스·터치패드)에서 전체 화면이면 위로 마우스를 올릴 때 브라우저가 자기 'X'(전체 화면 나가기)를 악보 위에 띄움
@@ -835,11 +889,12 @@ async function makeThumb(buf) {
     return { thumb: c.toDataURL('image/jpeg', 0.72), pages: doc.numPages };
   } finally { doc.destroy(); }
 }
-async function addFiles(list) {
+async function addFiles(list, intoFolder) {
   const files = [...list].filter(f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf');
   if (!files.length) { toast('PDF 파일이 없습니다.'); return; }
   await askPersist();
-  let added = 0, same = 0, bad = 0, relinked = 0;
+  let added = 0, same = 0, bad = 0, relinked = 0; const usedF = new Set();
+  const here = intoFolder !== undefined ? intoFolder : (folderOf(view) ? view : '');  // 폴더를 보고 있으면 그 폴더에 넣는다
   progress(true, '악보 넣는 중… 0 / ' + files.length, 0, files.length);
   for (let i = 0; i < files.length; i++) {
     const f = files[i];
@@ -850,20 +905,24 @@ async function addFiles(list) {
       const old = await db.get('scores', id);
       if (old && old.has) { same++; continue; }
       const { thumb, pages } = await makeThumb(buf.slice(0));
-      const folderTags = (f.webkitRelativePath || '').split('/').slice(1, -1);
-      const rec = old ? Object.assign(old, { has: true, thumb, pages, size: f.size }) : {
+      const rel = (f.webkitRelativePath || '').split('/');
+      const folderTags = rel.slice(1, -1);
+      // 「폴더째 넣기」: PC 폴더 이름 = 앱 폴더 (없으면 만듦), 그 안의 하위 폴더 이름은 태그
+      const fid = rel.length > 1 && rel[0] ? (await folderByName(rel[0], true)).id : here;
+      const rec = old ? Object.assign(old, { has: true, thumb, pages, size: f.size }, old.folder ? {} : { folder: fid }) : {
         id, title: titleFromName(f.name), fileName: f.name, size: f.size, pages, thumb, has: true,
-        tags: folderTags, memo: '', added: Date.now(), opened: 0, lastPage: 1,
+        tags: folderTags, memo: '', added: Date.now(), opened: 0, lastPage: 1, folder: fid,
       };
       await db.put('files', { id, blob: new Blob([buf], { type: 'application/pdf' }) });
       await db.put('scores', rec);
-      old ? relinked++ : added++;
+      old ? relinked++ : added++; if (rec.folder) usedF.add(rec.folder);
     } catch (e) { console.warn('넣기 실패', f.name, e); bad++; }
   }
   progress(false);
   const parts = [];
   if (added) parts.push(added + '곡 넣음'); if (relinked) parts.push(relinked + '곡 필기·정보 연결');
   if (same) parts.push(same + '곡은 이미 있음'); if (bad) parts.push(bad + '개는 열 수 없는 파일');
+  if ((added || relinked) && usedF.size === 1) { const uf = folderOf([...usedF][0]); if (uf) { parts.push('「' + uf.name + '」 폴더'); if (view !== uf.id) { view = uf.id; OPT.view = view; saveOpt(); } } }
   toast(parts.join(' · ') || '바뀐 것이 없습니다.');
   renderLib();
 }
@@ -878,55 +937,221 @@ addEventListener('dragleave', () => { if (--dragN <= 0) { dragN = 0; $('#drop').
 addEventListener('dragover', e => e.preventDefault());
 addEventListener('drop', e => { e.preventDefault(); dragN = 0; $('#drop').classList.remove('on'); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
 
+/* ---------- 폴더 (v1.4.0) — folders 저장소 {id, name, created}, 악보마다 scores.folder = 폴더 id ('' = 폴더 없음). 한 단계만 ---------- */
+let FOLDERS = [];
+const byName = (a, b) => a.name.localeCompare(b.name, 'ko', { numeric: true });
+async function loadFolders() { FOLDERS = (await db.all('folders')).sort(byName); return FOLDERS; }
+const folderOf = id => id ? FOLDERS.find(f => f.id === id) : null;
+const FSUG = ['정기 공연', '합주', '개인 연습', '레슨', '행진곡', '가요·트로트', '클래식', '팝·영화음악', '크리스마스', '알토 1', '알토 2', '색소폰 모음'];
+async function newFolder(name) {
+  const f = { id: 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name, created: Date.now() };
+  await db.put('folders', f); await loadFolders(); return f;
+}
+async function folderByName(name, make) { const n = name.trim(); return FOLDERS.find(f => norm(f.name) === norm(n)) || (make && n ? newFolder(n) : null); }
+// 폴더 이름 창 — f 가 없으면 새 폴더. 저장하면 폴더, 닫으면 null
+let fdCtx = null;
+function askFolder(f) {
+  return new Promise(res => {
+    fdCtx = { f, res };
+    $('#fdTitle').textContent = f ? '폴더 이름 바꾸기' : '새 폴더 만들기';
+    $('#fdName').value = f ? f.name : ''; $('#fdErr').hidden = true; $('#fdDel').hidden = !f;
+    const used = new Set(FOLDERS.map(x => norm(x.name)));
+    const tagSug = [...new Set(SCORES.flatMap(x => x.tags || []))];
+    $('#fdSug').innerHTML = [...new Set([...tagSug, new Date().getFullYear() + ' 공연', ...FSUG])].filter(x => !used.has(norm(x))).slice(0, 16)
+      .map(x => '<button type="button" class="chip" data-s="' + esc(x) + '">' + esc(x) + '</button>').join('');
+    $('#fdInfo').textContent = f ? '이 폴더 악보 ' + SCORES.filter(x => x.folder === f.id).length + '곡 · 폴더를 지워도 악보는 지워지지 않고 「폴더 없음」으로 갑니다.'
+      : '이름은 나중에 언제든 바꿀 수 있습니다.';
+    $('#dFolder').showModal(); setTimeout(() => { $('#fdName').focus(); $('#fdName').select(); }, 50);
+  });
+}
+$('#fdSug').onclick = e => { const c = e.target.closest('[data-s]'); if (!c) return; $('#fdName').value = c.dataset.s; $('#fdErr').hidden = true; $('#fdName').focus(); };
+async function fdSave() {
+  if (!fdCtx) return;
+  const name = $('#fdName').value.trim().replace(/\s+/g, ' ');
+  const err = m => { $('#fdErr').textContent = m; $('#fdErr').hidden = false; $('#fdName').focus(); };
+  if (!name) return err('폴더 이름을 적어 주세요.');
+  const dup = FOLDERS.find(x => norm(x.name) === norm(name) && x.id !== fdCtx.f?.id);
+  if (dup) return err('「' + dup.name + '」 폴더가 이미 있습니다. 다른 이름을 적어 주세요.');
+  let f = fdCtx.f;
+  if (f) { f.name = name; await db.put('folders', f); await loadFolders(); } else f = await newFolder(name);
+  const r = fdCtx.res; fdCtx = null; $('#dFolder').close(); r(f);
+}
+$('#fdSave').onclick = fdSave;
+$('#fdName').onkeydown = e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); fdSave(); } };
+$('#fdName').oninput = () => { $('#fdErr').hidden = true; };
+$('#dFolder').addEventListener('close', () => { if (fdCtx) { const r = fdCtx.res; fdCtx = null; r(null); } });
+$('#fdDel').onclick = async () => {
+  const f = fdCtx.f, r = fdCtx.res; fdCtx = null; $('#dFolder').close(); r(null);
+  const moved = SCORES.filter(x => x.folder === f.id);
+  for (const x of moved) { x.folder = ''; await db.put('scores', x); }
+  await db.del('folders', f.id); await loadFolders();
+  if (view === f.id) setView('all'); else renderLib(true);
+  toast('「' + f.name + '」 폴더를 지웠습니다' + (moved.length ? ' — 악보 ' + moved.length + '곡은 「폴더 없음」으로' : ''), '되살리기', async () => {
+    await db.put('folders', f); for (const x of moved) { x.folder = f.id; await db.put('scores', x); }
+    await loadFolders(); setView(f.id);
+  }, 6000);
+};
+async function renameFolder(f) { const r = await askFolder(f); if (r) toast('폴더 이름: 「' + r.name + '」', null, null, 1600); renderLib(true); }
+
 /* ---------- 악보 목록 ---------- */
-let SCORES = [], tagOn = null, favOnly = !!OPT.favOnly;
+let SCORES = [], tagOn = null, view = OPT.view || (OPT.favOnly ? 'fav' : 'all');
+if (OPT.favOnly !== undefined) { delete OPT.favOnly; OPT.view = view; saveOpt(); }
 $('#sort').value = OPT.sort;
 $('#sort').onchange = () => { OPT.sort = $('#sort').value; saveOpt(); renderLib(); };
 $('#q').oninput = () => renderLib(true);
+function setView(v) { view = v; OPT.view = v; saveOpt(); tagOn = null; $('#q').value = ''; renderLib(true); if (scrollY > 200) scrollTo({ top: 0 }); }
+const inView = s => view === 'all' || (view === 'fav' ? !!s.fav : view === 'none' ? !folderOf(s.folder) : s.folder === view);
 async function renderLib(keep) {
-  if (!keep) SCORES = await db.all('scores');
+  if (!keep) { SCORES = await db.all('scores'); await loadFolders(); }
+  if (!['all', 'fav', 'none'].includes(view) && !folderOf(view)) view = 'all';
+  if (view === 'none' && !FOLDERS.length) view = 'all';
   const q = norm($('#q').value);
-  const tags = {}; SCORES.forEach(s => (s.tags || []).forEach(t => tags[t] = (tags[t] || 0) + 1));
+  // 왼쪽 폴더 막대
+  const cnt = {}; SCORES.forEach(s => { const k = folderOf(s.folder) ? s.folder : ''; cnt[k] = (cnt[k] || 0) + 1; });
+  const fi = (v, ic, nm, n, menu) => '<div class="fi' + (view === v && !q ? ' on' : '') + '" role="button" tabindex="0" data-v="' + esc(v) + '" title="' + esc(nm) + '">' +
+    '<span class="ic">' + ic + '</span><span class="nm">' + esc(nm) + '</span><span class="ct">' + n + '</span>' +
+    (menu ? '<button type="button" class="fm" data-fm aria-label="' + esc(nm) + ' 폴더 이름 바꾸기·지우기" title="이름 바꾸기·지우기">⋯</button>' : '') + '</div>';
+  $('#fside').innerHTML = fi('all', '📚', '모든 악보', SCORES.length) + fi('fav', '★', '즐겨찾기', SCORES.filter(s => s.fav).length) +
+    '<div class="fh"><span>폴더 ' + FOLDERS.length + '</span><button type="button" id="btnNewFolder" title="새 폴더 만들기">＋ 새 폴더</button></div>' +
+    FOLDERS.map(f => fi(f.id, '📁', f.name, cnt[f.id] || 0, true)).join('') +
+    (FOLDERS.length ? fi('none', '📄', '폴더 없음', cnt[''] || 0) : '<div class="fnote">폴더를 만들어 악보를 나눠 담아 보세요. 카드를 폴더로 끌어 놓거나 「☑ 고르기」로 여러 곡을 한 번에 옮깁니다.</div>');
+  // 제목
+  const vf = folderOf(view);
+  $('#fTitle').textContent = q ? '🔎 모든 폴더에서 찾기' : view === 'fav' ? '★ 즐겨찾기' : view === 'none' ? '폴더 없음' : vf ? '📁 ' + vf.name : '모든 악보';
+  $('#fRename').hidden = !vf || !!q;
+  // 태그 (지금 보는 곳 안에서)
+  const base = q ? SCORES : SCORES.filter(inView);
+  const tags = {}; base.forEach(s => (s.tags || []).forEach(t => tags[t] = (tags[t] || 0) + 1));
   const tagNames = Object.keys(tags).sort((a, b) => a.localeCompare(b, 'ko', { numeric: true }));
   if (tagOn && !tags[tagOn]) tagOn = null;
-  const favN = SCORES.filter(s => s.fav).length;
-  if (favOnly && !favN) favOnly = false;
-  $('#tagChips').innerHTML = tagNames.length || favN ? '<button class="chip' + (tagOn || favOnly ? '' : ' on') + '" data-t="">전체 ' + SCORES.length + '</button>' +
-    '<button class="chip favchip' + (favOnly ? ' on' : '') + '" data-fav>★ 즐겨찾기 ' + favN + '</button>' +
+  $('#tagChips').innerHTML = tagNames.length ? '<button class="chip' + (tagOn ? '' : ' on') + '" data-t="">태그 전체</button>' +
     tagNames.map(t => '<button class="chip' + (t === tagOn ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + ' ' + tags[t] + '</button>').join('') : '';
-  let list = SCORES.filter(s => (!favOnly || s.fav) && (!tagOn || (s.tags || []).includes(tagOn)) &&
-    (!q || norm(s.title + ' ' + (s.tags || []).join(' ') + ' ' + s.memo + ' ' + s.fileName).includes(q)));
+  let list = base.filter(s => (!tagOn || (s.tags || []).includes(tagOn)) &&
+    (!q || norm(s.title + ' ' + (s.tags || []).join(' ') + ' ' + s.memo + ' ' + s.fileName + ' ' + (folderOf(s.folder)?.name || '')).includes(q)));
   list.sort(OPT.sort === 'opened' ? (a, b) => (b.opened || 0) - (a.opened || 0) || byTitle(a, b)
     : OPT.sort === 'added' ? (a, b) => b.added - a.added : byTitle);
+  $('#fCount').textContent = list.length + '곡';
   $('#libEmpty').hidden = SCORES.length > 0;
-  $('#grid').innerHTML = list.map(s => '<div class="card' + (s.has ? '' : ' missing') + (s.fav ? ' isfav' : '') + '" data-id="' + s.id + '">' +
-    '<button class="th" data-open>' + (s.thumb ? '<img src="' + s.thumb + '" alt="" loading="lazy">' : '') +
+  const showF = s => { const f = folderOf(s.folder); return f && (q || view !== f.id) ? '<div class="fd">📁 ' + esc(f.name) + '</div>' : ''; };
+  $('#grid').classList.toggle('sel', selecting);
+  $('#grid').innerHTML = list.map(s => '<div class="card' + (s.has ? '' : ' missing') + (s.fav ? ' isfav' : '') + (SEL.has(s.id) ? ' picked' : '') + '" data-id="' + s.id + '" draggable="true">' +
+    '<button class="th" data-open draggable="false">' + (s.thumb ? '<img src="' + s.thumb + '" alt="" loading="lazy" draggable="false">' : '') +
     (s.has ? '' : '<div class="none">PDF 없음<br>같은 파일을 넣으면 연결됩니다</div>') + '</button>' +
-    '<div class="meta"><div class="t">' + esc(s.title) + '</div><div class="s">' + (s.pages || '?') + '쪽' +
+    '<div class="meta"><div class="t">' + esc(s.title) + '</div>' + showF(s) + '<div class="s">' + (s.pages || '?') + '쪽' +
     ((s.tags || []).length ? ' · ' + esc(s.tags.join(', ')) : '') + '</div></div>' +
     '<button class="fav' + (s.fav ? ' on' : '') + '" data-fav aria-pressed="' + !!s.fav + '" aria-label="즐겨찾기' + (s.fav ? ' 끄기' : ' 켜기') + '">' + (s.fav ? '★' : '☆') + '</button>' +
     '<button class="more" data-edit aria-label="정보">⋯</button></div>').join('') +
-    (SCORES.length && !list.length ? '<div class="empty" style="grid-column:1/-1">찾는 악보가 없습니다.</div>' : '');
+    (SCORES.length && !list.length ? '<div class="empty" style="grid-column:1/-1">' + (q ? '찾는 악보가 없습니다.'
+      : vf ? '<b>「' + esc(vf.name) + '」 폴더가 비어 있습니다.</b><br>악보 카드를 왼쪽 이 폴더로 끌어 놓거나, 「☑ 고르기」로 여러 곡을 골라 「폴더로 옮기기」 하세요.<br>지금 「＋ 악보 넣기」를 누르면 이 폴더에 바로 들어갑니다.'
+      : view === 'fav' ? '즐겨찾기한 악보가 없습니다. 카드 왼쪽 위 ☆ 를 누르세요.' : '이 칸에 악보가 없습니다.') + '</div>' : '');
+  selUI();
 }
-$('#tagChips').onclick = e => {
-  const b = e.target.closest('.chip'); if (!b) return;
-  if (b.hasAttribute('data-fav')) { favOnly = !favOnly; tagOn = null; } else { tagOn = b.dataset.t || null; favOnly = false; }
-  OPT.favOnly = favOnly; saveOpt(); renderLib(true);
+$('#tagChips').onclick = e => { const b = e.target.closest('.chip'); if (!b) return; tagOn = b.dataset.t || null; renderLib(true); };
+$('#fRename').onclick = () => { const f = folderOf(view); if (f) renameFolder(f); };
+$('#fside').onclick = async e => {
+  if (e.target.closest('#btnNewFolder')) { const f = await askFolder(); if (f) { setView(f.id); toast('「' + f.name + '」 폴더를 만들었습니다. 카드를 끌어 놓거나 「☑ 고르기」로 악보를 옮기세요.', null, null, 4500); } return; }
+  const it = e.target.closest('.fi'); if (!it) return;
+  if (e.target.closest('[data-fm]')) return renameFolder(folderOf(it.dataset.v));
+  setView(it.dataset.v);
 };
+$('#fside').onkeydown = e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.fi')) { e.preventDefault(); e.target.click(); } };
 async function setFav(s, on) { s.fav = on; await db.put('scores', s); return on; }
 $('#grid').onclick = e => {
   const card = e.target.closest('.card'); if (!card) return;
   const s = SCORES.find(x => x.id === card.dataset.id);
+  if (selecting) { SEL.has(s.id) ? SEL.delete(s.id) : SEL.add(s.id); card.classList.toggle('picked', SEL.has(s.id)); selUI(); return; }
   if (e.target.closest('[data-edit]')) return openEdit(s);
   if (e.target.closest('[data-fav]')) return setFav(s, !s.fav).then(on => { renderLib(true); toast(on ? '★ 즐겨찾기에 넣었습니다.' : '즐겨찾기에서 뺐습니다.', null, null, 1800); });
   if (!s.has) { toast('이 기기에 PDF 가 없습니다. 같은 파일을 「악보 넣기」로 넣으세요.'); return; }
   openViewer([s.id], 0);
 };
 
+/* ---------- 여러 곡 고르기 (v1.4.0) — 폴더로 옮기기 · 즐겨찾기 · 지우기 ---------- */
+const SEL = new Set(); let selecting = false;
+function selEndQuiet() { selecting = false; SEL.clear(); $('#btnSel').classList.remove('on'); $('#btnSel').textContent = '☑ 고르기'; }
+function selMode(on) { if (!on) selEndQuiet(); else { selecting = true; $('#btnSel').classList.add('on'); $('#btnSel').textContent = '☑ 고르는 중'; } renderLib(true); }
+const visIds = () => [...$('#grid').querySelectorAll('.card')].map(c => c.dataset.id);
+function selUI() {
+  $('#selbar').hidden = !selecting; document.body.classList.toggle('selecting', selecting); if (!selecting) return;
+  requestAnimationFrame(() => document.body.style.setProperty('--selh', $('#selbar').offsetHeight + 'px'));
+  $('#selN').textContent = SEL.size + '곡 고름';
+  const ids = visIds(); $('#selAll').textContent = ids.length && ids.every(id => SEL.has(id)) ? '모두 풀기' : '보이는 것 모두 고르기';
+  for (const k of ['#selMove', '#selFav', '#selDel']) $(k).disabled = !SEL.size;
+}
+$('#btnSel').onclick = () => selMode(!selecting);
+$('#selEnd').onclick = () => selMode(false);
+$('#selAll').onclick = () => { const ids = visIds(), all = ids.length && ids.every(id => SEL.has(id)); ids.forEach(id => all ? SEL.delete(id) : SEL.add(id)); renderLib(true); };
+$('#selMove').onclick = () => openMove([...SEL]);
+$('#selFav').onclick = async () => {
+  const list = SCORES.filter(s => SEL.has(s.id)), on = !list.every(s => s.fav);
+  for (const s of list) await setFav(s, on);
+  selMode(false); toast(list.length + '곡을 ' + (on ? '★ 즐겨찾기에 넣었습니다.' : '즐겨찾기에서 뺐습니다.'), null, null, 2200);
+};
+$('#selDel').onclick = async () => {
+  const list = SCORES.filter(s => SEL.has(s.id)); if (!list.length) return;
+  const backups = [];
+  for (const s of list) { backups.push({ score: s, file: await db.get('files', s.id), ink: await inkOf(s.id) }); await db.del('scores', s.id); await db.del('files', s.id); }
+  for (const b of backups) for (const k of b.ink) await db.del('ink', k.key);
+  selEndQuiet(); await renderLib();
+  toast(list.length + '곡을 지웠습니다.', '되살리기', async () => {
+    for (const b of backups) { await db.put('scores', b.score); if (b.file) await db.put('files', b.file); for (const k of b.ink) await db.put('ink', k); }
+    renderLib();
+  }, 8000);
+};
+// 폴더로 옮기기
+let mvIds = [];
+function openMove(ids) {
+  mvIds = ids; const cnt = {}; SCORES.forEach(s => { if (s.folder) cnt[s.folder] = (cnt[s.folder] || 0) + 1; });
+  $('#mvTitle').textContent = ids.length + '곡을 어느 폴더로 옮길까요?';
+  $('#mvList').innerHTML = FOLDERS.map(f => '<div class="row mvrow" role="button" tabindex="0" data-f="' + f.id + '"><span class="n">📁</span><div class="grow"><div class="t">' + esc(f.name) + '</div><div class="s">' + (cnt[f.id] || 0) + '곡</div></div></div>').join('') +
+    (FOLDERS.length ? '<div class="row mvrow" role="button" tabindex="0" data-f=""><span class="n">📄</span><div class="grow"><div class="t">폴더 없음으로 빼기</div></div></div>' : '<div class="note">아직 폴더가 없습니다. 아래 「＋ 새 폴더 만들어 옮기기」를 누르세요.</div>');
+  $('#dMove').showModal();
+}
+$('#mvList').onclick = async e => { const r = e.target.closest('[data-f]'); if (!r) return; $('#dMove').close(); await doMove(mvIds, r.dataset.f); };
+$('#mvList').onkeydown = e => { if (e.key === 'Enter' && e.target.matches('[data-f]')) e.target.click(); };
+$('#mvNew').onclick = async () => { $('#dMove').close(); const f = await askFolder(); if (f) await doMove(mvIds, f.id); };
+async function doMove(ids, fid) {
+  const before = []; let n = 0;
+  for (const id of ids) { const s = SCORES.find(x => x.id === id); if (!s) continue; before.push([s, s.folder || '']); if ((s.folder || '') !== fid) { s.folder = fid; await db.put('scores', s); n++; } }
+  const name = fid ? folderOf(fid)?.name : '폴더 없음';
+  if (selecting) selEndQuiet();
+  renderLib(true);
+  toast(n + '곡을 「' + name + '」' + (fid ? ' 폴더로' : '으로') + ' 옮겼습니다.', '되돌리기', async () => {
+    for (const [s, f] of before) { s.folder = f; await db.put('scores', s); } renderLib(true);
+  }, 5000);
+}
+// 카드를 왼쪽 폴더로 끌어 놓기 (PC). 고른 곡이 있으면 고른 곡 모두
+let dragIds = null;
+$('#grid').addEventListener('dragstart', e => {
+  const c = e.target.closest('.card'); if (!c) return;
+  dragIds = selecting && SEL.has(c.dataset.id) ? [...SEL] : [c.dataset.id];
+  e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragIds.length + '곡');
+});
+$('#grid').addEventListener('dragend', () => { dragIds = null; $('#fside').querySelectorAll('.dropok').forEach(x => x.classList.remove('dropok')); });
+const dropTarget = e => { const f = e.target.closest('.fi'); return f && dragIds && f.dataset.v !== 'all' ? f : null; };
+$('#fside').addEventListener('dragover', e => { const f = dropTarget(e); if (!f) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; $('#fside').querySelectorAll('.dropok').forEach(x => x !== f && x.classList.remove('dropok')); f.classList.add('dropok'); });
+$('#fside').addEventListener('dragleave', e => { const f = e.target.closest('.fi'); if (f && !f.contains(e.relatedTarget)) f.classList.remove('dropok'); });
+$('#fside').addEventListener('drop', async e => {
+  const f = dropTarget(e); if (!f) return; e.preventDefault(); e.stopPropagation();
+  const ids = dragIds; dragIds = null; f.classList.remove('dropok');
+  if (f.dataset.v === 'fav') { for (const id of ids) { const s = SCORES.find(x => x.id === id); if (s) await setFav(s, true); } if (selecting) selMode(false); else renderLib(true); toast(ids.length + '곡을 ★ 즐겨찾기에 넣었습니다.', null, null, 2000); return; }
+  doMove(ids, f.dataset.v === 'none' ? '' : f.dataset.v);
+});
+
 /* ---------- 악보 정보 고치기 ---------- */
 let editing;
+function eFolderOpts(cur) {
+  $('#eFolder').innerHTML = '<option value="">폴더 없음</option>' + FOLDERS.map(f => '<option value="' + f.id + '">📁 ' + esc(f.name) + '</option>').join('') + '<option value="__new">＋ 새 폴더 만들기…</option>';
+  $('#eFolder').value = folderOf(cur) ? cur : '';
+}
+$('#eFolder').onchange = async () => {
+  if ($('#eFolder').value !== '__new') return;
+  const keep = editing.folder || '';
+  const f = await askFolder(); eFolderOpts(f ? f.id : keep);
+};
 async function openEdit(s) {
   editing = s;
+  eFolderOpts(s.folder || '');
   $('#eTitle').value = s.title; $('#eTags').value = (s.tags || []).join(', '); $('#eMemo').value = s.memo || '';
   const sets = (await db.all('sets')).sort((a, b) => a.name.localeCompare(b.name, 'ko'));
   $('#eSet').innerHTML = '<option value="">— 고르지 않음 —</option>' + sets.map(x => '<option value="' + x.id + '">' + esc(x.name) +
@@ -938,6 +1163,7 @@ async function openEdit(s) {
 $('#eSave').onclick = async () => {
   const s = editing;
   s.title = $('#eTitle').value.trim() || s.title; s.tags = splitTags($('#eTags').value); s.memo = $('#eMemo').value.trim();
+  const nf = $('#eFolder').value; if (nf !== '__new') s.folder = nf;
   await db.put('scores', s);
   const sid = $('#eSet').value;
   if (sid) { const set = await db.get('sets', sid); if (!set.items.includes(s.id)) { set.items.push(s.id); set.updated = Date.now(); await db.put('sets', set); } }
@@ -1033,15 +1259,14 @@ function showTab(w) {
 $('#tabLib').onclick = () => showTab('lib'); $('#tabSets').onclick = () => showTab('sets');
 
 /* ---------- 보기 화면 ---------- */
-// v1.3.0: 쪽 순서(V.ord: 보이는 쪽 → PDF 쪽) · 여백 자르기(V.crop) · 반쪽 넘기기(V.half) · 자동 스크롤(V.auto) · 열린 곡 탭
+// v1.3.0: 쪽 순서(V.ord: 보이는 쪽 → PDF 쪽) · 여백 자르기(V.crop) · 열린 곡 탭 (반쪽 넘기기·자동 스크롤은 v1.4.0 에서 뺌 — 볼트 「보관 기능」 노트·태그 v1.3.2)
 const V = { queue: [], qi: 0, setName: '', doc: null, score: null, page: 1, n: 1, ink: {}, renderTok: 0, cache: new Map(), wake: null, inking: false,
-  ord: [1], crop: { l: 0, t: 0, r: 0, b: 0 }, half: false, auto: { on: false, pause: false, acc: 0, last: 0, busy: false },
+  ord: [1], crop: { l: 0, t: 0, r: 0, b: 0 },
   tool: { mode: 'pen', c: '#d62828', pc: '#d62828', wl: 'm', k: 'mf', z: 'm' }, undo: [] };
 const viewer = $('#viewer'), stage = $('#stage');
 const rp = i => V.ord[i - 1] || 1;  // 보이는 쪽 번호 → PDF 쪽 번호
-const twoUp = () => OPT.two === 'auto' && innerWidth > innerHeight * 1.05 && V.n > 1 && OPT.fit === 'page' && !V.auto.on;
+const twoUp = () => OPT.two === 'auto' && innerWidth > innerHeight * 1.05 && V.n > 1 && OPT.fit === 'page';
 const step = () => twoUp() ? 2 : 1;
-const halfOK = () => !!OPT.half && !twoUp() && OPT.fit === 'page' && !V.inking && !V.auto.on;
 const cropKey = () => [V.crop.l, V.crop.t, V.crop.r, V.crop.b].join(',');
 const goodOrd = (o, n) => Array.isArray(o) && o.length && o.every(x => Number.isInteger(x) && x >= 1 && x <= n) ? o.slice() : null;
 
@@ -1051,7 +1276,6 @@ async function openViewer(queue, qi, setName = '', startPage) {
   if (!setName) addTab(queue[qi]);
   viewer.classList.add('on'); viewer.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
   viewer.classList.toggle('night', !!OPT.night); $('#vNight').classList.toggle('on', !!OPT.night);
-  $('#vHalf').classList.toggle('on', !!OPT.half);
   history.pushState({ viewer: 1 }, '');
   wakeOn();
   await loadScore(startPage);
@@ -1060,7 +1284,7 @@ async function loadScore(startPage) {
   const id = V.queue[V.qi];
   stage.innerHTML = '<div class="spin">여는 중…</div>';
   if (V.doc) { V.doc.destroy(); V.doc = null; }
-  V.cache.clear(); V.undo = []; V.half = false;
+  V.cache.clear(); V.undo = [];
   const s = await db.get('scores', id), f = await db.get('files', id);
   if (!s || !f) { stage.innerHTML = '<div class="spin">PDF 를 찾지 못했습니다.</div>'; return; }
   V.score = s; metScore(s);
@@ -1086,7 +1310,7 @@ async function loadScore(startPage) {
 function closeViewer(fromPop) {
   if (!viewer.classList.contains('on')) return;
   if (V.inking) inkMode(false);
-  autoStop(true); metStop(); metPanel(false); panel(null); tunStopAll();
+  metStop(); metPanel(false); panel(null); tunStopAll();
   if (V.score) { V.score.lastPage = V.page; db.put('scores', V.score); }
   viewer.classList.remove('on'); viewer.setAttribute('aria-hidden', 'true'); document.body.style.overflow = '';
   if (V.doc) { V.doc.destroy(); V.doc = null; } V.cache.clear(); stage.innerHTML = '';
@@ -1100,7 +1324,7 @@ $('#vClose').onclick = () => closeViewer();
 
 function boxSize(k) {
   const W = stage.clientWidth, H = stage.clientHeight;
-  return OPT.fit === 'width' || V.auto.on ? { w: W - 8, h: Infinity } : { w: (W - 8) / k, h: H - 8 };
+  return OPT.fit === 'width' ? { w: W - 8, h: Infinity } : { w: (W - 8) / k, h: H - 8 };
 }
 // n = PDF 쪽 번호. 여백을 자르면 자른 부분만 그린다(그만큼 크게)
 async function renderPage(n, box) {
@@ -1125,7 +1349,7 @@ async function renderPage(n, box) {
 function makePg(o, idx, used) {
   const pg = document.createElement('div'); pg.className = 'pg'; pg.dataset.page = rp(idx); pg.dataset.idx = idx;
   pg.style.width = o.cw + 'px'; pg.style.height = o.ch + 'px';
-  const pc = used.has(o.c) ? o.c.cloneNode() : o.c;  // 같은 쪽이 한 화면에 두 번 나올 때(반쪽·반복 쪽)는 복사본
+  const pc = used.has(o.c) ? o.c.cloneNode() : o.c;  // 같은 쪽이 한 화면에 두 번 나올 때(반복 쪽)는 복사본
   if (pc !== o.c) pc.getContext('2d').drawImage(o.c, 0, 0); used.add(o.c);
   pg.append(pc);
   const ic = document.createElement('canvas'); ic.className = 'ink';
@@ -1136,45 +1360,31 @@ function makePg(o, idx, used) {
 async function draw() {
   if (!V.doc) return;
   const tok = ++V.renderTok;
-  const half = V.half && halfOK() && V.page < V.n;
   const two = twoUp(), k = two ? 2 : 1, box = boxSize(k);
-  const idxs = [V.page]; if ((two || half || V.auto.on) && V.page + 1 <= V.n) idxs.push(V.page + 1);
+  const idxs = [V.page]; if (two && V.page + 1 <= V.n) idxs.push(V.page + 1);
   let r;
   try { r = await Promise.all(idxs.map(i => renderPage(rp(i), box))); }
   catch (e) { if (tok === V.renderTok && V.doc) console.warn(e); return; }  // 곡을 바꾸는 사이 취소된 그리기
   if (tok !== V.renderTok) return;
-  const wide = OPT.fit === 'width' || V.auto.on;
+  const wide = OPT.fit === 'width';
   stage.classList.toggle('fitw', wide);
   stage.innerHTML = '';
-  if (half) {
-    const w = document.createElement('div'); w.className = 'halfw';
-    w.style.width = Math.max(r[0].cw, r[1].cw) + 'px'; w.style.height = Math.max(r[0].ch, r[1].ch) + 'px';
-    const used = new Set(), top = makePg(r[1], V.page + 1, used), bot = makePg(r[0], V.page, used);
-    top.classList.add('top'); bot.classList.add('bot');
-    w.append(top, bot);
-    w.insertAdjacentHTML('beforeend', '<span class="hl" style="top:calc(25% - 10px)">' + (V.page + 1) + '쪽</span><span class="hl" style="top:calc(75% - 10px)">' + V.page + '쪽</span>');
-    stage.append(w);
-  } else { const used = new Set(); r.forEach((o, i) => { const pg = makePg(o, idxs[i], used); if (wide) pg.style.margin = '4px auto'; stage.append(pg); }); }
+  { const used = new Set(); r.forEach((o, i) => { const pg = makePg(o, idxs[i], used); if (wide) pg.style.margin = '4px auto'; stage.append(pg); }); }
   stage.scrollTop = 0;
-  $('#vPage').textContent = (half ? V.page + '½' : idxs.length > 1 && two ? idxs[0] + '–' + idxs[1] : V.page) + ' / ' + V.n;
+  $('#vPage').textContent = (idxs.length > 1 && two ? idxs[0] + '–' + idxs[1] : V.page) + ' / ' + V.n;
   $('#vRange').value = V.page;
   $('#vFit span').textContent = OPT.fit === 'width' ? '폭 맞춤' : '쪽 맞춤'; $('#vFit').classList.toggle('on', OPT.fit === 'width');
   $('#vTwo span').textContent = OPT.two === 'auto' ? '두 쪽' : '한 쪽'; $('#vTwo').classList.toggle('on', OPT.two === 'auto');
-  $('#vTwo').disabled = V.auto.on; $('#vHalf').disabled = V.auto.on;
-  // 다음 쪽을 미리 그려 두면 넘길 때 바로 나온다
+    // 다음 쪽을 미리 그려 두면 넘길 때 바로 나온다
   const nx = V.page + (two ? 2 : 1);
   setTimeout(() => { if (tok === V.renderTok) for (let i = 0; i < k + 1; i++) if (nx + i <= V.n) renderPage(rp(nx + i), box).catch(() => { }); }, 60);
 }
 function flash(side) { const h = side < 0 ? $('#hintL') : $('#hintR'); h.classList.add('on'); setTimeout(() => h.classList.remove('on'), 220); }
 function banner(t, ms = 1400) { const b = $('#vBanner'); b.innerHTML = t; b.classList.add('on'); clearTimeout(banner.t); banner.t = setTimeout(() => b.classList.remove('on'), ms); }
-async function go(p) { V.half = false; V.page = Math.max(1, Math.min(V.n, p)); if (twoUp() && V.page % 2 === 0) V.page--; await draw(); }
+async function go(p) { V.page = Math.max(1, Math.min(V.n, p)); if (twoUp() && V.page % 2 === 0) V.page--; await draw(); }
 async function next() {
   if (!V.doc) return;
-  if (halfOK() && V.page < V.n) {
-    if (!V.half) { V.half = true; flash(1); return draw(); }
-    flash(1); return go(V.page + 1);
-  }
-  if ((OPT.fit === 'width' || V.auto.on) && stage.scrollTop + stage.clientHeight < stage.scrollHeight - 6) { stage.scrollBy({ top: stage.clientHeight * 0.85, behavior: 'smooth' }); flash(1); return; }
+  if (OPT.fit === 'width' && stage.scrollTop + stage.clientHeight < stage.scrollHeight - 6) { stage.scrollBy({ top: stage.clientHeight * 0.85, behavior: 'smooth' }); flash(1); return; }
   if (V.page + step() <= V.n) { flash(1); return go(V.page + step()); }
   if (V.queue.length > 1 && V.qi < V.queue.length - 1 && V.setName) {
     V.score.lastPage = V.page; db.put('scores', V.score);
@@ -1184,35 +1394,25 @@ async function next() {
 }
 async function prev() {
   if (!V.doc) return;
-  if (V.half) { V.half = false; flash(-1); return draw(); }
-  if ((OPT.fit === 'width' || V.auto.on) && stage.scrollTop > 6) { stage.scrollBy({ top: -stage.clientHeight * 0.85, behavior: 'smooth' }); flash(-1); return; }
+  if (OPT.fit === 'width' && stage.scrollTop > 6) { stage.scrollBy({ top: -stage.clientHeight * 0.85, behavior: 'smooth' }); flash(-1); return; }
   if (V.page > 1) { flash(-1); return go(V.page - step()); }
   if (V.qi > 0 && V.setName) { V.qi--; await loadScore('last'); banner('앞 곡<br>' + esc(V.score.title)); return; }
   banner('첫 쪽입니다', 900);
 }
-$('#vNext').onclick = next; $('#vPrev').onclick = prev; $('#vFirst').onclick = () => { if (V.page === 1 && !V.half) return banner('첫 쪽입니다', 800); flash(-1); go(1); }; $('#iNext').onclick = next; $('#iPrev').onclick = prev;
+$('#vNext').onclick = next; $('#vPrev').onclick = prev; $('#vFirst').onclick = () => { if (V.page === 1) return banner('첫 쪽입니다', 800); flash(-1); go(1); }; $('#iNext').onclick = next; $('#iPrev').onclick = prev;
 $('#vRange').oninput = () => { $('#vPage').textContent = $('#vRange').value + ' / ' + V.n; };
 $('#vRange').onchange = () => go(+$('#vRange').value);
 function favBtn() { const on = !!V.score?.fav; $('#vFav').classList.toggle('favon', on); $('#vFav').setAttribute('aria-pressed', on); $('#vFav span').textContent = on ? '즐겨찾기 ★' : '즐겨찾기'; }
 $('#vFav').onclick = async () => { if (!V.score) return; const on = await setFav(V.score, !V.score.fav); favBtn(); banner(on ? '★ 즐겨찾기' : '즐겨찾기 끔', 800); };
-// 반쪽 넘기기는 한 쪽 보기·쪽 맞춤에서만 → 다른 보기로 바꾸면 단추도 끈다 (v1.3.1, 켜진 채 안 되던 것)
-function halfOff(why) { if (!OPT.half) return; OPT.half = false; V.half = false; saveOpt(); $('#vHalf').classList.remove('on'); banner('반쪽 넘기기 끔<br><small>' + why + '</small>', 1800); }
-$('#vFit').onclick = () => { if (V.auto.on) autoStop(); OPT.fit = OPT.fit === 'page' ? 'width' : 'page'; saveOpt(); V.cache.clear(); if (OPT.fit === 'width') halfOff('폭 맞춤에서는 반쪽 넘기기를 쓸 수 없습니다'); go(V.page); };
-$('#vTwo').onclick = () => { OPT.two = OPT.two === 'auto' ? 'one' : 'auto'; saveOpt(); if (twoUp()) halfOff('두 쪽 보기에서는 반쪽 넘기기를 쓸 수 없습니다'); go(V.page); if (OPT.two === 'auto' && !twoUp()) toast('기기를 가로로 두면 두 쪽씩 보입니다.'); };
-$('#vHalf').onclick = () => {
-  OPT.half = !OPT.half; saveOpt(); $('#vHalf').classList.toggle('on', OPT.half);
-  if (OPT.half && OPT.fit !== 'page') { OPT.fit = 'page'; saveOpt(); V.cache.clear(); }
-  if (OPT.half && twoUp()) { OPT.two = 'one'; saveOpt(); }
-  go(V.page);
-  banner(OPT.half ? '반쪽 넘기기 켬<br><small>넘기면 위 절반에 다음 쪽이 먼저 나옵니다</small>' : '반쪽 넘기기 끔', 1500);
-};
+$('#vFit').onclick = () => { OPT.fit = OPT.fit === 'page' ? 'width' : 'page'; saveOpt(); V.cache.clear(); go(V.page); };
+$('#vTwo').onclick = () => { OPT.two = OPT.two === 'auto' ? 'one' : 'auto'; saveOpt(); go(V.page); if (OPT.two === 'auto' && !twoUp()) toast('기기를 가로로 두면 두 쪽씩 보입니다.'); };
 $('#vNight').onclick = () => { OPT.night = !OPT.night; saveOpt(); viewer.classList.toggle('night', OPT.night); $('#vNight').classList.toggle('on', OPT.night); };
 const fullToggle = () => { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.().catch(() => toast('이 브라우저는 전체 화면을 지원하지 않습니다.')); };
 $('#vFull').onclick = fullToggle;
 let barT;
 function showBars(auto) { viewer.classList.remove('hidebars'); clearTimeout(barT); if (auto && !V.inking) barT = setTimeout(() => { if (!openPanel() && $('#vMoreM').hidden) viewer.classList.add('hidebars'); }, 2500); }
 function toggleBars() { if (viewer.classList.contains('hidebars')) showBars(false); else { clearTimeout(barT); viewer.classList.add('hidebars'); $('#vMoreM').hidden = true; } }
-let rsT; addEventListener('resize', () => { if (!viewer.classList.contains('on')) return; clearTimeout(rsT); rsT = setTimeout(() => { V.cache.clear(); if (V.half && !halfOK()) V.half = false; draw(); }, 200); });
+let rsT; addEventListener('resize', () => { if (!viewer.classList.contains('on')) return; clearTimeout(rsT); rsT = setTimeout(() => { V.cache.clear(); draw(); }, 200); });
 
 // 누르기·밀기로 넘기기
 let tp = null;
@@ -1226,11 +1426,11 @@ stage.addEventListener('pointerup', e => {
   if (f < 0.35) prev(); else if (f > 0.65) next(); else toggleBars();
 });
 stage.addEventListener('pointercancel', () => tp = null);
-// 터치패드 두 손가락·마우스 휠로 넘기기 (v1.3.1) — 쪽 맞춤일 때만(폭 맞춤·자동 스크롤은 원래 스크롤).
-// 한 번 밀면 한 단계(반쪽 포함): 넘긴 뒤 휠이 0.22초 멈출 때까지 쉰다 → 터치패드 관성으로 여러 쪽 건너뛰지 않음
+// 터치패드 두 손가락·마우스 휠로 넘기기 (v1.3.1) — 쪽 맞춤일 때만(폭 맞춤은 원래 스크롤).
+// 한 번 밀면 한 단계: 넘긴 뒤 휠이 0.22초 멈출 때까지 쉰다 → 터치패드 관성으로 여러 쪽 건너뛰지 않음
 const WH = { acc: 0, lock: false, tm: 0 };
 stage.addEventListener('wheel', e => {
-  if (!V.doc || V.inking || e.ctrlKey || OPT.fit !== 'page' || V.auto.on) return;
+  if (!V.doc || V.inking || e.ctrlKey || OPT.fit !== 'page') return;
   e.preventDefault();
   clearTimeout(WH.tm); WH.tm = setTimeout(() => { WH.lock = false; WH.acc = 0; }, 220);
   if (WH.lock) return;
@@ -1240,6 +1440,7 @@ stage.addEventListener('wheel', e => {
   WH.lock = true; const fwd = WH.acc > 0; WH.acc = 0; fwd ? next() : prev();
 }, { passive: false });
 addEventListener('keydown', e => {
+  if (e.key === 'Escape' && selecting && !viewer.classList.contains('on') && !document.querySelector('dialog[open]')) { selMode(false); return; }
   if (!viewer.classList.contains('on') || e.target.matches('input,textarea,select') || document.querySelector('dialog[open]')) return;
   const k = e.key, plain = !e.ctrlKey && !e.altKey && !e.metaKey;
   if (V.inking && (e.ctrlKey || e.metaKey) && (k === 'z' || k === 'Z')) { e.preventDefault(); $('#iUndo').click(); return; }
@@ -1250,7 +1451,6 @@ addEventListener('keydown', e => {
   else if (plain && (k === 'm' || k === 'M' || k === 'ㅡ')) metToggle();
   else if (plain && (k === 't' || k === 'T' || k === 'ㅅ')) panel(openPanel() === 'tun' ? null : 'tun');
   else if (plain && (k === 'p' || k === 'P' || k === 'ㅔ')) inkMode(!V.inking);
-  else if (plain && (k === 'a' || k === 'A' || k === 'ㅁ')) V.auto.on ? autoPause() : autoStart();
 });
 
 // 화면 꺼짐 막기
@@ -1360,7 +1560,7 @@ async function saveInk(n) {
 const repaintAll = () => stage.querySelectorAll('.pg').forEach(paintInk);
 function inkMode(on) {
   V.inking = on; viewer.classList.toggle('inking', on); $('#vInk').classList.toggle('on', on);
-  if (on) { autoStop(true); V.half = false; if (OPT.fit === 'width') { OPT.fit = 'page'; saveOpt(); } }
+  if (on) { if (OPT.fit === 'width') { OPT.fit = 'page'; saveOpt(); } }
   if (!on && openPanel() === 'stamp') panel(null);
   V.cache.clear(); draw();
   showBars(!on);
@@ -1880,49 +2080,6 @@ $('#cAuto').onclick = autoCrop;
 $('#cReset').onclick = () => setCrop({ l: 0, t: 0, r: 0, b: 0 }, true);
 $('#cDone').onclick = $('#cClose').onclick = () => panel(null);
 
-/* ---------- 자동 스크롤 (v1.3.0) — 폭 맞춤으로 쪽을 이어 붙여 「한 쪽에 N초」 빠르기로 올린다 ---------- */
-const PLAY_I = '<svg viewBox="0 0 16 16"><path d="M4.5 2.6v10.8a.6.6 0 0 0 .9.5l8.6-5.4a.6.6 0 0 0 0-1L5.4 2.1a.6.6 0 0 0-.9.5z"/></svg>',
-  PAUSE_I = '<svg viewBox="0 0 16 16"><rect x="3.5" y="2.5" width="3.2" height="11" rx="1"/><rect x="9.3" y="2.5" width="3.2" height="11" rx="1"/></svg>';
-function autoUI() {
-  const A = V.auto; $('#autoC').hidden = !A.on; $('#vAuto').classList.toggle('on', A.on);
-  $('#aSpd').innerHTML = '1쪽 ' + (OPT.autoSpp || 40) + '초<small>' + (A.pause ? '멈춤' : '내려가는 중') + '</small>';
-  $('#aPlay').innerHTML = A.pause ? PLAY_I : PAUSE_I; $('#aPlay').setAttribute('aria-label', A.pause ? '다시 시작' : '멈춤');
-}
-async function autoStart() {
-  if (!V.doc || V.auto.on) return;
-  if (V.inking) inkMode(false);
-  Object.assign(V.auto, { on: true, pause: false, acc: 0, last: 0, busy: false }); V.half = false;
-  autoUI(); V.cache.clear(); await draw();
-  cancelAnimationFrame(V.auto.raf); V.auto.raf = requestAnimationFrame(autoTick);
-  banner('자동 스크롤<br><small>− + 로 빠르기, A 키로 멈춤</small>', 1300);
-}
-function autoStop(quiet) {
-  if (!V.auto.on) return;
-  V.auto.on = false; cancelAnimationFrame(V.auto.raf); autoUI();
-  if (!quiet) { V.cache.clear(); go(V.page); }
-}
-function autoPause() { V.auto.pause = !V.auto.pause; V.auto.last = 0; autoUI(); }
-function autoTick(t) {
-  const A = V.auto; if (!A.on) return;
-  const dt = A.last ? Math.min(0.1, (t - A.last) / 1000) : 0; A.last = t;
-  const pgs = stage.querySelectorAll('.pg');
-  if (!A.pause && !A.busy && pgs.length) {
-    A.acc += pgs[0].offsetHeight / (OPT.autoSpp || 40) * dt;
-    const d = Math.floor(A.acc); if (d > 0) { stage.scrollTop += d; A.acc -= d; }
-    if (pgs[1] && stage.scrollTop >= pgs[1].offsetTop - 4) {  // 다음 쪽이 위에 닿으면 한 쪽 앞으로 (화면은 그대로 이어짐)
-      const off = stage.scrollTop - (pgs[1].offsetTop - pgs[0].offsetTop);
-      A.busy = true; V.page++;
-      draw().then(() => { stage.scrollTop = off; A.busy = false; });
-    } else if (!pgs[1] && stage.scrollTop + stage.clientHeight >= stage.scrollHeight - 2) { A.pause = true; autoUI(); banner('끝까지 왔습니다', 1000); }
-  }
-  A.raf = requestAnimationFrame(autoTick);
-}
-$('#vAuto').onclick = () => V.auto.on ? autoStop() : autoStart();
-$('#aPlay').onclick = autoPause;
-$('#aStop').onclick = () => autoStop();
-const autoSpd = d => { OPT.autoSpp = Math.max(10, Math.min(300, (OPT.autoSpp || 40) + d)); saveOpt(); autoUI(); };
-hold($('#aSlow'), () => autoSpd(5)); hold($('#aFast'), () => autoSpd(-5));
-autoUI();
 
 /* ---------- 열린 곡 탭 (v1.3.0) — OPT.tabs = 열어 둔 곡 id. 연주 목록이면 그 목록 곡이 탭 ---------- */
 function addTab(id) { const t = (OPT.tabs || []).filter(x => x !== id); t.push(id); OPT.tabs = t.slice(-12); saveOpt(); }
@@ -2194,7 +2351,7 @@ $('#optTheme').onchange = () => { OPT.theme = $('#optTheme').value; saveOpt(); a
 const today = () => new Date().toISOString().slice(0, 10);
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
 async function metaJson() {
-  return { app: 'sood-score-viewer', ver: 1, date: Date.now(), scores: (await db.all('scores')).map(s => ({ ...s, has: undefined })), sets: await db.all('sets'), ink: await db.all('ink') };
+  return { app: 'sood-score-viewer', ver: 1, date: Date.now(), scores: (await db.all('scores')).map(s => ({ ...s, has: undefined })), sets: await db.all('sets'), ink: await db.all('ink'), folders: await db.all('folders') };
 }
 $('#bxMeta').onclick = async () => {
   const j = await metaJson();
@@ -2231,10 +2388,11 @@ $('#backupIn').onchange = async e => {
       const has = !!(old?.has || blobs[s.id]);
       await db.put('scores', Object.assign({}, s, { has, thumb: old?.thumb || s.thumb })); nS++;
     }
+    for (const x of j.folders || []) await db.put('folders', x);
     for (const x of j.sets || []) await db.put('sets', x);
     for (const x of j.ink || []) await db.put('ink', x);
     progress(false); $('#dSettings').close();
-    toast('가져왔습니다: 악보 정보 ' + nS + '곡' + (nF ? ' (PDF ' + nF + '곡 포함)' : '') + ' · 연주 목록 ' + (j.sets || []).length + '개');
+    toast('가져왔습니다: 악보 정보 ' + nS + '곡' + (nF ? ' (PDF ' + nF + '곡 포함)' : '') + ' · 연주 목록 ' + (j.sets || []).length + '개' + ((j.folders || []).length ? ' · 폴더 ' + j.folders.length + '개' : ''));
     renderLib(); renderSets();
   } catch (err) { progress(false); console.warn(err); toast('이 파일은 수드 악보 보기 백업이 아닙니다.'); }
 };
@@ -2242,7 +2400,7 @@ $('#backupIn').onchange = async e => {
 /* ---------- 시작 ---------- */
 await renderLib();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
-window.SSV = { V, OPT, db, addFiles, openViewer, closeViewer, next, prev, go, renderLib, VERSION, MET: M, MO, T, TO, pitchOf, autoStart, autoStop, setCrop, panel };
+window.SSV = { V, OPT, db, addFiles, openViewer, closeViewer, next, prev, go, renderLib, VERSION, MET: M, MO, T, TO, pitchOf, setCrop, panel, folders: () => FOLDERS, setView, askFolder, doMove, selMode, metaJson };
 </script>
 </body>
 </html>

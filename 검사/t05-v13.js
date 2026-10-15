@@ -1,5 +1,5 @@
 // v1.3.0 (Piascore 처럼) 점검: FAKE_WAV=<검사/pdf/a440.wav 절대 경로> node cdp.js t05-v13.js
-// 새 디자인·펜 7가지·굵기·도장·글자·점프 단추·여백 자르기(필기 제자리)·반쪽 넘기기·자동 스크롤·쪽 순서/반복·열린 곡 탭·인쇄·튜너(440Hz)·녹음·백업·DB v1→v2
+// 새 디자인·펜 7가지·굵기·도장·글자·점프 단추·여백 자르기(필기 제자리)·쪽 순서/반복·열린 곡 탭·인쇄·튜너(440Hz)·녹음·백업·DB v1→v2
 const path = require('path'), fs = require('fs');
 const URL = process.env.SSV_URL || 'http://127.0.0.1:8781/';
 const PDF = ['a', 'b2', 'b3', 'c'].map(n => path.resolve(__dirname, 'pdf', n + '.pdf'));
@@ -24,7 +24,7 @@ module.exports = async (c) => {
   await ev(`new Promise(r=>{const q=indexedDB.open('sood-score',1); q.onupgradeneeded=()=>{const d=q.result; d.createObjectStore('scores',{keyPath:'id'}); d.createObjectStore('files',{keyPath:'id'}); d.createObjectStore('ink',{keyPath:'key'}); d.createObjectStore('sets',{keyPath:'id'});}; q.onsuccess=()=>{q.result.close(); r(1)}; q.onerror=()=>r(0)})`);
   await ev(`localStorage.clear()`);
   await c.go(URL + '?v=' + Date.now());
-  chk(await ev(`SSV.VERSION.startsWith('v1.3.')`), '버전 v1.3.x');
+  chk(await ev(`SSV.VERSION.localeCompare('v1.3.0',undefined,{numeric:true})>=0`), '버전 v1.3.0 이상');
   chk(await ev(`SSV.db.all('takes').then(a=>Array.isArray(a))`), 'v1 저장소 → v2 로 올라가 녹음 저장소 생김');
   chk(await ev(`getComputedStyle(document.querySelector('#btnAdd')).backgroundColor==='rgb(20, 112, 224)'`), '첫 화면 단추 = Piascore 파랑');
   await setFiles('#fileIn', PDF);
@@ -136,31 +136,9 @@ module.exports = async (c) => {
   chk(p1 >= p0 - 2, '자르면 쪽이 같거나 더 크게 보임 (' + p0 + '→' + p1 + ')');
   await ev(`SSV.setCrop({l:0,t:0,r:0,b:0}, true)`); await sleep(300);
 
-  // 4. 반쪽 넘기기
-  await ev(`document.querySelector('#vHalf').click()`); await sleep(500);
-  await ev(`SSV.go(1)`); await sleep(400);
-  await ev(`SSV.next()`); await sleep(700);
-  chk(await ev(`SSV.V.half && document.querySelector('#stage .halfw') && document.querySelector('.halfw .pg.top').dataset.idx==='2' && document.querySelector('.halfw .pg.bot').dataset.idx==='1' && document.querySelector('#vPage').textContent.startsWith('1½')`), '반쪽: 위 = 2쪽 위 절반, 아래 = 1쪽 아래 절반');
-  await c.shot('v7-half.png', false);
-  await ev(`SSV.next()`); await sleep(600);
-  chk(await ev(`!SSV.V.half && SSV.V.page===2 && !document.querySelector('#stage .halfw')`), '한 번 더 넘기면 2쪽 전체');
-  await ev(`SSV.next()`); await sleep(500); await ev(`SSV.prev()`); await sleep(500);
-  chk(await ev(`!SSV.V.half && SSV.V.page===2`), '반쪽에서 앞으로 = 지금 쪽 전체');
-  await ev(`document.querySelector('#vHalf').click()`); await sleep(400);
-
-  // 5. 자동 스크롤
+  // 4·5. 반쪽 넘기기·자동 스크롤은 v1.4.0 에서 뺌 (사용자 요청, 볼트 「보관 기능」 노트·태그 v1.3.2)
+  chk(await ev(`!document.querySelector('#vHalf') && !document.querySelector('#vAuto') && !document.querySelector('#autoC') && !('autoStart' in SSV)`), '반쪽 넘기기·자동 스크롤 단추 없음 (v1.4.0 에서 뺌)');
   await ev(`SSV.go(1)`); await sleep(300);
-  await ev(`SSV.OPT.autoSpp=10; document.querySelector('#vAuto').click()`); await sleep(800);
-  chk(await ev(`SSV.V.auto.on && !document.querySelector('#autoC').hidden && document.querySelectorAll('#stage .pg').length===2`), '자동 스크롤 켜짐 (쪽 둘 이어 붙임)');
-  const s0 = await ev(`document.querySelector('#stage').scrollTop`); await sleep(1500);
-  const s1 = await ev(`document.querySelector('#stage').scrollTop`);
-  chk(s1 > s0 + 20, '저절로 내려감 (' + s0 + '→' + s1 + ')');
-  chk(await until(`SSV.V.page===2`, 14000), '다음 쪽으로 이어서 넘어감');
-  await c.shot('v8-auto.png', false);
-  await ev(`document.querySelector('#aPlay').click()`); await sleep(400); const s2 = await ev(`document.querySelector('#stage').scrollTop`); await sleep(700);
-  chk(await ev(`document.querySelector('#stage').scrollTop`) === s2, '멈춤');
-  await ev(`document.querySelector('#aStop').click()`); await sleep(500);
-  chk(await ev(`!SSV.V.auto.on && document.querySelector('#autoC').hidden && SSV.OPT.fit==='page'`), '자동 스크롤 끔 (쪽 맞춤으로 돌아옴)');
 
   // 6. 쪽 순서·반복
   const np = await ev(`SSV.V.doc.numPages`);
@@ -215,7 +193,7 @@ module.exports = async (c) => {
   const j = await ev(`(async()=>{const s=await SSV.db.get('scores','${id}'); return JSON.stringify({ord:s.ord,jumps:s.jumps})})()`);
   chk(JSON.parse(j).ord && JSON.parse(j).jumps.length === 1, '곡 정보에 순서·점프 저장 (백업에 같이 들어감)');
   await ev(`SSV.closeViewer()`); await sleep(400);
-  chk(await ev(`!SSV.T.rec && !SSV.T.stream && !SSV.V.auto.on`), '닫으면 마이크·녹음·자동 스크롤 모두 끔');
+  chk(await ev(`!SSV.T.rec && !SSV.T.stream `), '닫으면 마이크·녹음 모두 끔');
   await c.go(URL + '?r=' + Date.now());
   await ev(`document.querySelector('#grid .card[data-id="${id}"] .th').click()`); await until(`document.querySelectorAll('#stage .pg').length>=1`); await sleep(500);
   chk(await ev(`SSV.V.n===${np + 1} && document.querySelectorAll('#vTabs .tb').length===2`), '새로 열어도 쪽 순서·열린 탭 유지');

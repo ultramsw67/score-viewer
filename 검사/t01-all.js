@@ -41,12 +41,12 @@ module.exports = async (c) => {
   await ev(`document.querySelector('#grid .card[data-id="${idB2}"] [data-fav]').click()`); await sleep(500);
   chk(await ev(`SSV.db.get('scores','${idB2}').then(s=>s.fav===true)`) && await ev(`document.querySelector('#grid .card[data-id="${idB2}"]').classList.contains('isfav') && document.querySelector('#grid .card[data-id="${idB2}"] [data-fav]').textContent==='★'`), '즐겨찾기 켜기 (★ 표시·저장)');
   chk(await ev(`SSV.V.doc===null && !document.querySelector('#viewer').classList.contains('on')`), '☆ 눌러도 악보가 열리지 않음');
-  await ev(`document.querySelector('#tagChips [data-fav]').click()`); await sleep(300);
-  chk(await ev(`document.querySelectorAll('#grid .card').length===1 && document.querySelector('#tagChips [data-fav]').textContent.includes('1')`), '「★ 즐겨찾기」 칩 = 즐겨찾기만 보기');
+  await ev(`document.querySelector('#fside [data-v="fav"]').click()`); await sleep(300);
+  chk(await ev(`document.querySelectorAll('#grid .card').length===1 && document.querySelector('#fside [data-v="fav"]').textContent.includes('1')`), '왼쪽 「★ 즐겨찾기」 = 즐겨찾기만 보기');
   await c.go(URL + '?tf=' + Date.now());
   chk(await ev(`document.querySelectorAll('#grid .card').length===1`), '새로고침해도 즐겨찾기 보기 유지');
-  await ev(`document.querySelector('#tagChips [data-t=""]').click()`); await sleep(300);
-  chk(await ev(`document.querySelectorAll('#grid .card').length===4`), '「전체」 누르면 다시 4곡');
+  await ev(`document.querySelector('#fside [data-v="all"]').click()`); await sleep(300);
+  chk(await ev(`document.querySelectorAll('#grid .card').length===4`), '「모든 악보」 누르면 다시 4곡');
   await ev(`document.querySelector('#grid .card[data-id="${idB2}"] [data-fav]').click()`); await sleep(400);
   chk(await ev(`SSV.db.get('scores','${idB2}').then(s=>!s.fav)`) && await ev(`document.querySelector('#grid .card[data-id="${idB2}"] [data-fav]').textContent==='☆'`), '즐겨찾기 끄기');
 
