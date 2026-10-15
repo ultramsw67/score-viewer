@@ -811,7 +811,7 @@ html,body{overscroll-behavior-x:none}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.4.0';
+const VERSION = 'v1.4.1';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -822,7 +822,21 @@ const DB = await new Promise((res, rej) => {
     for (const [s, k] of [['scores', 'id'], ['files', 'id'], ['ink', 'key'], ['sets', 'id'], ['takes', 'id'], ['folders', 'id']])
       if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { keyPath: k });
   };
-  r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  // v1.4.1: 다른 탭·창에 옛 판이 열려 있으면 저장소를 새 판으로 올리지 못해 화면이 멈춰 있었음 → 안내를 띄우고 기다림
+  r.onblocked = () => {
+    const m = document.createElement('div'); m.id = 'dbWait';
+    m.style.cssText = 'position:fixed;inset:0;z-index:500;background:rgba(10,14,25,.6);display:flex;align-items:center;justify-content:center;padding:16px';
+    m.innerHTML = '<div style="background:#fff;color:#1d2433;border-radius:16px;padding:22px 24px;max-width:440px;line-height:1.6;font-size:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)">' +
+      '<b style="font-size:18px">새 판으로 바꾸는 중입니다</b><br>다른 탭이나 창에 <b>수드 악보 보기</b>가 열려 있어 기다리고 있습니다.<br>그 탭을 닫거나 새로 고침하면 바로 열립니다.</div>';
+    document.body.append(m);
+  };
+  r.onsuccess = () => {
+    const d = r.result; document.getElementById('dbWait')?.remove();
+    // 다음에 새 판이 저장소를 올리려 하면 이 탭은 비켜 주고 새로 고침 → 다른 탭의 새 판이 멈추지 않음
+    d.onversionchange = () => { d.close(); location.reload(); };
+    res(d);
+  };
+  r.onerror = () => rej(r.error);
 });
 const tx = (store, mode, fn) => new Promise((res, rej) => {
   const t = DB.transaction(store, mode); const s = t.objectStore(store); let out;

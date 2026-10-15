@@ -19,7 +19,7 @@ module.exports = async (c) => {
   await ev(`new Promise(r=>{const q=indexedDB.deleteDatabase('sood-score'); q.onsuccess=q.onerror=q.onblocked=()=>r(1)})`);
   await ev(`localStorage.setItem('ssv.opt', JSON.stringify({favOnly:false}))`);
   await c.go(URL + '?v=' + Date.now());
-  chk(await ev(`SSV.VERSION==='v1.4.0'`), '버전 v1.4.0');
+  chk(await ev(`SSV.VERSION.localeCompare('v1.4.0',undefined,{numeric:true})>=0`), '버전 v1.4.0 이상');
   chk(await ev(`new Promise(r=>{const q=indexedDB.open('sood-score'); q.onsuccess=()=>{const d=q.result; r(d.version===3 && d.objectStoreNames.contains('folders')); d.close();}})`), '저장소 v3 + 폴더 칸');
   chk(await ev(`SSV.OPT.favOnly===undefined && SSV.OPT.view==='all'`), '예전 설정(즐겨찾기만 보기) → 새 보기 설정으로');
   await setFiles('#fileIn', PDF);
