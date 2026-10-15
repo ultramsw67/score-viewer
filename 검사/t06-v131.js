@@ -14,13 +14,18 @@ module.exports = async (c) => {
   await c.go(URL + 'LICENSES.txt');
   await ev(`new Promise(r=>{const q=indexedDB.deleteDatabase('sood-score'); q.onsuccess=q.onerror=q.onblocked=()=>r(1)})`); await ev(`localStorage.clear()`);
   await c.go(URL + '?v=' + Date.now());
-  chk(await ev(`SSV.VERSION==='v1.3.1'`), '버전 v1.3.1');
+  chk(await ev(`SSV.VERSION.startsWith('v1.3.')`), '버전 v1.3.x');
+  // v1.3.2: 예전 「켜기」(full '1') 가 있던 기기도 「패드에서만」으로 한 번 바뀜, 노트북(마우스)에선 열 때 전체 화면 안 함
+  await ev(`localStorage.setItem('ssv.opt', JSON.stringify({full:'1'}))`); await c.go(URL + '?v=' + Date.now());
+  chk(await ev(`SSV.OPT.full==='touch' && SSV.OPT.fullV2===1 && document.querySelector('#optFull option').value==='touch'`), '전체 화면 설정 = 패드·폰에서만 (예전 켜기도 바뀜)');
+  await ev(`localStorage.clear()`); await c.go(URL + '?v=' + Date.now());
   chk(await ev(`getComputedStyle(document.documentElement).overscrollBehaviorX==='none' && getComputedStyle(document.body).overscrollBehaviorX==='none'`), '두 손가락 옆으로 밀기 = 뒤로 가기 막음 (overscroll-behavior-x)');
   const doc = await c.send('DOM.getDocument'); const n = await c.send('DOM.querySelector', { nodeId: doc.result.root.nodeId, selector: '#fileIn' });
   await c.send('DOM.setFileInputFiles', { nodeId: n.result.nodeId, files: PDF });
   await until(`document.querySelectorAll('#grid .card').length===1`, 40000); await sleep(400);
   const h0 = await ev('history.length');
   await ev(`document.querySelector('#grid .card .th').click()`); await until(`document.querySelectorAll('#stage .pg').length>=1 && SSV.V.n>1`); await sleep(500);
+  chk(await ev(`!document.fullscreenElement`), '노트북에선 악보 열 때 전체 화면 안 함 (브라우저 X 안 뜸)');
   // 휠: 쪽 맞춤·두 쪽(가로 화면)에서 한 번 = 두 쪽 넘김
   await wheel(0, 120); await sleep(500);
   chk(await ev('SSV.V.page') === 3, '휠 한 번 → 다음 두 쪽 (3쪽)');

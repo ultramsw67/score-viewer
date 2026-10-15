@@ -523,7 +523,7 @@ html,body{overscroll-behavior-x:none}
   <div class="db">
     <h2 style="margin:0">보기</h2>
     <label class="f">가로로 둘 때<select id="optTwo"><option value="auto">두 쪽씩 보기</option><option value="one">한 쪽씩 보기</option></select></label>
-    <label class="f">악보 열 때 전체 화면<select id="optFull"><option value="1">켜기</option><option value="0">끄기</option></select></label>
+    <label class="f">악보 열 때 전체 화면<select id="optFull"><option value="touch">패드·폰에서만 (노트북은 끔)</option><option value="1">언제나 켜기</option><option value="0">끄기</option></select></label>
     <label class="f">필기 입력<select id="optPen"><option value="any">손가락·펜 모두</option><option value="pen">펜만 (손바닥 닿아도 안 그림)</option></select></label>
     <label class="f">앱 화면 색<select id="optTheme"><option value="">기기 설정 따름</option><option value="light">밝게</option><option value="dark">어둡게</option></select></label>
     <h2 style="margin:6px 0 0">다른 기기로 옮기기·백업</h2>
@@ -757,7 +757,7 @@ html,body{overscroll-behavior-x:none}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.3.1';
+const VERSION = 'v1.3.2';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -784,9 +784,13 @@ const db = {
 const inkOf = async id => (await db.all('ink')).filter(x => x.id === id);
 
 /* ---------- 설정 ---------- */
-const OPT = Object.assign({ two: 'auto', full: '1', pen: 'any', theme: '', sort: 'title', night: false, fit: 'page', favOnly: false },
+const OPT = Object.assign({ two: 'auto', full: 'touch', pen: 'any', theme: '', sort: 'title', night: false, fit: 'page', favOnly: false },
   (() => { try { return JSON.parse(localStorage.getItem('ssv.opt') || '{}'); } catch (e) { return {}; } })());
 const saveOpt = () => { try { localStorage.setItem('ssv.opt', JSON.stringify(OPT)); } catch (e) { } };
+// v1.3.2: 노트북(마우스·터치패드)에서 전체 화면이면 위로 마우스를 올릴 때 브라우저가 자기 'X'(전체 화면 나가기)를 악보 위에 띄움
+// → 누르면 Aside 창이 다시 보여 '앱 밖으로 나간 것'처럼 보였음. 기본을 「패드에서만」으로, 예전 「켜기」도 한 번 바꿈
+if (!OPT.fullV2) { if (OPT.full === '1') OPT.full = 'touch'; OPT.fullV2 = 1; saveOpt(); }
+const touchDev = () => matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
 const applyTheme = () => { if (OPT.theme) document.documentElement.dataset.theme = OPT.theme; else delete document.documentElement.dataset.theme; };
 applyTheme();
 
@@ -1042,7 +1046,7 @@ const cropKey = () => [V.crop.l, V.crop.t, V.crop.r, V.crop.b].join(',');
 const goodOrd = (o, n) => Array.isArray(o) && o.length && o.every(x => Number.isInteger(x) && x >= 1 && x <= n) ? o.slice() : null;
 
 async function openViewer(queue, qi, setName = '', startPage) {
-  if (OPT.full === '1' && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { });
+  if ((OPT.full === '1' || (OPT.full === 'touch' && touchDev())) && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { });
   V.queue = queue; V.qi = qi; V.setName = setName;
   if (!setName) addTab(queue[qi]);
   viewer.classList.add('on'); viewer.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
@@ -1276,6 +1280,12 @@ $('#vMore').onclick = e => {
 };
 addEventListener('pointerdown', e => { if (!$('#vMoreM').hidden && !e.target.closest('#vMoreM,#vMore')) $('#vMoreM').hidden = true; }, true);
 $('#mnFull').onclick = () => { $('#vMoreM').hidden = true; fullToggle(); };
+// 전체 화면이 풀려도 악보는 그대로라는 것을 알려 줌 (브라우저 'X'·Esc 로 풀린 때)
+document.addEventListener('fullscreenchange', () => {
+  if (!viewer.classList.contains('on')) return;
+  if (document.fullscreenElement) { if (!touchDev()) banner('전체 화면<br><small>마우스를 맨 위로 올리면 브라우저의 ✕ 가 나옵니다 — 누르면 전체 화면만 풀립니다</small>', 2600); }
+  else banner('전체 화면을 나왔습니다<br><small>악보는 그대로입니다 · ⋯ 더 보기 → 전체 화면</small>', 2200);
+});
 
 /* ---------- 필기 (펜 7가지 · 굵기 3단계 · 도장 · 글자 · 점프 단추) ----------
    좌표는 언제나 「PDF 쪽 전체」 기준 0~1 → 여백을 잘라도 필기가 제자리에 남는다.
