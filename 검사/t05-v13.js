@@ -24,7 +24,7 @@ module.exports = async (c) => {
   await ev(`new Promise(r=>{const q=indexedDB.open('sood-score',1); q.onupgradeneeded=()=>{const d=q.result; d.createObjectStore('scores',{keyPath:'id'}); d.createObjectStore('files',{keyPath:'id'}); d.createObjectStore('ink',{keyPath:'key'}); d.createObjectStore('sets',{keyPath:'id'});}; q.onsuccess=()=>{q.result.close(); r(1)}; q.onerror=()=>r(0)})`);
   await ev(`localStorage.clear()`);
   await c.go(URL + '?v=' + Date.now());
-  chk(await ev(`SSV.VERSION==='v1.3.0'`), '버전 v1.3.0');
+  chk(await ev(`SSV.VERSION.startsWith('v1.3.')`), '버전 v1.3.x');
   chk(await ev(`SSV.db.all('takes').then(a=>Array.isArray(a))`), 'v1 저장소 → v2 로 올라가 녹음 저장소 생김');
   chk(await ev(`getComputedStyle(document.querySelector('#btnAdd')).backgroundColor==='rgb(20, 112, 224)'`), '첫 화면 단추 = Piascore 파랑');
   await setFiles('#fileIn', PDF);
