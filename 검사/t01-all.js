@@ -59,7 +59,7 @@ module.exports = async (c) => {
   chk(await ev(`document.querySelectorAll('#stage .pg').length`) === 2, '가로 화면 = 두 쪽');
   chk(await ev(`getComputedStyle(document.querySelector('#stage .pg'),'::after').content.includes('수트와후드')`), '악보 쪽 오른쪽 아래 수트와후드 워터마크');
   await ev(`document.querySelector('#vFav').click()`); await sleep(400);
-  chk(await ev(`document.querySelector('#vFav').textContent==='★' && SSV.db.get('scores','${idC}').then(s=>s.fav===true)`), '보기 화면에서 즐겨찾기 켜기');
+  chk(await ev(`document.querySelector('#vFav').classList.contains('favon') && SSV.db.get('scores','${idC}').then(s=>s.fav===true)`), '보기 화면에서 즐겨찾기 켜기');
   await c.shot('s2-two.png', false);
   await c.send('Input.dispatchKeyEvent', { type: 'rawKeyDown', key: 'ArrowRight', code: 'ArrowRight', windowsVirtualKeyCode: 39 });
   await c.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'ArrowRight', code: 'ArrowRight', windowsVirtualKeyCode: 39 });

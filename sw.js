@@ -1,6 +1,6 @@
 // 수드 악보 보기 — 인터넷 없이도 열리게 앱 파일을 기기에 담아 둔다
 // 앱을 고치면 VER 를 올린다 (index.html 의 VERSION 과 같게)
-const VER = 'ssv-v1.2.8';
+const VER = 'ssv-v1.3.0';
 const CORE = ['./', 'index.html', 'manifest.json', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/sood-192.jpg',
   'vendor/pdf.min.mjs', 'vendor/pdf.worker.min.mjs', 'LICENSES.txt'];
 self.addEventListener('install', e => {
