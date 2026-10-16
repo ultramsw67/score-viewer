@@ -9,6 +9,87 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<script id="inapp">
+/* 카카오톡·인스타그램 같은 '앱 안 브라우저'에서 열리면 사파리/크롬으로 넘긴다.
+   그 안에서는 악보 저장·홈 화면 추가·녹음이 막히거나 지워질 수 있다 (2026-10-16 아이패드 카카오톡 「사용 불가」, 리듬 연습 v3.9 장치를 옮김).
+   ① 카카오톡·라인: 자기 앱의 '밖으로 열기' 주소로 바로 넘김 (아이폰·안드로이드)
+   ② 안드로이드의 다른 앱: 크롬을 여는 intent 주소로 바로 넘김
+   ③ 아이폰의 다른 앱(강제로 못 넘김)·넘기기 실패: 화면 전체 안내 + 큰 단추 + 주소 복사 */
+(function () {
+  if (location.protocol === 'file:') return;
+  var ua = navigator.userAgent || '';
+  var ios = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var android = /Android/i.test(ua);
+  var app = /KAKAOTALK/i.test(ua) ? 'kakao'
+    : /\bLine\//i.test(ua) ? 'line'
+    : /NAVER\(inapp|NAVER\//.test(ua) ? 'naver'
+    : /Instagram/i.test(ua) ? 'instagram'
+    : /Barcelona|Threads/i.test(ua) ? 'threads'
+    : /FBAN|FBAV|FB_IAB|FBIOS|Messenger/i.test(ua) ? 'facebook'
+    : /BAND\//.test(ua) ? 'band'
+    : /DaumApps|DaumDevice/i.test(ua) ? 'daum'
+    : /KAKAOSTORY|everytimeApp|Twitter|TikTok|musical_ly|trill|Snapchat|WhatsApp|Pinterest|LinkedInApp/i.test(ua) ? 'other'
+    : (android && /; wv\)/.test(ua)) ? 'other' : '';
+  window.SSV_INAPP = app;
+  if (!app) return;
+  var NAME = { kakao: '카카오톡', line: '라인', naver: '네이버 앱', instagram: '인스타그램', threads: '스레드', facebook: '페이스북', band: '밴드', daum: '다음 앱', other: '이 앱' }[app];
+  var BR = ios ? '사파리' : '크롬', BRro = ios ? '사파리로' : '크롬으로', BRreul = ios ? '사파리를' : '크롬을';
+  var url = location.href.replace(/([?&])openExternalBrowser=1&?/, '$1').replace(/[?&](?=#|$)/, '');
+  var go = function (u) { if (window.__ssvNav) { window.__ssvNav.push(u); return; } location.href = u; };  // __rpNav: 검사용
+  // 주소의 #(받은 악보) 앞에 ?항목 을 넣는다 / 안드로이드 크롬 넘김은 # 이 빠지므로 악보를 ?rp= 로 옮긴다 (v3.9.1 점검)
+  function withQ(u, q) { var i = u.indexOf('#'), b = i < 0 ? u : u.slice(0, i), h = i < 0 ? '' : u.slice(i); return b + (b.indexOf('?') < 0 ? '?' : '&') + q + h; }
+  function hashToQ(u) { var i = u.indexOf('#'); if (i < 0 || u.length - i <= 3) return u.replace(/#.*$/, ''); return withQ(u.slice(0, i), 'ssv=' + encodeURIComponent(u.slice(i + 1))); }
+  function escapeNow() {
+    var e = encodeURIComponent(url);
+    if (app === 'kakao') go('kakaotalk://web/openExternal?url=' + e);
+    else if (app === 'line') go(withQ(url, 'openExternalBrowser=1'));      // ? 는 # 앞에 (v3.9.1 — 뒤에 붙으면 페이지가 다시 안 열림)
+    else if (android) { var u2 = hashToQ(url); go('intent://' + u2.replace(/^https?:\/\//, '') + '#Intent;scheme=' + location.protocol.replace(':', '') + ';package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(u2) + ';end'); }
+    else if (app === 'instagram') go('instagram://extbrowser/?url=' + e);
+    else if (app === 'threads') go('barcelona://extbrowser/?url=' + e);
+    else go('x-safari-' + url);
+  }
+  window.SSV_ESCAPE = escapeNow;
+  // 저절로 넘기기: 카카오톡·라인·안드로이드만 (아이폰의 다른 앱은 단추를 눌러야 함). 1분 안에 되돌아오면 다시 넘기지 않음(되풀이 방지)
+  var ss = null; try { ss = window.sessionStorage; } catch (e) { }
+  var last = 0; try { last = +(ss && ss.getItem('ssv-esc-at')) || 0; } catch (e) { }
+  var auto = (app === 'kakao' || app === 'line' || android) && !/[?&]openExternalBrowser=1/.test(location.search) && Date.now() - last > 60000;
+  if (auto) { try { ss && ss.setItem('ssv-esc-at', String(Date.now())); } catch (e) { } escapeNow(); }
+  var skipped = false; try { skipped = ss && ss.getItem('ssv-esc-skip') === '1'; } catch (e) { }
+  if (skipped) return;
+  function show() {
+    if (document.getElementById('inappGate')) return;
+    var d = document.createElement('div');
+    d.id = 'inappGate'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true');
+    d.innerHTML =
+      '<style>#inappGate{position:fixed;inset:0;z-index:2147483647;background:#1f3b63;color:#fff;overflow:auto;font:16px/1.55 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;padding:max(24px,env(safe-area-inset-top)) 20px 32px}' +
+      '#inappGate .w{max-width:440px;margin:0 auto}#inappGate h2{font-size:25px;line-height:1.35;margin:10px 0 12px}#inappGate p{margin:0 0 14px;color:#dfe7f5}' +
+      '#inappGate .big{display:block;width:100%;box-sizing:border-box;border:0;border-radius:16px;background:#ffd23f;color:#1b1f27;font-size:21px;font-weight:800;padding:20px 12px;margin:6px 0 18px;box-shadow:0 4px 0 #c99a00}' +
+      '#inappGate .step{background:rgba(255,255,255,.1);border-radius:14px;padding:14px 16px;margin:0 0 12px}#inappGate .step b{color:#ffd23f}' +
+      '#inappGate .mid{display:block;width:100%;box-sizing:border-box;border:2px solid #fff;border-radius:12px;background:transparent;color:#fff;font-size:17px;font-weight:700;padding:13px;margin:10px 0 6px}' +
+      '#inappGate .url{font-size:14px;word-break:break-all;color:#fff;opacity:.85}#inappGate .skip{background:none;border:0;color:#b9c6dc;text-decoration:underline;font-size:14px;padding:14px 0;margin-top:6px}' +
+      '#inappGate .arrow{font-size:40px;line-height:1;text-align:center;margin:4px 0 0}</style>' +
+      '<div class="w"><div class="arrow">🎼</div>' +
+      '<h2>' + BR + '에서 열어 주세요</h2>' +
+      '<p>지금은 <b>' + NAME + ' 안의 화면</b>이라 악보를 기기에 저장할 수 없습니다.<br>넣은 악보·필기가 남지 않고, 녹음도 되지 않아요.</p>' +
+      '<button type="button" class="big" id="inappGo">▶ ' + BRro + ' 열기</button>' +
+      '<div class="step"><b>안 넘어가면</b> 화면 구석의 <b>⋯</b> 또는 <b>⋮</b>(점 세 개)나 공유 단추를 누르고 <b>' + (ios ? '"Safari로 열기"' : '"다른 브라우저로 열기"') + '</b>(또는 "외부 브라우저로 열기")를 고르세요.</div>' +
+      '<div class="step"><b>그래도 안 되면</b> 주소를 복사해 ' + BR + ' 주소창에 붙여 넣으세요.' +
+      '<button type="button" class="mid" id="inappCopy">📋 주소 복사</button><div class="url">' + url.replace(/[<>&"]/g, '') + '</div></div>' +
+      '<button type="button" class="skip" id="inappSkip">그냥 여기서 둘러보기 (악보 저장 안 됨)</button></div>';
+    document.body.appendChild(d);
+    var de = document.documentElement, ov = de.style.overflow; de.style.overflow = 'hidden';  // 뒤 화면이 밀려 올라오지 않게
+    document.getElementById('inappGo').onclick = function () { try { ss && ss.setItem('ssv-esc-at', String(Date.now())); } catch (e) { } escapeNow(); };
+    document.getElementById('inappCopy').onclick = function () {
+      var b = this, done = function () { b.textContent = '✅ 복사했습니다. ' + BRreul + ' 열고 붙여 넣으세요'; };
+      try { navigator.clipboard.writeText(url).then(done, fallback); } catch (e) { fallback(); }
+      function fallback() { var t = document.createElement('textarea'); t.value = url; t.setAttribute('readonly', ''); t.style.cssText = 'position:fixed;top:0;left:0;opacity:0'; document.body.appendChild(t); t.select(); t.setSelectionRange(0, 99999); try { document.execCommand('copy'); done(); } catch (e) { b.textContent = '주소를 길게 눌러 복사하세요'; } t.remove(); }
+    };
+    document.getElementById('inappSkip').onclick = function () { try { ss && ss.setItem('ssv-esc-skip', '1'); } catch (e) { } d.remove(); de.style.overflow = ov; };
+  }
+  // 앱을 받는 동안에도 바로 보이게: body 가 생기자마자 띄운다 (DOMContentLoaded 까지 기다리지 않음)
+  (function wait() { if (document.body) show(); else setTimeout(wait, 10); })();
+})();
+</script>
 <style>
 :root{
   --bg:#f2f4f7; --card:#fff; --ink:#1d2433; --sub:#6b7487; --line:#e1e5ec;
@@ -811,7 +892,7 @@ html,body{overscroll-behavior-x:none}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.4.2';
+const VERSION = 'v1.4.3';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */

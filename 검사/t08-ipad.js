@@ -1,4 +1,4 @@
-// 아이패드(사파리 엔진 WebKit) 점검: node t08-ipad.js [safari|chrome|chrome-m|private]   (SSV_URL 없으면 실제 주소)
+// 아이패드(사파리 엔진 WebKit) 점검: node t08-ipad.js [safari|chrome|chrome-m|private|kakao]   (SSV_URL 없으면 실제 주소)
 // 아이패드 크롬도 속은 WebKit(애플 규칙) → 같은 엔진에 크롬 UA 로 시험
 // 사파리와 같은 WebKit 으로 아이패드 화면·터치를 흉내 낸다. 실제 아이패드 기기 시험을 대신하지는 못함
 const path = require('path'), fs = require('fs');
@@ -13,6 +13,7 @@ const UAS = {
   'chrome-m': 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/141.0.7390.41 Mobile/15E148 Safari/604.1',  // 크롬 모바일 사이트
 };
 UAS.private = UAS.safari;
+UAS.kakao = 'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 KAKAOTALK 25.8.2';  // 카카오톡 안 화면
 const UA = UAS[MODE];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 (async () => {
@@ -24,6 +25,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   if (MODE === 'private') { br0 = await webkit.launch(); ctx = await br0.newContext(opt); } else ctx = await webkit.launchPersistentContext(prof, opt);
   await ctx.addInitScript(() => Object.defineProperty(Navigator.prototype, 'maxTouchPoints', { get: () => 5 }));  // 실제 아이패드 = 5
   const br = { version: () => 'WebKit · ' + MODE, close: () => (br0 || ctx).close() };
+  if (MODE === 'kakao') await ctx.addInitScript(() => { window.__ssvNav = []; });  // 실제로 넘기지 않고 넘길 주소만 모음
   const pg = ctx.pages()[0] || await ctx.newPage(); const errs = [];
   pg.on('pageerror', e => errs.push('EXC ' + e.message)); pg.on('console', m => { if (m.type() === 'error') errs.push('ERR ' + m.text()); });
   const ev = (s) => pg.evaluate(s);
@@ -31,6 +33,20 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const shot = f => pg.screenshot({ path: path.join(__dirname, MODE + '-' + f) });
 
   await pg.goto(URL, { waitUntil: 'load' }); await sleep(1500);
+  if (MODE === 'kakao') {
+    const nav = await ev(`window.__ssvNav`);
+    chk(nav.length === 1 && nav[0].startsWith('kakaotalk://web/openExternal?url=') && decodeURIComponent(nav[0].split('url=')[1]).startsWith(URL), '카카오톡 → 사파리로 바로 넘김 (' + (nav[0] || '없음').slice(0, 60) + ')');
+    chk(await ev(`!!document.querySelector('#inappGate') && document.querySelector('#inappGate h2').textContent.includes('사파리')`), '안 넘어가면 「사파리에서 열어 주세요」 안내 화면');
+    await shot('k0-gate.png');
+    await pg.tap('#inappGo'); await sleep(300);
+    chk((await ev(`window.__ssvNav.length`)) === 2, '「사파리로 열기」 단추 = 다시 넘김');
+    await pg.tap('#inappSkip'); await sleep(300);
+    chk(await ev(`!document.querySelector('#inappGate') && !document.querySelector('#libEmpty').hidden`), '「그냥 여기서 둘러보기」 → 앱 화면');
+    await pg.reload({ waitUntil: 'load' }); await sleep(800);
+    chk((await ev(`window.__ssvNav.length`)) === 0 && !(await ev(`!!document.querySelector('#inappGate')`)), '1분 안에 다시 열면 되풀이 안 함·둘러보기 기억');
+    L(bad.length ? '실패 ' + bad.length + ': ' + bad.join(', ') : '모두 통과'); await br.close(); return;
+  }
+  chk(await ev(`!document.querySelector('#inappGate') && !window.SSV_INAPP`), '사파리·크롬에선 안내 화면 안 뜸');
   L('버전 ' + await ev(`SSV.VERSION`) + ' · 엔진 ' + br.version());
   chk(await ev(`!document.querySelector('#libEmpty').hidden`), '첫 화면 열림');
   const feat = await ev(`({ idb: !!window.indexedDB, persist: !!navigator.storage?.persist, wake: !!navigator.wakeLock, full: !!document.documentElement.requestFullscreen,
