@@ -9,6 +9,25 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<script id="diag">
+/* 앱이 다 열리지 않으면 원인을 화면에 띄운다 (2026-10-16 아이패드 「안 돼」 — 사진 한 장으로 원인 알기) */
+(function () {
+  var errs = [];
+  addEventListener('error', function (e) { errs.push((e.message || (e.target && (e.target.src || e.target.href)) || '불러오기 실패') + (e.lineno ? ' @' + e.lineno : '')); }, true);
+  addEventListener('unhandledrejection', function (e) { var r = e.reason; errs.push('약속 실패: ' + (r && (r.message || r.name) || r)); });
+  window.SSV_ERRS = errs;
+  setTimeout(function () {
+    if (window.SSV || document.getElementById('inappGate')) return;
+    var ua = navigator.userAgent, m = ua.match(/OS (\d+)_(\d+)/) || ua.match(/Version\/(\d+)\.(\d+)/);
+    var d = document.createElement('div'); d.id = 'diagBox';
+    d.style.cssText = 'position:fixed;inset:auto 12px 12px 12px;z-index:2147483646;background:#fff3f0;color:#5a1a10;border:2px solid #e0533d;border-radius:14px;padding:14px 16px;font:15px/1.5 -apple-system,"Apple SD Gothic Neo",sans-serif;word-break:break-all';
+    d.innerHTML = '<b style="font-size:17px">앱이 다 열리지 않았습니다</b><br>이 화면을 사진 찍어 보내 주세요.<br>' +
+      '버전 v1.4.4 · 운영체제 ' + (m ? m[1] + '.' + m[2] : '?') + ' · 저장 ' + (window.indexedDB ? '있음' : '없음') + ' · 모듈 ' + ('noModule' in document.createElement('script') ? '됨' : '안 됨') + '<br>' +
+      '<small>' + (errs.length ? errs.slice(0, 4).join('<br>').replace(/</g, '&lt;').replace(/&lt;br>/g, '<br>') : '오류 기록 없음') + '<br>' + ua.replace(/</g, '') + '</small>';
+    (document.body || document.documentElement).appendChild(d);
+  }, 8000);
+})();
+</script>
 <script id="inapp">
 /* 카카오톡·인스타그램 같은 '앱 안 브라우저'에서 열리면 사파리/크롬으로 넘긴다.
    그 안에서는 악보 저장·홈 화면 추가·녹음이 막히거나 지워질 수 있다 (2026-10-16 아이패드 카카오톡 「사용 불가」, 리듬 연습 v3.9 장치를 옮김).
@@ -892,7 +911,7 @@ html,body{overscroll-behavior-x:none}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.4.3';
+const VERSION = 'v1.4.4';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -988,7 +1007,7 @@ async function addFiles(list, intoFolder) {
   const files = [...list].filter(f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf');
   if (!files.length) { toast('PDF 파일이 없습니다.'); return; }
   await askPersist();
-  let added = 0, same = 0, bad = 0, relinked = 0, nostore = 0; const usedF = new Set();
+  let added = 0, same = 0, bad = 0, relinked = 0, nostore = 0, badWhy = ''; const usedF = new Set();
   const here = intoFolder !== undefined ? intoFolder : (folderOf(view) ? view : '');  // 폴더를 보고 있으면 그 폴더에 넣는다
   progress(true, '악보 넣는 중… 0 / ' + files.length, 0, files.length);
   for (let i = 0; i < files.length; i++) {
@@ -1012,14 +1031,14 @@ async function addFiles(list, intoFolder) {
       try { await db.put('files', { id, blob: new Blob([buf], { type: 'application/pdf' }) }); } catch (er) { nostore++; continue; }
       await db.put('scores', rec);
       old ? relinked++ : added++; if (rec.folder) usedF.add(rec.folder);
-    } catch (e) { console.warn('넣기 실패', f.name, e); bad++; }
+    } catch (e) { console.warn('넣기 실패', f.name, e); bad++; badWhy = badWhy || String(e && (e.message || e.name) || e).slice(0, 80); }
   }
   progress(false);
   if (nostore && !added && !relinked) { toast('이 창에서는 악보를 저장할 수 없습니다. 개인정보 보호(시크릿) 창이면 일반 창에서 열어 주세요.', null, null, 7000); renderLib(); return; }
   const parts = [];
   if (nostore) parts.push(nostore + '곡은 저장 못 함(시크릿 창?)');
   if (added) parts.push(added + '곡 넣음'); if (relinked) parts.push(relinked + '곡 필기·정보 연결');
-  if (same) parts.push(same + '곡은 이미 있음'); if (bad) parts.push(bad + '개는 열 수 없는 파일');
+  if (same) parts.push(same + '곡은 이미 있음'); if (bad) parts.push(bad + '개는 열 수 없는 파일' + (badWhy ? ' (' + badWhy + ')' : ''));
   if ((added || relinked) && usedF.size === 1) { const uf = folderOf([...usedF][0]); if (uf) { parts.push('「' + uf.name + '」 폴더'); if (view !== uf.id) { view = uf.id; OPT.view = view; saveOpt(); } } }
   toast(parts.join(' · ') || '바뀐 것이 없습니다.');
   renderLib();
