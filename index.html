@@ -811,7 +811,7 @@ html,body{overscroll-behavior-x:none}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.4.1';
+const VERSION = 'v1.4.2';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -907,7 +907,7 @@ async function addFiles(list, intoFolder) {
   const files = [...list].filter(f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf');
   if (!files.length) { toast('PDF 파일이 없습니다.'); return; }
   await askPersist();
-  let added = 0, same = 0, bad = 0, relinked = 0; const usedF = new Set();
+  let added = 0, same = 0, bad = 0, relinked = 0, nostore = 0; const usedF = new Set();
   const here = intoFolder !== undefined ? intoFolder : (folderOf(view) ? view : '');  // 폴더를 보고 있으면 그 폴더에 넣는다
   progress(true, '악보 넣는 중… 0 / ' + files.length, 0, files.length);
   for (let i = 0; i < files.length; i++) {
@@ -927,13 +927,16 @@ async function addFiles(list, intoFolder) {
         id, title: titleFromName(f.name), fileName: f.name, size: f.size, pages, thumb, has: true,
         tags: folderTags, memo: '', added: Date.now(), opened: 0, lastPage: 1, folder: fid,
       };
-      await db.put('files', { id, blob: new Blob([buf], { type: 'application/pdf' }) });
+      // 사파리·크롬(아이패드)의 개인정보 보호·시크릿 창은 PDF 를 기기에 담지 못한다
+      try { await db.put('files', { id, blob: new Blob([buf], { type: 'application/pdf' }) }); } catch (er) { nostore++; continue; }
       await db.put('scores', rec);
       old ? relinked++ : added++; if (rec.folder) usedF.add(rec.folder);
     } catch (e) { console.warn('넣기 실패', f.name, e); bad++; }
   }
   progress(false);
+  if (nostore && !added && !relinked) { toast('이 창에서는 악보를 저장할 수 없습니다. 개인정보 보호(시크릿) 창이면 일반 창에서 열어 주세요.', null, null, 7000); renderLib(); return; }
   const parts = [];
+  if (nostore) parts.push(nostore + '곡은 저장 못 함(시크릿 창?)');
   if (added) parts.push(added + '곡 넣음'); if (relinked) parts.push(relinked + '곡 필기·정보 연결');
   if (same) parts.push(same + '곡은 이미 있음'); if (bad) parts.push(bad + '개는 열 수 없는 파일');
   if ((added || relinked) && usedF.size === 1) { const uf = folderOf([...usedF][0]); if (uf) { parts.push('「' + uf.name + '」 폴더'); if (view !== uf.id) { view = uf.id; OPT.view = view; saveOpt(); } } }
@@ -942,7 +945,9 @@ async function addFiles(list, intoFolder) {
 }
 $('#btnAdd').onclick = () => $('#fileIn').click();
 $('#btnAddDir').onclick = () => $('#dirIn').click();
-if (!('webkitdirectory' in document.createElement('input')) || /Android|iPhone|iPad/i.test(navigator.userAgent)) $('#btnAddDir').hidden = true;
+// 아이패드 사파리·크롬은 기본이 「데스크톱 사이트」라 맥처럼 보인다 → 터치 맥 = 아이패드
+const isIPad = /iPad/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+if (!('webkitdirectory' in document.createElement('input')) || /Android|iPhone/i.test(navigator.userAgent) || isIPad) $('#btnAddDir').hidden = true;
 $('#fileIn').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
 $('#dirIn').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
 let dragN = 0;
