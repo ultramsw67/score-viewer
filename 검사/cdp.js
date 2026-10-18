@@ -6,7 +6,7 @@ const SCR = __dirname;
 const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const port = +process.env.CDP_PORT || 9333;
 async function main() {
-  const prof = path.join(SCR, 'chrome-prof' + (process.env.CDP_PORT ? '-' + process.env.CDP_PORT : ''));
+  const prof = process.env.CDP_PROFILE || path.join(SCR, 'chrome-prof' + (process.env.CDP_PORT ? '-' + process.env.CDP_PORT : ''));  // CDP_PROFILE: 전용 프로필에 직접 (악보 옮기기)
   const ch = spawn(CHROME, ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${prof}`, '--no-first-run', '--autoplay-policy=no-user-gesture-required',
     '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', ...(process.env.FAKE_WAV ? ['--use-file-for-fake-audio-capture=' + process.env.FAKE_WAV + '%noloop'] : []), 'about:blank'], { stdio: 'ignore' });
   let targets;

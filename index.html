@@ -22,7 +22,7 @@
     var d = document.createElement('div'); d.id = 'diagBox';
     d.style.cssText = 'position:fixed;inset:auto 12px 12px 12px;z-index:2147483646;background:#fff3f0;color:#5a1a10;border:2px solid #e0533d;border-radius:14px;padding:14px 16px;font:15px/1.5 -apple-system,"Apple SD Gothic Neo",sans-serif;word-break:break-all';
     d.innerHTML = '<b style="font-size:17px">앱이 다 열리지 않았습니다</b><br>이 화면을 사진 찍어 보내 주세요.<br>' +
-      '버전 v1.4.4 · 운영체제 ' + (m ? m[1] + '.' + m[2] : '?') + ' · 저장 ' + (window.indexedDB ? '있음' : '없음') + ' · 모듈 ' + ('noModule' in document.createElement('script') ? '됨' : '안 됨') + '<br>' +
+      '버전 v1.5.0 · 운영체제 ' + (m ? m[1] + '.' + m[2] : '?') + ' · 저장 ' + (window.indexedDB ? '있음' : '없음') + ' · 모듈 ' + ('noModule' in document.createElement('script') ? '됨' : '안 됨') + '<br>' +
       '<small>' + (errs.length ? errs.slice(0, 4).join('<br>').replace(/</g, '&lt;').replace(/&lt;br>/g, '<br>') : '오류 기록 없음') + '<br>' + ua.replace(/</g, '') + '</small>';
     (document.body || document.documentElement).appendChild(d);
   }, 8000);
@@ -545,6 +545,18 @@ html,body{overscroll-behavior-x:none}
   #printArea img{display:block;width:100%;height:auto;break-after:page;page-break-after:always}
   @page{margin:8mm}
 }
+/* 수드 도우미 (v1.5.0) — 목록 화면은 왼쪽 아래 큰 단추, 악보 화면은 아래 막대 왼쪽 빈칸에 작게(막대가 숨으면 같이 숨음), 필기 중엔 숨김(⋯ 더 보기에서 열기) */
+body.ssv-v .sg-fab{width:44px;height:44px;left:8px!important;bottom:calc(8px + env(safe-area-inset-bottom))!important;border-width:2px;opacity:.9;z-index:150}
+body.ssv-v .sg-fab svg{width:36px;height:36px}
+body.ssv-v .sg-fab .sg-q{width:16px;height:16px;font-size:11px;line-height:16px;top:-3px;right:-3px}
+body.ssv-v #navbar{padding-left:60px}
+body.ssv-v.ssv-hb .sg-fab,body.ssv-v.ssv-ink .sg-fab,body.ssv-nog .sg-fab{visibility:hidden;pointer-events:none}
+body.ssv-nog.ssv-v #navbar{padding-left:10px}
+body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
+.sgbtn{min-height:44px}
+/* 모듈 1.1.0 함정: char 'note' 면 창(.sg-panel)에 'sg-note' 가 붙어 떠오르는 ♪ 효과(sgRise·serif)가 창 전체에 걸림 → 창이 깜빡이며 흐려짐. 앱 쪽에서 되돌림 */
+.sg-panel.sg-note{animation:sgUp .35s cubic-bezier(.2,.9,.3,1.2)!important;opacity:1!important;font-family:inherit!important;font-weight:inherit!important}
+@media (max-width:560px){body.ssv-v #navbar input[type=range]{min-width:0}}
 @media (max-width:560px){
   .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
   .brand span{font-size:16px}
@@ -591,7 +603,8 @@ html,body{overscroll-behavior-x:none}
         <div class="empty" id="libEmpty" hidden>
           <b>아직 넣은 악보가 없습니다.</b><br>
           「＋ 악보 넣기」를 눌러 PDF 를 고르세요. PC 에서는 파일을 이 화면에 끌어다 놓아도 됩니다.<br>
-          악보는 이 기기 안에만 저장되고 인터넷에 올라가지 않습니다.
+          악보는 이 기기 안에만 저장되고 인터넷에 올라가지 않습니다.<br>
+          <button class="btn sgbtn" type="button" data-sg="lib" style="margin-top:10px">🔊 수드에게 쓰는 법 듣기</button>
         </div>
       </div>
     </div>
@@ -604,7 +617,8 @@ html,body{overscroll-behavior-x:none}
     <div class="list" id="setList"></div>
     <div class="empty" id="setEmpty" hidden>
       <b>연주 목록이 없습니다.</b><br>
-      공연·합주 순서대로 곡을 묶어 두면, 마지막 쪽에서 넘길 때 다음 곡이 바로 열립니다.
+      공연·합주 순서대로 곡을 묶어 두면, 마지막 쪽에서 넘길 때 다음 곡이 바로 열립니다.<br>
+      <button class="btn sgbtn" type="button" data-sg="sets" style="margin-top:10px">🔊 수드에게 쓰는 법 듣기</button>
     </div>
   </section>
 </main>
@@ -689,6 +703,8 @@ html,body{overscroll-behavior-x:none}
     <label class="f">악보 열 때 전체 화면<select id="optFull"><option value="touch">패드·폰에서만 (노트북은 끔)</option><option value="1">언제나 켜기</option><option value="0">끄기</option></select></label>
     <label class="f">필기 입력<select id="optPen"><option value="any">손가락·펜 모두</option><option value="pen">펜만 (손바닥 닿아도 안 그림)</option></select></label>
     <label class="f">앱 화면 색<select id="optTheme"><option value="">기기 설정 따름</option><option value="light">밝게</option><option value="dark">어둡게</option></select></label>
+    <label class="f">수드 도우미 (왼쪽 아래 음표 단추 — 누르면 화면 도움말을 읽어 줌)<select id="optGuide"><option value="1">보이기</option><option value="0">숨기기</option></select></label>
+    <div class="bar" style="margin:0"><button class="btn sgbtn" type="button" data-sg="settings">🔊 설정 도움말 듣기</button><button class="btn sgbtn" type="button" data-sg="viewer">🔊 악보 넘기는 법 듣기</button></div>
     <h2 style="margin:6px 0 0">다른 기기로 옮기기·백업</h2>
     <div class="note">악보 PDF 는 기기마다 따로 넣습니다. 아래 「목록·필기만」 파일을 다른 기기에서 가져온 뒤 같은 PDF 를 넣으면 태그·메모·연주 목록·필기가 그대로 붙습니다.</div>
     <div class="bar" style="margin:0">
@@ -821,6 +837,7 @@ html,body{overscroll-behavior-x:none}
     <button id="mnCrop" role="menuitem"><svg viewBox="0 0 24 24"><path d="M7 3v14h14"/><path d="M3 7h14v14"/></svg>여백 자르기·오선 크게<small id="mnCropS"></small></button>
     <button id="mnPages" role="menuitem"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>쪽 순서·반복<small id="mnPagesS"></small></button>
     <button id="mnPrint" role="menuitem"><svg viewBox="0 0 24 24"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M7 14h10v6H7z"/></svg>필기 넣어 인쇄·PDF 저장</button>
+    <button id="mnHelp" role="menuitem"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6"/><circle cx="12" cy="16.8" r=".6" fill="currentColor"/></svg>수드 도우미 — 이 화면 도움말 듣기</button>
     <button id="mnFull" role="menuitem"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>전체 화면</button>
   </div>
   <div class="vbar topb" id="topbar">
@@ -908,10 +925,12 @@ html,body{overscroll-behavior-x:none}
 </dialog>
 <div id="printArea" aria-hidden="true"></div>
 
+<script src="sood-guide.js"></script>
+<script src="sood-guide-helps.js"></script>
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.4.4';
+const VERSION = 'v1.5.0';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -1390,6 +1409,7 @@ const cropKey = () => [V.crop.l, V.crop.t, V.crop.r, V.crop.b].join(',');
 const goodOrd = (o, n) => Array.isArray(o) && o.length && o.every(x => Number.isInteger(x) && x >= 1 && x <= n) ? o.slice() : null;
 
 async function openViewer(queue, qi, setName = '', startPage) {
+  sgStop();
   if ((OPT.full === '1' || (OPT.full === 'touch' && touchDev())) && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { });
   V.queue = queue; V.qi = qi; V.setName = setName;
   if (!setName) addTab(queue[qi]);
@@ -1558,7 +1578,10 @@ stage.addEventListener('wheel', e => {
   if (Math.abs(WH.acc) < 40) return;
   WH.lock = true; const fwd = WH.acc > 0; WH.acc = 0; fwd ? next() : prev();
 }, { passive: false });
+// 수드 도우미 창이 떠 있으면 키는 도우미 것 (Esc = 도우미만 닫기). 도우미가 먼저 창을 지우므로 잡는 단계에서 표시해 둠
+addEventListener('keydown', e => { if (document.querySelector('.sg-wrap')) e.sgOpen = true; }, true);
 addEventListener('keydown', e => {
+  if (e.sgOpen) return;
   if (e.key === 'Escape' && selecting && !viewer.classList.contains('on') && !document.querySelector('dialog[open]')) { selMode(false); return; }
   if (!viewer.classList.contains('on') || e.target.matches('input,textarea,select') || document.querySelector('dialog[open]')) return;
   const k = e.key, plain = !e.ctrlKey && !e.altKey && !e.metaKey;
@@ -1973,6 +1996,7 @@ function mShow(e) {
 
 async function metStart() {
   if (M.on) return;
+  sgStop();
   try {
     if (!M.ctx || M.ctx.state === 'closed') {
       M.ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
@@ -2337,7 +2361,7 @@ hold($('#tAm'), () => { TO.a4 = Math.max(430, TO.a4 - 1); saveOpt(); tunUI(); if
 hold($('#tAp'), () => { TO.a4 = Math.min(450, TO.a4 + 1); saveOpt(); tunUI(); if (T.tone) T.tone.o.frequency.value = TO.a4; });
 $('#tTone').onclick = () => {
   if (T.tone) { try { T.tone.g.gain.setTargetAtTime(0, T.tone.c.currentTime, .03); setTimeout(() => T.tone?.c.close(), 200); } catch (e) { } T.tone = null; tunUI(); return; }
-  const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain();
+  sgStop(); const c = new (window.AudioContext || window.webkitAudioContext)(), o = c.createOscillator(), g = c.createGain();
   o.type = 'sine'; o.frequency.value = TO.a4; g.gain.value = 0; o.connect(g).connect(c.destination); o.start(); g.gain.setTargetAtTime(.22, c.currentTime, .03);
   T.tone = { c, o, g }; tunUI();
 };
@@ -2346,6 +2370,7 @@ async function tunMic(on) {
     cancelAnimationFrame(T.raf); T.stream?.getTracks().forEach(t => t.stop()); T.stream = null; try { T.ctx?.close(); } catch (e) { } T.ctx = null; tunUI(); return;
   }
   if (T.stream) return;
+  sgStop();
   try {
     T.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
   } catch (e) { T.stream = null; tunUI(); $('#tNote').innerHTML = '<small>마이크를 쓸 수 없습니다 — 브라우저 주소창의 마이크 허용을 확인하세요</small>'; return; }
@@ -2402,7 +2427,7 @@ $('#tClose').onclick = () => panel(null);
 // 녹음: 곡마다 IndexedDB takes 에 저장
 const fmtT = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
 async function recStart() {
-  let st;
+  sgStop(); let st;
   try { st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }); }
   catch (e) { toast('마이크를 쓸 수 없습니다 — 브라우저의 마이크 허용을 확인하세요.'); return; }
   const mt = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(x => window.MediaRecorder?.isTypeSupported?.(x));
@@ -2437,7 +2462,7 @@ $('#rList').onclick = async e => {
   const b = e.target.closest('button'); if (!b) return; const id = b.closest('.take').dataset.id, x = await db.get('takes', id); if (!x) return;
   if (b.dataset.a === 'play') {
     if (T.playing && T.playing.dataset.id === id && !T.playing.paused) { T.playing.pause(); return; }
-    T.playing?.pause(); const a = new Audio(URL.createObjectURL(x.blob)); a.dataset.id = id; T.playing = a;
+    sgStop(); T.playing?.pause(); const a = new Audio(URL.createObjectURL(x.blob)); a.dataset.id = id; T.playing = a;
     const sync = () => $('#rList').querySelectorAll('.take').forEach(t => { const on = t.dataset.id === id && !a.paused; const pb = t.querySelector('[data-a=play]'); pb.classList.toggle('on', on); pb.innerHTML = on ? ICO.stop : ICO.play; });
     a.onplay = a.onpause = a.onended = sync; a.play();
   } else if (b.dataset.a === 'dl') {
@@ -2451,7 +2476,7 @@ tunUI();
 
 /* ---------- 설정·백업 ---------- */
 $('#btnSettings').onclick = async () => {
-  $('#optTwo').value = OPT.two; $('#optFull').value = OPT.full; $('#optPen').value = OPT.pen; $('#optTheme').value = OPT.theme;
+  $('#optTwo').value = OPT.two; $('#optFull').value = OPT.full; $('#optPen').value = OPT.pen; $('#optTheme').value = OPT.theme; $('#optGuide').value = OPT.guide === false ? '0' : '1';
   $('#verInfo').innerHTML = '수드 악보 보기 ' + VERSION + ' · PDF 그리기: pdf.js (Apache-2.0) · <a href="LICENSES.txt" target="_blank">라이선스</a>';
   let info = '';
   try {
@@ -2516,10 +2541,43 @@ $('#backupIn').onchange = async e => {
   } catch (err) { progress(false); console.warn(err); toast('이 파일은 수드 악보 보기 백업이 아닙니다.'); }
 };
 
+/* ---------- 수드 도우미 (v1.5.0) — sood-guide.js (음악 앱 공통, 원본 바탕화면 05 음악/수드 모션 캐릭터 샘플) ---------- */
+// 메트로놈·튜너·녹음·기준음을 켤 때 도우미 목소리를 멈춤
+function sgStop() { try { window.SoodGuide?.stop(); } catch (e) { } }
+const sgCtx = () => {
+  if (viewer.classList.contains('on')) {
+    if (V.inking) return 'ink';
+    const p = openPanel();
+    return p === 'met' ? 'met' : p === 'tun' ? 'tun' : p === 'crop' ? 'more' : p === 'stamp' ? 'ink' : 'viewer';
+  }
+  if ($('#dSettings').open) return 'settings';
+  if (selecting) return 'folder';
+  return $('#pSets').hidden ? 'lib' : 'sets';
+};
+const sgOpen = k => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); window.SoodGuide?.open(k || sgCtx()); };
+function sgApply() { document.body.classList.toggle('ssv-nog', OPT.guide === false); }
+if (window.SoodGuide && window.SOOD_HELPS) {
+  const audioBusy = () => !!(M.on || T.rec || T.stream || T.tone);
+  SoodGuide.init({
+    char: 'note', helps: window.SOOD_HELPS, voiceDir: 'sood-voice/', context: sgCtx, corner: 'left', bottom: 16,
+    // 저절로 나오는 말풍선은 목록 화면에서만: 악보 화면·창(dialog)·도우미 숨김이면 '바쁨'. 도우미 창이 떠 있을 때는 소리 나는 기능만 '바쁨'(그래야 악보 화면에서도 읽어 줌)
+    isBusy: () => audioBusy() || (!document.querySelector('.sg-wrap') && (viewer.classList.contains('on') || OPT.guide === false || !!document.querySelector('dialog[open]'))),
+    idleSec: +new URLSearchParams(location.search).get('sgidle') || 40
+  });
+  // 악보 화면 상태를 body 에 옮겨 단추 크기·숨김을 CSS 로 (막대 숨김 = 연주 중 → 단추도 숨김)
+  const sgSync = () => { const on = viewer.classList.contains('on'); document.body.classList.toggle('ssv-v', on);
+    document.body.classList.toggle('ssv-hb', on && viewer.classList.contains('hidebars')); document.body.classList.toggle('ssv-ink', on && viewer.classList.contains('inking')); };
+  new MutationObserver(sgSync).observe(viewer, { attributes: true, attributeFilter: ['class'] }); sgSync();
+}
+sgApply();
+document.addEventListener('click', e => { const b = e.target.closest('[data-sg]'); if (b) sgOpen(b.dataset.sg); });
+$('#mnHelp').onclick = () => { $('#vMoreM').hidden = true; sgOpen(); };
+$('#optGuide').onchange = () => { OPT.guide = $('#optGuide').value === '1'; saveOpt(); sgApply(); };
+
 /* ---------- 시작 ---------- */
 await renderLib();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
-window.SSV = { V, OPT, db, addFiles, openViewer, closeViewer, next, prev, go, renderLib, VERSION, MET: M, MO, T, TO, pitchOf, setCrop, panel, folders: () => FOLDERS, setView, askFolder, doMove, selMode, metaJson };
+window.SSV = { sgCtx, V, OPT, db, addFiles, openViewer, closeViewer, next, prev, go, renderLib, VERSION, MET: M, MO, T, TO, pitchOf, setCrop, panel, folders: () => FOLDERS, setView, askFolder, doMove, selMode, metaJson };
 </script>
 </body>
 </html>
