@@ -20,10 +20,11 @@ module.exports = async (c) => {
 
   // 1. 목록 화면
   await c.size(1280, 800, false);
-  await c.go(URL);
+  await c.go(URL); await until(`document.readyState==='complete'`, 20000);
   await ev(`new Promise(r=>{const q=indexedDB.deleteDatabase('sood-score'); q.onsuccess=q.onerror=q.onblocked=()=>r(1)})`);
   await ev(`localStorage.clear()`);
   await c.go(URL + '?sgidle=2&t=' + Date.now());
+  await until(`!!window.SSV`, 20000);  // 다른 검사와 겹쳐 느릴 때 앱이 다 열릴 때까지
   chk(await ev(`SSV.VERSION.localeCompare('v1.5.1',undefined,{numeric:true})>=0`), '버전 v1.5.1 이상');
   chk(await ev(`!!window.SoodGuide && SoodGuide.version >= '1.1.0' && Object.keys(window.SOOD_HELPS).length >= 8`), '도우미 모듈·도움말 파일 읽힘 (' + await ev(`window.SoodGuide && SoodGuide.version`) + ')');
   let fb = await ev(fabBox);
@@ -48,6 +49,26 @@ module.exports = async (c) => {
 
   const vmiss = await ev(`(async()=>{const miss=[]; for(const h of Object.values(SOOD_HELPS)) for(const t of h.lines){ const r=await fetch('sood-voice/'+SoodGuide.voiceName(t)+'.mp3',{method:'HEAD',cache:'no-store'}); if(!r.ok) miss.push(t);} return miss})()`);
   chk(!vmiss.length, '도움말 문장마다 목소리 mp3 있음 (이름 = SoodGuide.voiceName(문장))' + (vmiss.length ? ' 없음: ' + vmiss.join(' / ') : ''));
+  // 말풍선을 실제로 누르기 (마우스·손가락) → 창 열림 (모듈 1.1.0 고침 확인: 누르는 순간 말풍선을 먼저 지우던 것)
+  const peekXY = `(()=>{const r=document.querySelector('.sg-peek').getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2}})()`;
+  await ev(`document.querySelector('#tabSets').click()`);
+  chk(await until(`!!document.querySelector('.sg-peek')`, 12000), '연주 목록 화면 말풍선');
+  let pt = await ev(peekXY);
+  for (const type of ['mousePressed', 'mouseReleased']) await c.send('Input.dispatchMouseEvent', { type, x: pt.x, y: pt.y, button: 'left', clickCount: 1 });
+  await sleep(500);
+  chk(await ev(`document.querySelector('.sg-wrap .sg-title')?.textContent.startsWith('연주 목록 쓰는 법')`), '말풍선을 마우스로 누르면 도우미 창이 열림');
+  await key('Escape');
+  await ev(`document.querySelector('#tabLib').click()`); await ev(`document.querySelector('#btnSel').click()`);
+  chk(await until(`!!document.querySelector('.sg-peek')`, 12000), '고르기 화면 말풍선');
+  pt = await ev(peekXY);
+  await c.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+  await c.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: pt.x, y: pt.y }] });
+  await sleep(60);
+  await c.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await sleep(600);
+  chk(await ev(`document.querySelector('.sg-wrap .sg-title')?.textContent.startsWith('폴더로 정리하기')`), '말풍선을 손가락으로 누르면 도우미 창이 열림');
+  await c.send('Emulation.setTouchEmulationEnabled', { enabled: false });
+  await key('Escape'); await ev(`document.querySelector('#selEnd').click()`);
   // 2. 악보 넣기 → 화면별 키
   await setFiles('#fileIn', PDF);
   chk(await until(`!document.querySelector('#prog').classList.contains('on') && document.querySelectorAll('#grid .card').length===2`, 40000), '악보 2곡 넣기');

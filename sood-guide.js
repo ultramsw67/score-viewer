@@ -270,7 +270,12 @@
     fab.onclick = function () { open(); };
     document.body.appendChild(fab);
     ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function (ev) {
-      window.addEventListener(ev, function () { hidePeek(); resetIdle(); }, { passive: true, capture: true });
+      // 말풍선·도우미 단추를 누른 것은 지우지 않는다 (먼저 지우면 click 이 오지 않아 창이 안 열림 — 10/18 리듬 연습 담당 발견)
+      window.addEventListener(ev, function (e) {
+        var t = e.target;
+        if (!(t && t.closest && (t.closest('.sg-peek') || t.closest('.sg-fab')))) hidePeek();
+        resetIdle();
+      }, { passive: true, capture: true });
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && wrap) close(); });
     document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); });
