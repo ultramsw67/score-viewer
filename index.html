@@ -22,7 +22,7 @@
     var d = document.createElement('div'); d.id = 'diagBox';
     d.style.cssText = 'position:fixed;inset:auto 12px 12px 12px;z-index:2147483646;background:#fff3f0;color:#5a1a10;border:2px solid #e0533d;border-radius:14px;padding:14px 16px;font:15px/1.5 -apple-system,"Apple SD Gothic Neo",sans-serif;word-break:break-all';
     d.innerHTML = '<b style="font-size:17px">앱이 다 열리지 않았습니다</b><br>이 화면을 사진 찍어 보내 주세요.<br>' +
-      '버전 v1.5.0 · 운영체제 ' + (m ? m[1] + '.' + m[2] : '?') + ' · 저장 ' + (window.indexedDB ? '있음' : '없음') + ' · 모듈 ' + ('noModule' in document.createElement('script') ? '됨' : '안 됨') + '<br>' +
+      '버전 v1.5.1 · 운영체제 ' + (m ? m[1] + '.' + m[2] : '?') + ' · 저장 ' + (window.indexedDB ? '있음' : '없음') + ' · 모듈 ' + ('noModule' in document.createElement('script') ? '됨' : '안 됨') + '<br>' +
       '<small>' + (errs.length ? errs.slice(0, 4).join('<br>').replace(/</g, '&lt;').replace(/&lt;br>/g, '<br>') : '오류 기록 없음') + '<br>' + ua.replace(/</g, '') + '</small>';
     (document.body || document.documentElement).appendChild(d);
   }, 8000);
@@ -554,8 +554,6 @@ body.ssv-v.ssv-hb .sg-fab,body.ssv-v.ssv-ink .sg-fab,body.ssv-nog .sg-fab{visibi
 body.ssv-nog.ssv-v #navbar{padding-left:10px}
 body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 .sgbtn{min-height:44px}
-/* 모듈 1.1.0 함정: char 'note' 면 창(.sg-panel)에 'sg-note' 가 붙어 떠오르는 ♪ 효과(sgRise·serif)가 창 전체에 걸림 → 창이 깜빡이며 흐려짐. 앱 쪽에서 되돌림 */
-.sg-panel.sg-note{animation:sgUp .35s cubic-bezier(.2,.9,.3,1.2)!important;opacity:1!important;font-family:inherit!important;font-weight:inherit!important}
 @media (max-width:560px){body.ssv-v #navbar input[type=range]{min-width:0}}
 @media (max-width:560px){
   .grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
@@ -930,7 +928,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.5.0';
+const VERSION = 'v1.5.1';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */

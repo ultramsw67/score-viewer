@@ -102,7 +102,7 @@
     '.sg-wm{position:absolute;right:16px;top:12px;font:800 11px "Pretendard Variable",Pretendard,sans-serif;letter-spacing:.2em;opacity:.16}' +
     '.sg-blink{transform-box:fill-box;transform-origin:center;animation:sgBlink 4s infinite}' +
     '.sg-head{transform-origin:150px 225px;animation:sgNod .5s ease-in-out infinite}' +
-    '.sg-listener .sg-head{animation:sgSway 2.4s ease-in-out infinite}' +
+    '.sg-c-listener .sg-head{animation:sgSway 2.4s ease-in-out infinite}' +
     '.sg-arm{transform-origin:212px 252px;animation:sgConduct 2s cubic-bezier(.45,0,.3,1) infinite}' +
     '.sg-note{font-family:serif;font-weight:700;opacity:0;animation:sgRise 2s ease-out infinite}.sg-d2{animation-delay:.8s!important}' +
     '.sg-wave{fill:none;stroke:' + C.mint + ';stroke-width:4;transform-box:fill-box;transform-origin:center;animation:sgWave 1.6s ease-out infinite}' +
@@ -215,7 +215,7 @@
     if (wrap) close();
     wrap = el('div', 'sg-wrap');
     wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-modal', 'true'); wrap.setAttribute('aria-label', '수드 도우미: ' + h.title);
-    var p = el('div', 'sg-panel sg-' + opt.char);
+    var p = el('div', 'sg-panel sg-c-' + opt.char);
     p.appendChild(el('span', 'sg-wm', '수트와후드'));
     var top = el('div', 'sg-top');
     top.appendChild(el('div', 'sg-char', SVG[opt.char]));

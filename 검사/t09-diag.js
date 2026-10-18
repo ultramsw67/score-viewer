@@ -9,7 +9,7 @@ const URL = process.env.SSV_URL || 'http://127.0.0.1:8781/';
   await pg.route('**/vendor/pdf.min.mjs', r => r.abort());
   await pg.goto(URL); await pg.waitForTimeout(9000);
   const t = await pg.evaluate(`document.querySelector('#diagBox')?.innerText || ''`);
-  chk(t.includes('앱이 다 열리지 않았습니다') && t.includes('v1.5.0'), '부품 막힘 → 진단 상자');
+  chk(t.includes('앱이 다 열리지 않았습니다') && t.includes(require('fs').readFileSync(require('path').join(__dirname,'..','index.html'),'utf8').match(/const VERSION = '([^']+)'/)[1]), '부품 막힘 → 진단 상자');
   console.log('  ' + t.replace(/\n/g, ' | ').slice(0, 260));
   await pg.screenshot({ path: path.join(__dirname, 'd0-diag.png') });
   await pg.unroute('**/vendor/pdf.min.mjs');

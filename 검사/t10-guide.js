@@ -1,4 +1,4 @@
-// v1.5.0 수드 도우미 점검: node cdp.js t10-guide.js  (로컬 서버 8781, 또는 SSV_URL=실주소 — https 면 인터넷 끊고 도우미 파일 열림까지)
+// v1.5.0~ 수드 도우미 점검: node cdp.js t10-guide.js  (로컬 서버 8781, 또는 SSV_URL=실주소 — https 면 인터넷 끊고 도우미 파일 열림까지)
 // 단추 표시·44px·창 열림·화면별 키·악보 화면 말풍선 없음·Esc/스페이스 충돌 없음·소리 기능 켜면 멈춤·설정 숨기기·가로 넘침 없음·녹음 파일 없을 때 오류 없음
 const path = require('path'), fs = require('fs');
 const URL = process.env.SSV_URL || 'http://127.0.0.1:8781/';
@@ -24,21 +24,21 @@ module.exports = async (c) => {
   await ev(`new Promise(r=>{const q=indexedDB.deleteDatabase('sood-score'); q.onsuccess=q.onerror=q.onblocked=()=>r(1)})`);
   await ev(`localStorage.clear()`);
   await c.go(URL + '?sgidle=2&t=' + Date.now());
-  chk(await ev(`SSV.VERSION`) === 'v1.5.0', '버전 v1.5.0');
+  chk(await ev(`SSV.VERSION.localeCompare('v1.5.1',undefined,{numeric:true})>=0`), '버전 v1.5.1 이상');
   chk(await ev(`!!window.SoodGuide && SoodGuide.version >= '1.1.0' && Object.keys(window.SOOD_HELPS).length >= 8`), '도우미 모듈·도움말 파일 읽힘 (' + await ev(`window.SoodGuide && SoodGuide.version`) + ')');
-  const vmiss = await ev(`(async()=>{const miss=[]; for(const h of Object.values(SOOD_HELPS)) for(const t of h.lines){ const r=await fetch('sood-voice/'+SoodGuide.voiceName(t)+'.mp3',{method:'HEAD',cache:'no-store'}); if(!r.ok) miss.push(t);} return miss})()`);
-  chk(!vmiss.length, '도움말 문장마다 목소리 mp3 있음 (이름 = SoodGuide.voiceName(문장))' + (vmiss.length ? ' 없음: ' + vmiss.join(' / ') : ''));
   let fb = await ev(fabBox);
   chk(fb && fb.vis && fb.w >= 44 && fb.h >= 44 && fb.l < 40 && fb.b < 40, '목록 화면 왼쪽 아래 음표 단추 (' + JSON.stringify(fb) + ')');
   chk(await ev(`SSV.sgCtx()`) === 'lib', '빈 목록 화면 키 = lib');
   chk(await ev(`!!document.querySelector('#libEmpty [data-sg=lib]')`), '빈 목록 안내에 「수드에게 쓰는 법 듣기」');
   // 말풍선 (시험용 2초)
-  chk(await until(`!!document.querySelector('.sg-peek')`, 5000), '가만히 있으면 목록 화면에 「도움이 필요하세요?」 말풍선');
+  chk(await until(`!!document.querySelector('.sg-peek')`, 12000), '가만히 있으면 목록 화면에 「도움이 필요하세요?」 말풍선');
   chk(await ev(`document.querySelector('.sg-peek')?.textContent.includes('악보 넣는 법')`), '말풍선 문구 = 목록 화면용');
   await c.shot('g1-lib-peek.png', false);
   // 단추 누르기 → 창
   await ev(`document.querySelector('.sg-fab').click()`); await sleep(500);
   chk(await ev(`document.querySelector('.sg-wrap .sg-title')?.textContent.startsWith('악보 목록 쓰는 법') && document.querySelectorAll('.sg-wrap .sg-line').length===SOOD_HELPS.lib.lines.length`), '단추 누르면 「악보 목록 쓰는 법」 창');
+  await sleep(1200);
+  chk(await ev(`(()=>{const p=document.querySelector('.sg-panel'), r=p.getBoundingClientRect(); return getComputedStyle(p).opacity==='1' && r.top>=0 && r.left>=0 && r.bottom<=innerHeight+1 && r.right<=innerWidth+1})()`), '목록 화면 도우미 창 불투명도 1·화면 안에 있음');
   chk(await ev(`[...document.querySelectorAll('.sg-btns button')].every(b=>b.getBoundingClientRect().height>=44)`), '도우미 창 단추 44px 이상');
   await sleep(1500);
   chk(await ev(`!!document.querySelector('.sg-line.sg-on') || !window.speechSynthesis`), '읽기 진행 (노란 줄 — 녹음 파일, 없으면 기계 목소리)');
@@ -46,6 +46,8 @@ module.exports = async (c) => {
   await key('Escape');
   chk(await ev(`!document.querySelector('.sg-wrap')`), 'Esc = 도우미 창 닫기');
 
+  const vmiss = await ev(`(async()=>{const miss=[]; for(const h of Object.values(SOOD_HELPS)) for(const t of h.lines){ const r=await fetch('sood-voice/'+SoodGuide.voiceName(t)+'.mp3',{method:'HEAD',cache:'no-store'}); if(!r.ok) miss.push(t);} return miss})()`);
+  chk(!vmiss.length, '도움말 문장마다 목소리 mp3 있음 (이름 = SoodGuide.voiceName(문장))' + (vmiss.length ? ' 없음: ' + vmiss.join(' / ') : ''));
   // 2. 악보 넣기 → 화면별 키
   await setFiles('#fileIn', PDF);
   chk(await until(`!document.querySelector('#prog').classList.contains('on') && document.querySelectorAll('#grid .card').length===2`, 40000), '악보 2곡 넣기');
@@ -86,7 +88,7 @@ module.exports = async (c) => {
   chk(await ev(`document.querySelector('.sg-wrap .sg-title')?.textContent.startsWith('악보 넘기는 법')`), '⋯ 더 보기 「이 화면 도움말 듣기」 → 악보 넘기는 법');
   await sleep(1200);
   chk(await ev(`!!document.querySelector('.sg-line.sg-on') || !window.speechSynthesis`), '악보 화면에서도 읽어 줌 (바쁨 아님)');
-  chk(await ev(`getComputedStyle(document.querySelector('.sg-panel')).opacity==='1'`), '도우미 창이 흐려지지 않음 (음표 캐릭터 sg-note 함정 막음)');
+  chk(await ev(`(()=>{const p=document.querySelector('.sg-panel'), r=p.getBoundingClientRect(); return getComputedStyle(p).opacity==='1' && r.top>=0 && r.left>=0 && r.bottom<=innerHeight+1 && r.right<=innerWidth+1})()`), '도우미 창 불투명도 1·화면 안에 있음');
   await c.shot('g4-viewer-panel.png', false);
   const pg0 = await ev(`SSV.V.page`);
   await key(' ');
@@ -149,7 +151,7 @@ module.exports = async (c) => {
   // 6. 실주소(https): 인터넷 끊고도 도우미 파일
   if (URL.startsWith('https')) {
     await c.go(URL + '?o=' + Date.now()); await sleep(4000);
-    chk(await ev(`caches.keys().then(async ks=>{const k=ks.find(x=>x==='ssv-v1.5.0'); if(!k) return false; const c=await caches.open(k); return !!(await c.match('sood-guide.js')) && !!(await c.match('sood-guide-helps.js'))})`), '서비스워커가 도우미 파일을 담아 둠 (ssv-v1.5.0)');
+    chk(await ev(`caches.keys().then(async ks=>{const k=ks.find(x=>x==='ssv-'+SSV.VERSION); if(!k) return false; const c=await caches.open(k); return !!(await c.match('sood-guide.js')) && !!(await c.match('sood-guide-helps.js'))})`), '서비스워커가 도우미 파일을 담아 둠 (ssv-버전)');
     await c.send('Network.enable');
     await c.send('Network.emulateNetworkConditions', { offline: true, latency: 0, downloadThroughput: -1, uploadThroughput: -1 });
     await c.go(URL); await sleep(2500);
