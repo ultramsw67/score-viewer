@@ -52,6 +52,7 @@ module.exports = async (c) => {
   // 말풍선을 실제로 누르기 (마우스·손가락) → 창 열림 (모듈 1.1.0 고침 확인: 누르는 순간 말풍선을 먼저 지우던 것)
   const peekXY = `(()=>{const r=document.querySelector('.sg-peek').getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2}})()`;
   await ev(`document.querySelector('#tabSets').click()`);
+  await c.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Shift', code: 'ShiftLeft', windowsVirtualKeyCode: 16 }); await c.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Shift', code: 'ShiftLeft', windowsVirtualKeyCode: 16 });  // 사람 손이 닿은 것처럼 → 가만히 시간 다시 셈
   chk(await until(`!!document.querySelector('.sg-peek')`, 12000), '연주 목록 화면 말풍선');
   let pt = await ev(peekXY);
   for (const type of ['mousePressed', 'mouseReleased']) await c.send('Input.dispatchMouseEvent', { type, x: pt.x, y: pt.y, button: 'left', clickCount: 1 });
@@ -59,6 +60,7 @@ module.exports = async (c) => {
   chk(await ev(`document.querySelector('.sg-wrap .sg-title')?.textContent.startsWith('연주 목록 쓰는 법')`), '말풍선을 마우스로 누르면 도우미 창이 열림');
   await key('Escape');
   await ev(`document.querySelector('#tabLib').click()`); await ev(`document.querySelector('#btnSel').click()`);
+  await c.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Shift', code: 'ShiftLeft', windowsVirtualKeyCode: 16 }); await c.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Shift', code: 'ShiftLeft', windowsVirtualKeyCode: 16 });  // 사람 손이 닿은 것처럼 → 가만히 시간 다시 셈
   chk(await until(`!!document.querySelector('.sg-peek')`, 12000), '고르기 화면 말풍선');
   pt = await ev(peekXY);
   await c.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
