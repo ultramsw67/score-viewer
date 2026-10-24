@@ -35,7 +35,7 @@ module.exports = async (c) => {
   await ev(`document.querySelector('#grid .card[data-id="${id}"] .th').click()`);
   await until(`document.querySelectorAll('#stage .pg').length>=1 && SSV.V.n>1`); await sleep(500);
   chk(await ev(`getComputedStyle(document.querySelector('#topbar')).backgroundColor.startsWith('rgba(250, 251, 253')`), '보기 화면 위 막대 = 밝은 유리');
-  chk(await ev(`document.querySelectorAll('#topbar>button svg').length>=10 && document.querySelector('#vFit span').textContent==='쪽 맞춤'`), '위 막대 = 선 아이콘 + 글자');
+  chk(await ev(`document.querySelectorAll('#topbar>button svg').length>=9 && document.querySelector('#vClose svg') && document.querySelector('#vFit span').textContent==='쪽 맞춤'`), '위 막대 = 선 아이콘 + 글자');
   await ev(`SSV.panel && document.querySelector('#viewer').classList.remove('hidebars')`);
   await c.shot('v2-viewer.png', false);
   await ev(`document.querySelector('#vNight').click()`); await sleep(300);

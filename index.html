@@ -563,12 +563,55 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
   .brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .tabs button{padding:8px 11px}
 }
+/* ---------- v1.6.0 Piascore 식 화면 (10/24 시안 A) ---------- */
+/* 왼쪽 줄: 악보함·폴더·연주 목록·태그 */
+.fi .ic svg{width:19px;height:19px;fill:none;stroke:var(--main);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto}
+.fi .ic.star svg{fill:#f5b301;stroke:#e0a100}
+.fside .fh.sec0{padding-top:6px}
+.fside .fmore{border:0;background:none;color:var(--main);font-size:13px;font-weight:600;text-align:left;padding:6px 10px;min-height:34px;border-radius:8px}
+.fside .fmore:hover{background:var(--well)}
+/* 정렬·보기 모양 (나란히 붙은 단추) */
+.seg{display:inline-flex;background:var(--well);border-radius:11px;padding:3px;gap:2px;flex:0 0 auto}
+.seg button{border:0;background:none;border-radius:8px;padding:0 12px;min-height:38px;font-size:14px;font-weight:600;color:var(--sub);white-space:nowrap}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(16,28,56,.14)}
+#setBar .note{color:var(--sub);font-size:13.5px}
+/* 줄 보기 */
+.grid.rows{grid-template-columns:1fr;gap:0;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.grid.rows .card{flex-direction:row;align-items:center;border:0;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;padding:7px 96px 7px 10px;min-height:68px}
+.grid.rows .card:last-child{border-bottom:0}
+.grid.rows .card:hover{box-shadow:none;background:var(--well)}
+.grid.rows .card .th{width:42px;flex:0 0 42px;border:1px solid var(--line);border-radius:4px}
+.grid.rows .card .th .none{font-size:0}
+.grid.rows .card .meta{flex:1;min-width:0;padding:0 12px}
+.grid.rows .card .t{-webkit-line-clamp:1}
+.grid.rows .card .fav,.grid.rows .card .more{top:50%;transform:translateY(-50%);background:transparent;color:var(--sub);box-shadow:none}
+.grid.rows .card .fav{left:auto;right:50px}
+.grid.rows .card .fav.on{background:transparent;color:#f5b301}
+.grid.rows .card.isfav{border-color:var(--line)}
+.grid.sel.rows .card::after{left:auto;right:16px;top:50%;transform:translateY(-50%)}
+.grid.rows .empty{border:0}
+/* 악보 화면 맨 위 줄 — 「‹ 악보함」 */
+.vstrip{position:absolute;left:0;right:0;top:0;z-index:7;height:calc(46px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 12px 0 4px;display:flex;align-items:center;gap:6px;
+  background:var(--vb-bg);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid var(--vb-line);transition:transform .22s,opacity .22s}
+#vClose{display:inline-flex;align-items:center;gap:1px;height:40px;padding:0 12px 0 4px;border:0;background:none;color:var(--vb-acc);font-weight:700;font-size:16.5px;border-radius:10px;flex:0 0 auto;white-space:nowrap}
+#vClose:hover{background:var(--vb-hover)}
+#vClose svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.vstrip .vt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;font-size:15.5px;letter-spacing:-.3px;padding:0 4px;color:var(--vb-ink)}
+.vstrip .pn{font-variant-numeric:tabular-nums;color:var(--vb-sub);padding:0 4px;white-space:nowrap;font-size:13.5px;font-weight:600}
+.vbar.topb{justify-content:center;top:calc(46px + env(safe-area-inset-top));padding-top:5px}
+#stage{top:calc(46px + env(safe-area-inset-top))}
+#viewer.inking #stage{top:calc(112px + env(safe-area-inset-top))}
+/* 설정 「도구 막대와 같이 숨기기」 = 예전처럼: 막대가 숨으면 맨 위 줄도 숨고 악보가 화면 가득 */
+#viewer.nostrip.hidebars .vstrip{transform:translateY(-110%);opacity:0;pointer-events:none}
+#viewer.nostrip:not(.inking) #stage{top:0}
+@media (max-width:560px){.vstrip .pn#vSetPos{display:none}}
 </style>
 </head>
 <body>
 <header class="top"><div class="wrap">
   <div class="brand"><img src="icons/icon-192.png" alt=""><span>수드 악보 보기</span></div>
-  <div class="tabs" role="tablist">
+  <!-- v1.6.0: 연주 목록은 왼쪽 줄로 옮김 — 탭은 숨겨 두기만 (옛 검사·도움말 호환) -->
+  <div class="tabs" role="tablist" hidden>
     <button id="tabLib" class="on" role="tab">악보</button>
     <button id="tabSets" role="tab">연주 목록</button>
   </div>
@@ -588,13 +631,19 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
         <div class="bar">
           <button class="btn main" id="btnAdd">＋ 악보 넣기</button>
           <button class="btn" id="btnAddDir">📁 폴더째 넣기</button>
-          <button class="btn" id="btnSel" title="여러 곡을 골라 폴더로 옮기기·즐겨찾기·지우기">☑ 고르기</button>
           <input type="search" id="q" placeholder="제목·태그 검색 (모든 폴더)" autocomplete="off">
-          <select id="sort" aria-label="정렬">
-            <option value="title">이름순</option>
-            <option value="opened">최근 본 순</option>
-            <option value="added">최근 넣은 순</option>
-          </select>
+          <div class="seg" id="sortSeg" role="radiogroup" aria-label="정렬">
+            <button type="button" data-s="title">이름</button><button type="button" data-s="opened">최근 본</button><button type="button" data-s="added">넣은 순</button>
+          </div>
+          <div class="seg" id="modeSeg" role="radiogroup" aria-label="보기 모양">
+            <button type="button" data-m="grid" title="악보 그림 크게">그림</button><button type="button" data-m="list" title="한 줄에 한 곡">줄</button>
+          </div>
+          <button class="btn" id="btnSel" title="여러 곡을 골라 폴더로 옮기기·즐겨찾기·지우기">☑ 편집</button>
+        </div>
+        <div class="bar" id="setBar" hidden>
+          <button class="btn main" id="setPlay">▶ 연주 시작</button>
+          <button class="btn" id="setEdit">✎ 곡·순서 고치기</button>
+          <span class="note" id="setNote"></span>
         </div>
         <div class="chips" id="tagChips"></div>
         <div class="grid" id="grid"></div>
@@ -701,6 +750,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
     <label class="f">악보 열 때 전체 화면<select id="optFull"><option value="touch">패드·폰에서만 (노트북은 끔)</option><option value="1">언제나 켜기</option><option value="0">끄기</option></select></label>
     <label class="f">필기 입력<select id="optPen"><option value="any">손가락·펜 모두</option><option value="pen">펜만 (손바닥 닿아도 안 그림)</option></select></label>
     <label class="f">앱 화면 색<select id="optTheme"><option value="">기기 설정 따름</option><option value="light">밝게</option><option value="dark">어둡게</option></select></label>
+    <label class="f">악보 볼 때 맨 위 「‹ 악보함」 줄<select id="optStrip"><option value="1">늘 보이기</option><option value="0">도구 막대와 같이 숨기기 (예전처럼)</option></select></label>
     <label class="f">수드 도우미 (왼쪽 아래 음표 단추 — 누르면 화면 도움말을 읽어 줌)<select id="optGuide"><option value="1">보이기</option><option value="0">숨기기</option></select></label>
     <div class="bar" style="margin:0"><button class="btn sgbtn" type="button" data-sg="settings">🔊 설정 도움말 듣기</button><button class="btn sgbtn" type="button" data-sg="viewer">🔊 악보 넘기는 법 듣기</button></div>
     <h2 style="margin:6px 0 0">다른 기기로 옮기기·백업</h2>
@@ -838,10 +888,14 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
     <button id="mnHelp" role="menuitem"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6"/><circle cx="12" cy="16.8" r=".6" fill="currentColor"/></svg>수드 도우미 — 이 화면 도움말 듣기</button>
     <button id="mnFull" role="menuitem"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>전체 화면</button>
   </div>
-  <div class="vbar topb" id="topbar">
-    <button id="vClose" aria-label="닫기" title="닫기 (Esc)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button>
+  <!-- v1.6.0: 맨 위 줄 — 악보를 보는 동안에도 늘 보임 (설정에서 예전처럼 숨기기 가능) -->
+  <div class="vstrip" id="vstrip">
+    <button id="vClose" aria-label="악보함으로 돌아가기" title="악보함으로 (Esc)"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg><span>악보함</span></button>
     <div class="vt" id="vTitle"></div>
     <span class="pn" id="vSetPos"></span>
+    <span class="pn" id="vPgS"></span>
+  </div>
+  <div class="vbar topb" id="topbar">
     <button id="vFav" title="즐겨찾기" aria-label="즐겨찾기"><svg viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg><span>즐겨찾기</span></button>
     <button id="vFit" title="쪽 맞춤 ↔ 폭 맞춤"><svg viewBox="0 0 24 24"><rect x="6" y="3.5" width="12" height="17" rx="1.5"/><path d="M9 8h6M9 11h6M9 14h4"/></svg><span>쪽 맞춤</span></button>
     <button id="vTwo" title="두 쪽 ↔ 한 쪽"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="8" height="15" rx="1.2"/><rect x="13" y="4.5" width="8" height="15" rx="1.2"/></svg><span>두 쪽</span></button>
@@ -928,7 +982,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.5.4';
+const VERSION = 'v1.6.0';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -1132,14 +1186,33 @@ async function renameFolder(f) { const r = await askFolder(f); if (r) toast('폴
 /* ---------- 악보 목록 ---------- */
 let SCORES = [], tagOn = null, view = OPT.view || (OPT.favOnly ? 'fav' : 'all');
 if (OPT.favOnly !== undefined) { delete OPT.favOnly; OPT.view = view; saveOpt(); }
-$('#sort').value = OPT.sort;
-$('#sort').onchange = () => { OPT.sort = $('#sort').value; saveOpt(); renderLib(); };
+// v1.6.0: 정렬은 나란히 붙은 단추(이름·최근 본·넣은 순), 보기 모양은 칸/줄(OPT.lmode)
+let SETS = [];
+const segUI = () => { $('#sortSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.s === OPT.sort)); $('#modeSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.m === (OPT.lmode || 'grid'))); };
+$('#sortSeg').onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; OPT.sort = b.dataset.s; saveOpt(); segUI(); renderLib(true); };
+$('#modeSeg').onclick = e => { const b = e.target.closest('[data-m]'); if (!b) return; OPT.lmode = b.dataset.m; saveOpt(); segUI(); renderLib(true); };
+segUI();
 $('#q').oninput = () => renderLib(true);
 function setView(v) { view = v; OPT.view = v; saveOpt(); tagOn = null; $('#q').value = ''; renderLib(true); if (scrollY > 200) scrollTo({ top: 0 }); }
-const inView = s => view === 'all' || (view === 'fav' ? !!s.fav : view === 'none' ? !folderOf(s.folder) : s.folder === view);
+// 보는 곳: all · recent(최근 본) · fav · none(폴더 없음) · 폴더 id · set:<연주 목록 id> · tag:<태그>
+const setOf = v => v.startsWith('set:') ? SETS.find(x => x.id === v.slice(4)) : null;
+const inView = s => view === 'all' || (view === 'fav' ? !!s.fav : view === 'none' ? !folderOf(s.folder) : view === 'recent' ? !!s.opened
+  : view.startsWith('tag:') ? (s.tags || []).includes(view.slice(4)) : s.folder === view);
+const SIC = {
+  all: '<svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="1.6"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg>',
+  recent: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+  fav: '<svg viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>',
+  folder: '<svg viewBox="0 0 24 24"><path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h4.2l1.8 2H19a1.5 1.5 0 0 1 1.5 1.5V18a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 18z"/></svg>',
+  none: '<svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4"/></svg>',
+  set: '<svg viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.8" cy="6.5" r=".9"/><circle cx="4.8" cy="12" r=".9"/><circle cx="4.8" cy="17.5" r=".9"/></svg>',
+  tag: '<svg viewBox="0 0 24 24"><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3-8.7 8.7z"/><circle cx="8" cy="8" r="1.3"/></svg>'
+};
+let tagMore = false;
 async function renderLib(keep) {
-  if (!keep) { SCORES = await db.all('scores'); await loadFolders(); }
-  if (!['all', 'fav', 'none'].includes(view) && !folderOf(view)) view = 'all';
+  if (!keep) { SCORES = await db.all('scores'); await loadFolders(); SETS = (await db.all('sets')).sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ko', { numeric: true })); }
+  const allTags = [...new Set(SCORES.flatMap(s => s.tags || []))];
+  const okView = ['all', 'fav', 'none', 'recent'].includes(view) || folderOf(view) || setOf(view) || (view.startsWith('tag:') && allTags.includes(view.slice(4)));
+  if (!okView) view = 'all';
   if (view === 'none' && !FOLDERS.length) view = 'all';
   const q = norm($('#q').value);
   // 왼쪽 폴더 막대
@@ -1147,45 +1220,70 @@ async function renderLib(keep) {
   const fi = (v, ic, nm, n, menu) => '<div class="fi' + (view === v && !q ? ' on' : '') + '" role="button" tabindex="0" data-v="' + esc(v) + '" title="' + esc(nm) + '">' +
     '<span class="ic">' + ic + '</span><span class="nm">' + esc(nm) + '</span><span class="ct">' + n + '</span>' +
     (menu ? '<button type="button" class="fm" data-fm aria-label="' + esc(nm) + ' 폴더 이름 바꾸기·지우기" title="이름 바꾸기·지우기">⋯</button>' : '') + '</div>';
-  $('#fside').innerHTML = fi('all', '📚', '모든 악보', SCORES.length) + fi('fav', '★', '즐겨찾기', SCORES.filter(s => s.fav).length) +
+  const tagN = {}; SCORES.forEach(s => (s.tags || []).forEach(t => tagN[t] = (tagN[t] || 0) + 1));
+  const tagAll = Object.keys(tagN).sort((a, b) => a.localeCompare(b, 'ko', { numeric: true }));
+  const tagShow = tagMore || tagAll.length <= 10 ? tagAll : tagAll.slice(0, 8).concat(view.startsWith('tag:') && tagAll.indexOf(view.slice(4)) >= 8 ? [view.slice(4)] : []);
+  $('#fside').innerHTML = '<div class="fh sec0"><span>악보함</span></div>' +
+    fi('all', SIC.all, '모든 악보', SCORES.length) + fi('recent', SIC.recent, '최근 본 악보', SCORES.filter(s => s.opened).length) + fi('fav', SIC.fav, '즐겨찾기', SCORES.filter(s => s.fav).length) +
     '<div class="fh"><span>폴더 ' + FOLDERS.length + '</span><button type="button" id="btnNewFolder" title="새 폴더 만들기">＋ 새 폴더</button></div>' +
-    FOLDERS.map(f => fi(f.id, '📁', f.name, cnt[f.id] || 0, true)).join('') +
-    (FOLDERS.length ? fi('none', '📄', '폴더 없음', cnt[''] || 0) : '<div class="fnote">폴더를 만들어 악보를 나눠 담아 보세요. 카드를 폴더로 끌어 놓거나 「☑ 고르기」로 여러 곡을 한 번에 옮깁니다.</div>');
+    FOLDERS.map(f => fi(f.id, SIC.folder, f.name, cnt[f.id] || 0, true)).join('') +
+    (FOLDERS.length ? fi('none', SIC.none, '폴더 없음', cnt[''] || 0) : '<div class="fnote">폴더를 만들어 악보를 나눠 담아 보세요. 카드를 폴더로 끌어 놓거나 「☑ 편집」으로 여러 곡을 한 번에 옮깁니다.</div>') +
+    '<div class="fh"><span>연주 목록 ' + SETS.length + '</span><button type="button" id="btnNewSet2" title="새 연주 목록 만들기">＋ 새 목록</button></div>' +
+    SETS.map(x => fi('set:' + x.id, SIC.set, x.name || '이름 없는 목록', x.items.length)).join('') +
+    (SETS.length ? '' : '<div class="fnote">공연·합주 순서대로 곡을 묶어 두면 마지막 쪽에서 다음 곡이 바로 열립니다.</div>') +
+    (tagAll.length ? '<div class="fh"><span>태그 ' + tagAll.length + '</span></div>' + tagShow.map(t => fi('tag:' + t, SIC.tag, t, tagN[t])).join('') +
+      (tagAll.length > 10 ? '<button type="button" class="fmore" id="tagMore">' + (tagMore ? '태그 접기' : '태그 모두 보기 (' + tagAll.length + ')') + '</button>' : '') : '');
+  $('#fside').querySelectorAll('.fi[data-v="fav"] .ic').forEach(x => x.classList.add('star'));
   // 제목
-  const vf = folderOf(view);
-  $('#fTitle').textContent = q ? '🔎 모든 폴더에서 찾기' : view === 'fav' ? '★ 즐겨찾기' : view === 'none' ? '폴더 없음' : vf ? '📁 ' + vf.name : '모든 악보';
+  const vf = folderOf(view), vs = setOf(view), vt = view.startsWith('tag:') ? view.slice(4) : null;
+  $('#fTitle').textContent = q ? '🔎 모든 폴더에서 찾기' : view === 'fav' ? '★ 즐겨찾기' : view === 'none' ? '폴더 없음' : view === 'recent' ? '최근 본 악보'
+    : vf ? '📁 ' + vf.name : vs ? '▶ ' + (vs.name || '이름 없는 목록') : vt ? '# ' + vt : '모든 악보';
   $('#fRename').hidden = !vf || !!q;
-  // 태그 (지금 보는 곳 안에서)
-  const base = q ? SCORES : SCORES.filter(inView);
-  const tags = {}; base.forEach(s => (s.tags || []).forEach(t => tags[t] = (tags[t] || 0) + 1));
+  $('#setBar').hidden = !vs || !!q;
+  // 태그 (지금 보는 곳 안에서) — 연주 목록·태그 칸에서는 안 보임
+  const byId = Object.fromEntries(SCORES.map(s => [s.id, s]));
+  const base = q ? SCORES : vs ? vs.items.map(id => byId[id]).filter(Boolean) : SCORES.filter(inView);
+  const tags = {}; if (!vs && !vt) base.forEach(s => (s.tags || []).forEach(t => tags[t] = (tags[t] || 0) + 1));
   const tagNames = Object.keys(tags).sort((a, b) => a.localeCompare(b, 'ko', { numeric: true }));
   if (tagOn && !tags[tagOn]) tagOn = null;
   $('#tagChips').innerHTML = tagNames.length ? '<button class="chip' + (tagOn ? '' : ' on') + '" data-t="">태그 전체</button>' +
     tagNames.map(t => '<button class="chip' + (t === tagOn ? ' on' : '') + '" data-t="' + esc(t) + '">' + esc(t) + ' ' + tags[t] + '</button>').join('') : '';
   let list = base.filter(s => (!tagOn || (s.tags || []).includes(tagOn)) &&
     (!q || norm(s.title + ' ' + (s.tags || []).join(' ') + ' ' + s.memo + ' ' + s.fileName + ' ' + (folderOf(s.folder)?.name || '')).includes(q)));
-  list.sort(OPT.sort === 'opened' ? (a, b) => (b.opened || 0) - (a.opened || 0) || byTitle(a, b)
+  // 연주 목록은 정한 순서 그대로, 최근 본 악보는 언제나 최근 순
+  if (!vs || q) list.sort(OPT.sort === 'opened' || (view === 'recent' && !q) ? (a, b) => (b.opened || 0) - (a.opened || 0) || byTitle(a, b)
     : OPT.sort === 'added' ? (a, b) => b.added - a.added : byTitle);
+  if (vs && !q) { const miss = vs.items.length - list.length; $('#setNote').textContent = vs.items.length ? '카드를 누르면 그 곡부터 연주합니다' + (miss ? ' · 이 기기에 없는 곡 ' + miss : '') : ''; }
+  $('#sortSeg').hidden = !!vs && !q;
   $('#fCount').textContent = list.length + '곡';
   $('#libEmpty').hidden = SCORES.length > 0;
   const showF = s => { const f = folderOf(s.folder); return f && (q || view !== f.id) ? '<div class="fd">📁 ' + esc(f.name) + '</div>' : ''; };
   $('#grid').classList.toggle('sel', selecting);
-  $('#grid').innerHTML = list.map(s => '<div class="card' + (s.has ? '' : ' missing') + (s.fav ? ' isfav' : '') + (SEL.has(s.id) ? ' picked' : '') + '" data-id="' + s.id + '" draggable="true">' +
+  $('#grid').classList.toggle('rows', OPT.lmode === 'list');
+  $('#grid').innerHTML = list.map((s, i) => '<div class="card' + (s.has ? '' : ' missing') + (s.fav ? ' isfav' : '') + (SEL.has(s.id) ? ' picked' : '') + '" data-id="' + s.id + '" draggable="true">' +
     '<button class="th" data-open draggable="false">' + (s.thumb ? '<img src="' + s.thumb + '" alt="" loading="lazy" draggable="false">' : '') +
     (s.has ? '' : '<div class="none">PDF 없음<br>같은 파일을 넣으면 연결됩니다</div>') + '</button>' +
-    '<div class="meta"><div class="t">' + esc(s.title) + '</div>' + showF(s) + '<div class="s">' + (s.pages || '?') + '쪽' +
+    '<div class="meta"><div class="t">' + (vs && !q ? (i + 1) + '. ' : '') + esc(s.title) + '</div>' + showF(s) + '<div class="s">' + (s.pages || '?') + '쪽' +
     ((s.tags || []).length ? ' · ' + esc(s.tags.join(', ')) : '') + '</div></div>' +
     '<button class="fav' + (s.fav ? ' on' : '') + '" data-fav aria-pressed="' + !!s.fav + '" aria-label="즐겨찾기' + (s.fav ? ' 끄기' : ' 켜기') + '">' + (s.fav ? '★' : '☆') + '</button>' +
     '<button class="more" data-edit aria-label="정보">⋯</button></div>').join('') +
     (SCORES.length && !list.length ? '<div class="empty" style="grid-column:1/-1">' + (q ? '찾는 악보가 없습니다.'
-      : vf ? '<b>「' + esc(vf.name) + '」 폴더가 비어 있습니다.</b><br>악보 카드를 왼쪽 이 폴더로 끌어 놓거나, 「☑ 고르기」로 여러 곡을 골라 「폴더로 옮기기」 하세요.<br>지금 「＋ 악보 넣기」를 누르면 이 폴더에 바로 들어갑니다.'
+      : vf ? '<b>「' + esc(vf.name) + '」 폴더가 비어 있습니다.</b><br>악보 카드를 왼쪽 이 폴더로 끌어 놓거나, 「☑ 편집」으로 여러 곡을 골라 「폴더로 옮기기」 하세요.<br>지금 「＋ 악보 넣기」를 누르면 이 폴더에 바로 들어갑니다.'
+      : vs ? '<b>이 연주 목록에 곡이 없습니다.</b><br>「✎ 곡·순서 고치기」를 눌러 곡을 더하세요.'
+      : view === 'recent' ? '아직 열어 본 악보가 없습니다.'
       : view === 'fav' ? '즐겨찾기한 악보가 없습니다. 카드 왼쪽 위 ☆ 를 누르세요.' : '이 칸에 악보가 없습니다.') + '</div>' : '');
   selUI();
 }
+// 연주 목록 칸 (v1.6.0) — 시작·고치기, 카드를 누르면 그 곡부터
+$('#setPlay').onclick = () => { const s = setOf(view); if (s) playSet(s); };
+$('#setEdit').onclick = () => { const s = setOf(view); if (s) openSet(s); };
+const newSet = () => openSet({ id: 's' + Date.now().toString(36), name: '', items: [], updated: Date.now(), isNew: true });
 $('#tagChips').onclick = e => { const b = e.target.closest('.chip'); if (!b) return; tagOn = b.dataset.t || null; renderLib(true); };
 $('#fRename').onclick = () => { const f = folderOf(view); if (f) renameFolder(f); };
 $('#fside').onclick = async e => {
-  if (e.target.closest('#btnNewFolder')) { const f = await askFolder(); if (f) { setView(f.id); toast('「' + f.name + '」 폴더를 만들었습니다. 카드를 끌어 놓거나 「☑ 고르기」로 악보를 옮기세요.', null, null, 4500); } return; }
+  if (e.target.closest('#btnNewFolder')) { const f = await askFolder(); if (f) { setView(f.id); toast('「' + f.name + '」 폴더를 만들었습니다. 카드를 끌어 놓거나 「☑ 편집」으로 악보를 옮기세요.', null, null, 4500); } return; }
+  if (e.target.closest('#btnNewSet2')) return newSet();
+  if (e.target.closest('#tagMore')) { tagMore = !tagMore; return renderLib(true); }
   const it = e.target.closest('.fi'); if (!it) return;
   if (e.target.closest('[data-fm]')) return renameFolder(folderOf(it.dataset.v));
   setView(it.dataset.v);
@@ -1199,13 +1297,19 @@ $('#grid').onclick = e => {
   if (e.target.closest('[data-edit]')) return openEdit(s);
   if (e.target.closest('[data-fav]')) return setFav(s, !s.fav).then(on => { renderLib(true); toast(on ? '★ 즐겨찾기에 넣었습니다.' : '즐겨찾기에서 뺐습니다.', null, null, 1800); });
   if (!s.has) { toast('이 기기에 PDF 가 없습니다. 같은 파일을 「악보 넣기」로 넣으세요.'); return; }
+  const vs = !$('#q').value && setOf(view);
+  if (vs) {  // 같은 곡이 두 번 들어 있어도 누른 그 자리부터: 카드 순서 i 앞의 '이 기기에 있는 곡' 수 = 시작 번호
+    const shown = vs.items.map(id => SCORES.find(x => x.id === id)).filter(Boolean), i = [...$('#grid').querySelectorAll('.card')].indexOf(card);
+    const ok = shown.filter(x => x.has).map(x => x.id), qi = shown.slice(0, i).filter(x => x.has).length;
+    return openViewer(ok, Math.min(qi, ok.length - 1), vs.name || '연주 목록');
+  }
   openViewer([s.id], 0);
 };
 
 /* ---------- 여러 곡 고르기 (v1.4.0) — 폴더로 옮기기 · 즐겨찾기 · 지우기 ---------- */
 const SEL = new Set(); let selecting = false;
-function selEndQuiet() { selecting = false; SEL.clear(); $('#btnSel').classList.remove('on'); $('#btnSel').textContent = '☑ 고르기'; }
-function selMode(on) { if (!on) selEndQuiet(); else { selecting = true; $('#btnSel').classList.add('on'); $('#btnSel').textContent = '☑ 고르는 중'; } renderLib(true); }
+function selEndQuiet() { selecting = false; SEL.clear(); $('#btnSel').classList.remove('on'); $('#btnSel').textContent = '☑ 편집'; }
+function selMode(on) { if (!on) selEndQuiet(); else { selecting = true; $('#btnSel').classList.add('on'); $('#btnSel').textContent = '✓ 완료'; } renderLib(true); }
 const visIds = () => [...$('#grid').querySelectorAll('.card')].map(c => c.dataset.id);
 function selUI() {
   $('#selbar').hidden = !selecting; document.body.classList.toggle('selecting', selecting); if (!selecting) return;
@@ -1264,7 +1368,7 @@ $('#grid').addEventListener('dragstart', e => {
   e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragIds.length + '곡');
 });
 $('#grid').addEventListener('dragend', () => { dragIds = null; $('#fside').querySelectorAll('.dropok').forEach(x => x.classList.remove('dropok')); });
-const dropTarget = e => { const f = e.target.closest('.fi'); return f && dragIds && f.dataset.v !== 'all' ? f : null; };
+const dropTarget = e => { const f = e.target.closest('.fi'); return f && dragIds && !['all', 'recent'].includes(f.dataset.v) && !/^(set|tag):/.test(f.dataset.v) ? f : null; };
 $('#fside').addEventListener('dragover', e => { const f = dropTarget(e); if (!f) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; $('#fside').querySelectorAll('.dropok').forEach(x => x !== f && x.classList.remove('dropok')); f.classList.add('dropok'); });
 $('#fside').addEventListener('dragleave', e => { const f = e.target.closest('.fi'); if (f && !f.contains(e.relatedTarget)) f.classList.remove('dropok'); });
 $('#fside').addEventListener('drop', async e => {
@@ -1340,7 +1444,7 @@ $('#setList').onclick = async e => {
   if (e.target.closest('[data-play]')) return playSet(set);
   openSet(set);
 };
-$('#btnNewSet').onclick = () => openSet({ id: 's' + Date.now().toString(36), name: '', items: [], updated: Date.now(), isNew: true });
+$('#btnNewSet').onclick = () => newSet();
 async function openSet(set) {
   setEditing = structuredClone(set);
   $('#sName').value = set.name; $('#sQ').value = '';
@@ -1369,15 +1473,16 @@ $('#sItems').onclick = e => {
 };
 $('#sPick').onclick = e => { const row = e.target.closest('.row'); if (!row || !e.target.closest('[data-add]')) return; setEditing.items.push(row.dataset.id); drawSet(); };
 async function saveSet() {
-  const s = setEditing; s.name = $('#sName').value.trim() || '이름 없는 목록'; s.updated = Date.now(); delete s.isNew;
-  await db.put('sets', s); renderSets(); return s;
+  const s = setEditing; s.name = $('#sName').value.trim() || '이름 없는 목록'; s.updated = Date.now();
+  const isNew = !!setEditing.isNew; delete s.isNew;
+  await db.put('sets', s); renderSets(); await renderLib(); if (isNew || view === 'set:' + s.id) setView('set:' + s.id); return s;
 }
 $('#sSave').onclick = async () => { await saveSet(); $('#dSet').close(); };
 $('#sPlay').onclick = async () => { const s = await saveSet(); $('#dSet').close(); playSet(s); };
 $('#sDel').onclick = async () => {
   const s = setEditing; $('#dSet').close(); if (s.isNew) return;
-  const old = await db.get('sets', s.id); await db.del('sets', s.id); renderSets();
-  toast('「' + old.name + '」 목록을 지웠습니다.', '되살리기', async () => { await db.put('sets', old); renderSets(); });
+  const old = await db.get('sets', s.id); await db.del('sets', s.id); renderSets(); if (view === 'set:' + s.id) view = 'all'; renderLib();
+  toast('「' + old.name + '」 목록을 지웠습니다.', '되살리기', async () => { await db.put('sets', old); renderSets(); renderLib(); });
 };
 async function playSet(set) {
   const ok = []; for (const id of set.items) { const s = await db.get('scores', id); if (s?.has) ok.push(id); }
@@ -1413,9 +1518,12 @@ async function openViewer(queue, qi, setName = '', startPage) {
   if (!setName) addTab(queue[qi]);
   viewer.classList.add('on'); viewer.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
   viewer.classList.toggle('night', !!OPT.night); $('#vNight').classList.toggle('on', !!OPT.night);
+  viewer.classList.toggle('nostrip', OPT.strip === false);
   history.pushState({ viewer: 1 }, '');
   wakeOn();
   await loadScore(startPage);
+  // v1.6.0: 새 화면에서 처음 악보를 열 때 한 번, 돌아가는 법을 목소리로 (악보 카드를 누른 직후라 소리가 남)
+  if (!OPT.tourV && !window.__SSV_TEST && OPT.guide !== false && window.SoodGuide && viewer.classList.contains('on')) { OPT.tourV = 1; saveOpt(); sgOpen('vtour'); }
 }
 async function loadScore(startPage) {
   const id = V.queue[V.qi];
@@ -1509,6 +1617,7 @@ async function draw() {
   { const used = new Set(); r.forEach((o, i) => { const pg = makePg(o, idxs[i], used); if (wide) pg.style.margin = '4px auto'; stage.append(pg); }); }
   stage.scrollTop = 0;
   $('#vPage').textContent = (idxs.length > 1 && two ? idxs[0] + '–' + idxs[1] : V.page) + ' / ' + V.n;
+  $('#vPgS').textContent = $('#vPage').textContent + '쪽';
   $('#vRange').value = V.page;
   $('#vFit span').textContent = OPT.fit === 'width' ? '폭 맞춤' : '쪽 맞춤'; $('#vFit').classList.toggle('on', OPT.fit === 'width');
   $('#vTwo span').textContent = OPT.two === 'auto' ? '두 쪽' : '한 쪽'; $('#vTwo').classList.toggle('on', OPT.two === 'auto');
@@ -2474,7 +2583,7 @@ tunUI();
 
 /* ---------- 설정·백업 ---------- */
 $('#btnSettings').onclick = async () => {
-  $('#optTwo').value = OPT.two; $('#optFull').value = OPT.full; $('#optPen').value = OPT.pen; $('#optTheme').value = OPT.theme; $('#optGuide').value = OPT.guide === false ? '0' : '1';
+  $('#optTwo').value = OPT.two; $('#optFull').value = OPT.full; $('#optStrip').value = OPT.strip === false ? '0' : '1'; $('#optPen').value = OPT.pen; $('#optTheme').value = OPT.theme; $('#optGuide').value = OPT.guide === false ? '0' : '1';
   $('#verInfo').innerHTML = '수드 악보 보기 ' + VERSION + ' · PDF 그리기: pdf.js (Apache-2.0) · <a href="LICENSES.txt" target="_blank">라이선스</a>';
   let info = '';
   try {
@@ -2487,6 +2596,7 @@ $('#btnSettings').onclick = async () => {
 };
 $('#optTwo').onchange = () => { OPT.two = $('#optTwo').value; saveOpt(); };
 $('#optFull').onchange = () => { OPT.full = $('#optFull').value; saveOpt(); };
+$('#optStrip').onchange = () => { OPT.strip = $('#optStrip').value === '1'; saveOpt(); };
 $('#optPen').onchange = () => { OPT.pen = $('#optPen').value; saveOpt(); };
 $('#optTheme').onchange = () => { OPT.theme = $('#optTheme').value; saveOpt(); applyTheme(); };
 
@@ -2550,7 +2660,7 @@ const sgCtx = () => {
   }
   if ($('#dSettings').open) return 'settings';
   if (selecting) return 'folder';
-  return $('#pSets').hidden ? 'lib' : 'sets';
+  return !$('#pSets').hidden || view.startsWith('set:') ? 'sets' : 'lib';
 };
 const sgOpen = k => { document.querySelectorAll('dialog[open]').forEach(d => d.close()); window.SoodGuide?.open(k || sgCtx()); };
 function sgApply() { document.body.classList.toggle('ssv-nog', OPT.guide === false); }
@@ -2574,6 +2684,11 @@ $('#optGuide').onchange = () => { OPT.guide = $('#optGuide').value === '1'; save
 
 /* ---------- 시작 ---------- */
 await renderLib();
+// v1.6.0: 새 화면 안내 — 판을 올린 뒤 처음 한 번 (🔊 듣기를 누르면 읽어 줌. 이 기기에서 이미 소리를 허락했으면 바로 읽음)
+if (!OPT.tour16 && !window.__SSV_TEST && OPT.guide !== false && window.SoodGuide) {
+  OPT.tour16 = 1; saveOpt();
+  setTimeout(() => { if (document.querySelector('dialog[open]') || viewer.classList.contains('on')) return; SoodGuide.open('tour', !navigator.userActivation?.hasBeenActive); }, 700);
+}
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => { });
 window.SSV = { sgCtx, V, OPT, db, addFiles, openViewer, closeViewer, next, prev, go, renderLib, VERSION, MET: M, MO, T, TO, pitchOf, setCrop, panel, folders: () => FOLDERS, setView, askFolder, doMove, selMode, metaJson };
 </script>

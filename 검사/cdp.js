@@ -25,6 +25,8 @@ async function main() {
   };
   const send = (method, params = {}) => new Promise(r => { const i = ++id; pend[i] = r; ws.send(JSON.stringify({ id: i, method, params })); });
   await send('Runtime.enable'); await send('Page.enable');
+  // v1.6.0: 새 화면 안내(도우미 창)가 검사를 가리지 않게 — 안내 자체를 볼 땐 SSV_TOUR=1
+  if (!process.env.SSV_TOUR) await send('Page.addScriptToEvaluateOnNewDocument', { source: 'window.__SSV_TEST=1' });
   const cdp = {
     send, logs,
     async size(w, h, mobile = true) { await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 2, mobile }); },
