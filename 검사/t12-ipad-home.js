@@ -29,6 +29,14 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     chk(await ev(`!document.querySelector('#mnHome').hidden`), '⋯ 더 보기에 「사파리 메뉴 없이 보기」 있음');
     await ev(`document.querySelector('#mnHome').click()`); await sleep(300);
     chk(await ev(`document.querySelector('#dHome').open`), '⋯ 메뉴에서 다시 열림');
+    await ev(`document.querySelector('#dHome').close()`);
+    // v1.6.3 전체 화면이면 「‹ 악보함」이 사파리 ✕(왼쪽 위 약 20~80px) 오른쪽으로 비킴
+    await pg.tap('#vstrip .vt'); await ev(`document.documentElement.requestFullscreen().catch(()=>{})`); await sleep(1200);
+    const fs = await ev(`!!(document.fullscreenElement||document.webkitFullscreenElement)`);
+    if (!fs) { L('  (시험 브라우저가 전체 화면을 안 해 줌 → 사건만 흉내)'); await ev(`viewer.classList.add('fsx')`); }
+    chk(await ev(`document.querySelector('#viewer').classList.contains('fsx') && document.querySelector('#vClose').getBoundingClientRect().left >= 90`), '전체 화면: 「‹ 악보함」이 ✕ 자리(왼쪽 90px) 밖으로 ' + await ev(`Math.round(document.querySelector('#vClose').getBoundingClientRect().left)`));
+    await pg.screenshot({ path: path.join(__dirname, 't12-fs.png') });
+    if (fs) { await ev(`document.exitFullscreen()`); await sleep(800); chk(await ev(`!document.querySelector('#viewer').classList.contains('fsx') && document.querySelector('#vClose').getBoundingClientRect().left < 20`), '전체 화면 풀면 제자리'); }
   }
   chk(!errs.length, '오류 없음 ' + errs.join(' | '));
   console.log('bad', JSON.stringify(bad)); await ctx.close();

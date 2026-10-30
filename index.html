@@ -21,7 +21,7 @@
   addEventListener('error', function (e) { errs.push((e.message || (e.target && (e.target.src || e.target.href)) || '불러오기 실패') + (e.lineno ? ' @' + e.lineno : '')); }, true);
   addEventListener('unhandledrejection', function (e) { var r = e.reason; errs.push('약속 실패: ' + (r && (r.message || r.name) || r)); });
   window.SSV_ERRS = errs;
-  var VER = 'v1.6.2';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
+  var VER = 'v1.6.3';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
   // 개발 원본 index.html 을 탐색기에서 바로 열면(file://) 브라우저가 PDF 부품(모듈)을 막는다 → 바로 열 주소 안내 (2026-10-24)
   if (location.protocol === 'file:') {
     var show = function () {
@@ -612,6 +612,8 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 /* 악보 화면 맨 위 줄 — 「‹ 악보함」 */
 .vstrip{position:absolute;left:0;right:0;top:0;z-index:7;height:calc(46px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 12px 0 4px;display:flex;align-items:center;gap:6px;
   background:var(--vb-bg);-webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid var(--vb-line);transition:transform .22s,opacity .22s}
+/* v1.6.3 아이패드 사파리 전체 화면: 사파리가 왼쪽 위에 「✕ 전체 화면 나가기」를 계속 띄움(앱이 못 숨김) → 「‹ 악보함」을 그 오른쪽으로 비켜 둠 */
+#viewer.fsx .vstrip{padding-left:96px}
 #vClose{display:inline-flex;align-items:center;gap:1px;height:40px;padding:0 12px 0 4px;border:0;background:none;color:var(--vb-acc);font-weight:700;font-size:16.5px;border-radius:10px;flex:0 0 auto;white-space:nowrap}
 #vClose:hover{background:var(--vb-hover)}
 #vClose svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -1017,7 +1019,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.6.2';
+const VERSION = 'v1.6.3';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -1155,7 +1157,8 @@ $('#btnAddDir').onclick = () => $('#dirIn').click();
 const isIPad = /iPad/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 // v1.6.2 아이패드 사파리에서 누르면 사파리 주소창·탭이 튀어나옴 → 홈 화면 앱(사파리 메뉴 없음)으로 안내, 옛 아이패드는 webkit 전체 화면
 const standalone = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
-const iosBrowser = (isIPad || /iPhone|iPod/i.test(navigator.userAgent)) && !standalone && !window.SSV_INAPP;
+const iosDev = isIPad || /iPhone|iPod/i.test(navigator.userAgent);
+const iosBrowser = iosDev && !standalone && !window.SSV_INAPP;
 let homeShown = false;
 const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
 const fsReq = () => { const d = document.documentElement; if (d.requestFullscreen) return d.requestFullscreen(); if (d.webkitRequestFullscreen) { d.webkitRequestFullscreen(); return Promise.resolve(); } return Promise.reject(new Error('no fullscreen')); };
@@ -1777,6 +1780,7 @@ $('#mnHome').onclick = () => { $('#vMoreM').hidden = true; $('#dHome').showModal
 $('#hmNever').onclick = () => { OPT.homeNo = 1; saveOpt(); $('#dHome').close(); toast('다시 띄우지 않습니다 · ⋯ 더 보기에서 언제든 볼 수 있어요'); };
 // 전체 화면이 풀려도 악보는 그대로라는 것을 알려 줌 (브라우저 'X'·Esc 로 풀린 때)
 const onFsChange = () => {
+  viewer.classList.toggle('fsx', !!fsEl() && iosDev);
   if (!viewer.classList.contains('on')) return;
   if (fsEl()) { if (!touchDev()) banner('전체 화면<br><small>마우스를 맨 위로 올리면 브라우저의 ✕ 가 나옵니다 — 누르면 전체 화면만 풀립니다</small>', 2600); }
   else banner('전체 화면을 나왔습니다<br><small>악보는 그대로입니다 · ⋯ 더 보기 → 전체 화면</small>', 2200);
