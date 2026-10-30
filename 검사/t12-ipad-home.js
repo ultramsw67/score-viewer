@@ -21,12 +21,14 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   if (MODE === 'standalone') {
     chk(!open, '홈 화면 앱: 안내 창 안 뜸');
     chk(await ev(`document.querySelector('#mnHome').hidden`), '홈 화면 앱: ⋯ 메뉴 「홈 화면에 추가」 숨김');
+    chk(await ev(`document.querySelector('#mnFull').hidden && document.querySelector('#optFull').closest('label').hidden`), '홈 화면 앱: 「전체 화면」 메뉴·설정 줄 숨김 (v1.6.4)');
   } else {
     chk(open, '사파리: 악보 열면 「사파리 메뉴 없이 보기」 안내 창');
     await pg.screenshot({ path: path.join(__dirname, 't12-home.png') });
     await pg.tap('#hmNever'); await sleep(400);
     chk(await ev(`!document.querySelector('#dHome').open && JSON.parse(localStorage.getItem('ssv.opt')).homeNo===1`), '「다시 보지 않기」 → 닫히고 기억');
     chk(await ev(`!document.querySelector('#mnHome').hidden`), '⋯ 더 보기에 「사파리 메뉴 없이 보기」 있음');
+    chk(await ev(`!document.querySelector('#mnFull').hidden`), '사파리: 「전체 화면」 메뉴는 그대로 (v1.6.4)');
     await ev(`document.querySelector('#mnHome').click()`); await sleep(300);
     chk(await ev(`document.querySelector('#dHome').open`), '⋯ 메뉴에서 다시 열림');
     await ev(`document.querySelector('#dHome').close()`);
