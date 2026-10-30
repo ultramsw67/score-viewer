@@ -8,7 +8,7 @@
 <title>수드 악보 보기</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
 <!-- 아이패드·아이폰 홈 화면에서 열면 사파리 주소창·탭 없이 앱 화면만 (v1.6.2) -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -21,7 +21,7 @@
   addEventListener('error', function (e) { errs.push((e.message || (e.target && (e.target.src || e.target.href)) || '불러오기 실패') + (e.lineno ? ' @' + e.lineno : '')); }, true);
   addEventListener('unhandledrejection', function (e) { var r = e.reason; errs.push('약속 실패: ' + (r && (r.message || r.name) || r)); });
   window.SSV_ERRS = errs;
-  var VER = 'v1.6.4';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
+  var VER = 'v1.6.5';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
   // 개발 원본 index.html 을 탐색기에서 바로 열면(file://) 브라우저가 PDF 부품(모듈)을 막는다 → 바로 열 주소 안내 (2026-10-24)
   if (location.protocol === 'file:') {
     var show = function () {
@@ -1019,7 +1019,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.6.4';
+const VERSION = 'v1.6.5';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
