@@ -63,7 +63,7 @@ module.exports = async (c) => {
   // 5. 연주 목록 칸
   await ev(`document.querySelector('#fside .fi[data-v="set:sT"]').click()`); await sleep(300);
   const st = await ev(`({t:document.querySelector('#fTitle').textContent, bar:!document.querySelector('#setBar').hidden, sort:document.querySelector('#sortSeg').hidden, names:[...document.querySelectorAll('#grid .card .t')].map(x=>x.textContent)})`);
-  chk(st.t === '▶ 토요 합주' && st.bar && st.sort && st.names.length === 3 && st.names[0].startsWith('1. ') && st.names[2].startsWith('3. '), '연주 목록 칸 = 정한 순서 번호 + 「▶ 연주 시작」 ' + JSON.stringify(st));
+  chk(st.t === '▶ 토요 합주' && st.bar && st.sort && st.names.length === 3 && st.names[0].startsWith('1. ') && st.names[2].startsWith('3. '), '연주 목록 칸 = 정한 순서 번호 + 「▶ 1번부터 보기」 ' + JSON.stringify(st));
   chk(await ev(`SSV.sgCtx()`) === 'sets', '연주 목록 칸 도우미 키 = sets');
   await c.shot('n1-lib-set.png', false);
   await ev(`document.querySelectorAll('#grid .card .th')[1].click()`);

@@ -21,7 +21,7 @@
   addEventListener('error', function (e) { errs.push((e.message || (e.target && (e.target.src || e.target.href)) || '불러오기 실패') + (e.lineno ? ' @' + e.lineno : '')); }, true);
   addEventListener('unhandledrejection', function (e) { var r = e.reason; errs.push('약속 실패: ' + (r && (r.message || r.name) || r)); });
   window.SSV_ERRS = errs;
-  var VER = 'v1.6.5';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
+  var VER = 'v1.6.6';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
   // 개발 원본 index.html 을 탐색기에서 바로 열면(file://) 브라우저가 PDF 부품(모듈)을 막는다 → 바로 열 주소 안내 (2026-10-24)
   if (location.protocol === 'file:') {
     var show = function () {
@@ -662,7 +662,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
           <button class="btn" id="btnSel" title="여러 곡을 골라 폴더로 옮기기·즐겨찾기·지우기">☑ 편집</button>
         </div>
         <div class="bar" id="setBar" hidden>
-          <button class="btn main" id="setPlay">▶ 연주 시작</button>
+          <button class="btn main" id="setPlay">▶ 1번부터 보기</button>
           <button class="btn" id="setEdit">✎ 곡·순서 고치기</button>
           <span class="note" id="setNote"></span>
         </div>
@@ -757,7 +757,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
   </div>
   <div class="df">
     <button class="btn warn" id="sDel">목록 지우기</button>
-    <button class="btn" id="sPlay">▶ 연주 시작</button>
+    <button class="btn" id="sPlay">▶ 1번부터 보기</button>
     <button class="btn main" id="sSave">저장</button>
   </div>
 </dialog>
@@ -1019,7 +1019,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.6.5';
+const VERSION = 'v1.6.6';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -1298,7 +1298,7 @@ async function renderLib(keep) {
   // 연주 목록은 정한 순서 그대로, 최근 본 악보는 언제나 최근 순
   if (!vs || q) list.sort(OPT.sort === 'opened' || (view === 'recent' && !q) ? (a, b) => (b.opened || 0) - (a.opened || 0) || byTitle(a, b)
     : OPT.sort === 'added' ? (a, b) => b.added - a.added : byTitle);
-  if (vs && !q) { const miss = vs.items.length - list.length; $('#setNote').textContent = vs.items.length ? '카드를 누르면 그 곡부터 연주합니다' + (miss ? ' · 이 기기에 없는 곡 ' + miss : '') : ''; }
+  if (vs && !q) { const miss = vs.items.length - list.length; $('#setNote').textContent = vs.items.length ? '카드를 누르면 그 곡부터 순서대로 넘어갑니다' + (miss ? ' · 이 기기에 없는 곡 ' + miss : '') : ''; }
   $('#sortSeg').hidden = !!vs && !q;
   $('#fCount').textContent = list.length + '곡';
   $('#libEmpty').hidden = SCORES.length > 0;
