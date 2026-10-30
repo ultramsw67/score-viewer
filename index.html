@@ -9,6 +9,11 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<!-- 아이패드·아이폰 홈 화면에서 열면 사파리 주소창·탭 없이 앱 화면만 (v1.6.2) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="악보 보기">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script id="diag">
 /* 앱이 다 열리지 않으면 원인을 화면에 띄운다 (2026-10-16 아이패드 「안 돼」 — 사진 한 장으로 원인 알기) */
 (function () {
@@ -16,7 +21,7 @@
   addEventListener('error', function (e) { errs.push((e.message || (e.target && (e.target.src || e.target.href)) || '불러오기 실패') + (e.lineno ? ' @' + e.lineno : '')); }, true);
   addEventListener('unhandledrejection', function (e) { var r = e.reason; errs.push('약속 실패: ' + (r && (r.message || r.name) || r)); });
   window.SSV_ERRS = errs;
-  var VER = 'v1.6.1';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
+  var VER = 'v1.6.2';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
   // 개발 원본 index.html 을 탐색기에서 바로 열면(file://) 브라우저가 PDF 부품(모듈)을 막는다 → 바로 열 주소 안내 (2026-10-24)
   if (location.protocol === 'file:') {
     var show = function () {
@@ -901,6 +906,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
     <button id="mnPrint" role="menuitem"><svg viewBox="0 0 24 24"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M7 14h10v6H7z"/></svg>필기 넣어 인쇄·PDF 저장</button>
     <button id="mnHelp" role="menuitem"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6"/><circle cx="12" cy="16.8" r=".6" fill="currentColor"/></svg>수드 도우미 — 이 화면 도움말 듣기</button>
     <button id="mnFull" role="menuitem"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>전체 화면</button>
+    <button id="mnHome" role="menuitem" hidden><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M12 7v7M9 10l3-3 3 3"/></svg>사파리 메뉴 없이 보기 (홈 화면에 추가)</button>
   </div>
   <!-- v1.6.0: 맨 위 줄 — 악보를 보는 동안에도 늘 보임 (설정에서 예전처럼 숨기기 가능) -->
   <div class="vstrip" id="vstrip">
@@ -969,6 +975,21 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
   <div class="df"><button class="btn" data-close>그만두기</button><button class="btn main" id="xOk">넣기</button></div>
 </dialog>
 
+<!-- 아이패드·아이폰 사파리: 홈 화면에 추가 안내 (v1.6.2) -->
+<dialog id="dHome">
+  <div class="dh"><span>사파리 메뉴 없이 악보만 보기</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
+  <div class="db">
+    <p style="margin:0">사파리 안에서 열면 화면을 누를 때마다 사파리의 주소창·탭이 튀어나옵니다. <b>홈 화면에 추가</b>해서 열면 사파리 메뉴 없이 <b>악보와 앱 메뉴만</b> 보입니다.</p>
+    <ol style="margin:0;padding-left:22px;line-height:1.7">
+      <li>사파리 맨 위 <b>공유 단추</b>(네모에 위 화살표 <svg viewBox="0 0 24 24" width="18" height="18" style="vertical-align:-3px;fill:none;stroke:currentColor;stroke-width:2"><path d="M8 8H6v12h12V8h-2M12 3v11M8.5 6.5 12 3l3.5 3.5"/></svg>)를 누릅니다</li>
+      <li>목록에서 <b>「홈 화면에 추가」</b> → 오른쪽 위 <b>「추가」</b></li>
+      <li>앞으로는 홈 화면의 <b>「악보 보기」</b> 그림을 눌러 엽니다</li>
+    </ol>
+    <p style="margin:0;padding:10px 12px;border-radius:10px;background:#fff6e0;color:#5a4100"><b>꼭 알아 둘 것</b> — 홈 화면 앱은 사파리와 저장 공간이 따로라서 처음엔 악보함이 비어 있습니다. 옮기려면 지금 사파리에서 <b>설정 → 「악보까지 전체 백업」</b>으로 파일을 만들고, 홈 화면 앱에서 <b>설정 → 「백업 가져오기」</b>로 그 파일을 넣습니다.</p>
+  </div>
+  <div class="df"><button class="btn" id="hmNever">다시 보지 않기</button><button class="btn main" data-close>알겠어요</button></div>
+</dialog>
+
 <!-- 점프 단추 -->
 <dialog id="dJump">
   <div class="dh"><span>점프 단추</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
@@ -996,7 +1017,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.6.1';
+const VERSION = 'v1.6.2';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -1132,6 +1153,13 @@ $('#btnAdd').onclick = () => $('#fileIn').click();
 $('#btnAddDir').onclick = () => $('#dirIn').click();
 // 아이패드 사파리·크롬은 기본이 「데스크톱 사이트」라 맥처럼 보인다 → 터치 맥 = 아이패드
 const isIPad = /iPad/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+// v1.6.2 아이패드 사파리에서 누르면 사파리 주소창·탭이 튀어나옴 → 홈 화면 앱(사파리 메뉴 없음)으로 안내, 옛 아이패드는 webkit 전체 화면
+const standalone = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: fullscreen)').matches || navigator.standalone === true;
+const iosBrowser = (isIPad || /iPhone|iPod/i.test(navigator.userAgent)) && !standalone && !window.SSV_INAPP;
+let homeShown = false;
+const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+const fsReq = () => { const d = document.documentElement; if (d.requestFullscreen) return d.requestFullscreen(); if (d.webkitRequestFullscreen) { d.webkitRequestFullscreen(); return Promise.resolve(); } return Promise.reject(new Error('no fullscreen')); };
+const fsExit = () => (document.exitFullscreen || document.webkitExitFullscreen || (() => { })).call(document);
 if (!('webkitdirectory' in document.createElement('input')) || /Android|iPhone/i.test(navigator.userAgent) || isIPad) $('#btnAddDir').hidden = true;
 $('#fileIn').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
 $('#dirIn').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
@@ -1527,7 +1555,8 @@ const goodOrd = (o, n) => Array.isArray(o) && o.length && o.every(x => Number.is
 
 async function openViewer(queue, qi, setName = '', startPage) {
   sgStop();
-  if ((OPT.full === '1' || (OPT.full === 'touch' && touchDev())) && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { });
+  if (!standalone && (OPT.full === '1' || (OPT.full === 'touch' && touchDev())) && !fsEl()) fsReq().catch(() => { });
+  if (iosBrowser && !OPT.homeNo && !window.__SSV_TEST && !homeShown) { homeShown = true; setTimeout(() => { if (viewer.classList.contains('on') && !document.querySelector('dialog[open]')) $('#dHome').showModal(); }, 900); }
   V.queue = queue; V.qi = qi; V.setName = setName;
   if (!setName) addTab(queue[qi]);
   viewer.classList.add('on'); viewer.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
@@ -1667,7 +1696,7 @@ $('#vFav').onclick = async () => { if (!V.score) return; const on = await setFav
 $('#vFit').onclick = () => { OPT.fit = OPT.fit === 'page' ? 'width' : 'page'; saveOpt(); V.cache.clear(); go(V.page); };
 $('#vTwo').onclick = () => { OPT.two = OPT.two === 'auto' ? 'one' : 'auto'; saveOpt(); go(V.page); if (OPT.two === 'auto' && !twoUp()) toast('기기를 가로로 두면 두 쪽씩 보입니다.'); };
 $('#vNight').onclick = () => { OPT.night = !OPT.night; saveOpt(); viewer.classList.toggle('night', OPT.night); $('#vNight').classList.toggle('on', OPT.night); };
-const fullToggle = () => { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.().catch(() => toast('이 브라우저는 전체 화면을 지원하지 않습니다.')); };
+const fullToggle = () => { fsEl() ? fsExit() : fsReq().catch(() => iosBrowser ? $('#dHome').showModal() : toast('이 브라우저는 전체 화면을 지원하지 않습니다.')); };
 $('#vFull').onclick = fullToggle;
 let barT;
 function showBars(auto) { viewer.classList.remove('hidebars'); clearTimeout(barT); if (auto && !V.inking) barT = setTimeout(() => { if (!openPanel() && $('#vMoreM').hidden) viewer.classList.add('hidebars'); }, 2500); }
@@ -1737,18 +1766,23 @@ $('#vMore').onclick = e => {
     m.style.top = ($('#topbar').offsetHeight + 6) + 'px';
     $('#mnCropS').textContent = V.crop.l + V.crop.t + V.crop.r + V.crop.b > 0 ? '자름' : '';
     $('#mnPagesS').textContent = V.ord.some((x, i) => x !== i + 1) || V.ord.length !== V.doc?.numPages ? '바꿈' : '';
-    $('#mnFull').lastChild.textContent = document.fullscreenElement ? '전체 화면 끄기' : '전체 화면';
+    $('#mnFull').lastChild.textContent = fsEl() ? '전체 화면 끄기' : '전체 화면';
     showBars(false);
   }
 };
 addEventListener('pointerdown', e => { if (!$('#vMoreM').hidden && !e.target.closest('#vMoreM,#vMore')) $('#vMoreM').hidden = true; }, true);
 $('#mnFull').onclick = () => { $('#vMoreM').hidden = true; fullToggle(); };
+$('#mnHome').hidden = !iosBrowser;
+$('#mnHome').onclick = () => { $('#vMoreM').hidden = true; $('#dHome').showModal(); };
+$('#hmNever').onclick = () => { OPT.homeNo = 1; saveOpt(); $('#dHome').close(); toast('다시 띄우지 않습니다 · ⋯ 더 보기에서 언제든 볼 수 있어요'); };
 // 전체 화면이 풀려도 악보는 그대로라는 것을 알려 줌 (브라우저 'X'·Esc 로 풀린 때)
-document.addEventListener('fullscreenchange', () => {
+const onFsChange = () => {
   if (!viewer.classList.contains('on')) return;
-  if (document.fullscreenElement) { if (!touchDev()) banner('전체 화면<br><small>마우스를 맨 위로 올리면 브라우저의 ✕ 가 나옵니다 — 누르면 전체 화면만 풀립니다</small>', 2600); }
+  if (fsEl()) { if (!touchDev()) banner('전체 화면<br><small>마우스를 맨 위로 올리면 브라우저의 ✕ 가 나옵니다 — 누르면 전체 화면만 풀립니다</small>', 2600); }
   else banner('전체 화면을 나왔습니다<br><small>악보는 그대로입니다 · ⋯ 더 보기 → 전체 화면</small>', 2200);
-});
+};
+document.addEventListener('fullscreenchange', onFsChange);
+if (!('onfullscreenchange' in document)) document.addEventListener('webkitfullscreenchange', onFsChange);
 
 /* ---------- 필기 (펜 7가지 · 굵기 3단계 · 도장 · 글자 · 점프 단추) ----------
    좌표는 언제나 「PDF 쪽 전체」 기준 0~1 → 여백을 잘라도 필기가 제자리에 남는다.
