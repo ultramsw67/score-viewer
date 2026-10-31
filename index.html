@@ -21,7 +21,7 @@
   addEventListener('error', function (e) { errs.push((e.message || (e.target && (e.target.src || e.target.href)) || '불러오기 실패') + (e.lineno ? ' @' + e.lineno : '')); }, true);
   addEventListener('unhandledrejection', function (e) { var r = e.reason; errs.push('약속 실패: ' + (r && (r.message || r.name) || r)); });
   window.SSV_ERRS = errs;
-  var VER = 'v1.6.6';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
+  var VER = 'v1.6.7';  // 앱이 안 열려도 보이게 여기 따로 적음 — 판을 올릴 때 아래 VERSION 과 같이 고친다
   // 개발 원본 index.html 을 탐색기에서 바로 열면(file://) 브라우저가 PDF 부품(모듈)을 막는다 → 바로 열 주소 안내 (2026-10-24)
   if (location.protocol === 'file:') {
     var show = function () {
@@ -626,6 +626,13 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 #viewer.nostrip.hidebars .vstrip{transform:translateY(-110%);opacity:0;pointer-events:none}
 #viewer.nostrip:not(.inking) #stage{top:0}
 @media (max-width:560px){.vstrip .pn#vSetPos{display:none}}
+/* v1.6.7 「종료」 — 홈 화면 앱(안드로이드)에서 악보 보기를 끝내고 다른 앱으로 */
+.exitbtn{display:inline-flex;align-items:center;gap:5px;height:40px;padding:0 14px 0 11px;border:0;border-radius:999px;background:#d93636;color:#fff;font-weight:800;font-size:15px;white-space:nowrap;flex:0 0 auto;box-shadow:0 2px 6px rgba(217,54,54,.3)}
+.exitbtn[hidden]{display:none}
+.exitbtn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.exitbtn:hover{filter:brightness(1.08)}
+.vstrip .exitbtn{height:36px;margin-left:4px}
+#dBye .diag{font-size:12px;color:var(--sub);word-break:break-all}
 </style>
 </head>
 <body>
@@ -637,6 +644,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
     <button id="tabSets" role="tab">연주 목록</button>
   </div>
   <button class="iconbtn" id="btnSettings" title="설정·백업" aria-label="설정·백업">⚙</button>
+  <button class="exitbtn" id="btnExit" title="악보 보기 끝내기" hidden><svg viewBox="0 0 24 24"><path d="M12 3.5v8"/><path d="M7 6.3a7.5 7.5 0 1 0 10 0"/></svg><span>종료</span></button>
 </div></header>
 
 <main class="wrap">
@@ -916,6 +924,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
     <div class="vt" id="vTitle"></div>
     <span class="pn" id="vSetPos"></span>
     <span class="pn" id="vPgS"></span>
+    <button class="exitbtn" id="vExit" title="악보 보기 끝내기" hidden><svg viewBox="0 0 24 24"><path d="M12 3.5v8"/><path d="M7 6.3a7.5 7.5 0 1 0 10 0"/></svg><span>종료</span></button>
   </div>
   <div class="vbar topb" id="topbar">
     <button id="vFav" title="즐겨찾기" aria-label="즐겨찾기"><svg viewBox="0 0 24 24"><path d="M12 3.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg><span>즐겨찾기</span></button>
@@ -978,6 +987,16 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 </dialog>
 
 <!-- 아이패드·아이폰 사파리: 홈 화면에 추가 안내 (v1.6.2) -->
+<dialog id="dBye">
+  <div class="dh"><span>악보 보기를 마쳤습니다</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
+  <div class="db">
+    <p style="margin:0">이 기기에서는 앱이 스스로 닫히지 않았습니다. <b>화면 아래 ○ 홈 단추</b>를 누르거나 <b>화면 아래에서 위로 밀어</b> 다른 앱으로 가세요.</p>
+    <p style="margin:0">보던 곡과 쪽은 기억해 둡니다. 다음에 열면 「지난번 N쪽까지 봤습니다」로 이어 볼 수 있습니다.</p>
+    <div class="diag" id="byeDiag"></div>
+  </div>
+  <div class="df"><button class="btn main" data-close>악보함으로</button></div>
+</dialog>
+
 <dialog id="dHome">
   <div class="dh"><span>사파리 메뉴 없이 악보만 보기</span><button class="iconbtn" data-close aria-label="닫기">✕</button></div>
   <div class="db">
@@ -1019,7 +1038,7 @@ body.selecting .sg-fab{bottom:calc(var(--selh,70px) + 30px)!important}
 <script type="module">
 import * as pdfjs from './vendor/pdf.min.mjs';
 pdfjs.GlobalWorkerOptions.workerSrc = './vendor/pdf.worker.min.mjs';
-const VERSION = 'v1.6.6';
+const VERSION = 'v1.6.7';
 const PDF_OPTS = { cMapUrl: './vendor/cmaps/', cMapPacked: true, standardFontDataUrl: './vendor/standard_fonts/' };
 
 /* ---------- 저장소 (IndexedDB) ---------- */
@@ -1160,6 +1179,32 @@ const standalone = matchMedia('(display-mode: standalone)').matches || matchMedi
 const iosDev = isIPad || /iPhone|iPod/i.test(navigator.userAgent);
 const iosBrowser = iosDev && !standalone && !window.SSV_INAPP;
 let homeShown = false;
+// v1.6.7 「종료」 (10/31 "악보 보기가 끝나면 다른 앱을 쓰고 싶어") — 홈 화면 앱은 window.close() 로 닫힌다. 단 창 기록이 하나뿐일 때만.
+// 그래서 안드로이드 홈 화면 앱에서는 악보를 열 때 기록(pushState)을 남기지 않고, 뒤로 가기는 CloseWatcher 로 받는다
+// (CloseWatcher 가 없는 옛 브라우저면 뒤로 가기 = 앱 나가기, 보던 쪽은 기억). 아이폰·아이패드는 앱이 스스로 안 닫혀 단추를 숨김
+const androidDev = /Android/i.test(navigator.userAgent);
+const exitOk = standalone && !iosDev;
+const noHist = standalone && androidDev;
+let cw = null;
+const brName = () => { const u = navigator.userAgent, m = u.match(/SamsungBrowser\/[\d.]+/) || u.match(/Edg\/\d+/) || u.match(/Chrome\/\d+/) || u.match(/Firefox\/\d+/) || u.match(/Version\/[\d.]+.*Safari/); return m ? m[0] : '?'; };
+const exitDiag = () => [VERSION, standalone ? '홈 화면 앱' : '브라우저', androidDev ? '안드로이드' : '', 'CloseWatcher ' + ('CloseWatcher' in window ? '있음' : '없음'), '기록 ' + history.length, brName()].filter(Boolean).join(' · ');
+$('#btnExit').hidden = $('#vExit').hidden = !exitOk;
+async function exitApp() {
+  if (V.inking) inkMode(false);
+  metStop(); tunStopAll(); sgStop();
+  if (viewer.classList.contains('on') && V.score) { V.score.lastPage = V.page; try { await db.put('scores', V.score); } catch (e) { } }
+  if (cw) { const w = cw; cw = null; w.destroy(); }
+  const diag = exitDiag();
+  window.close();
+  // 닫혔으면 여기는 돌지 않는다. 0.5초 뒤에도 살아 있으면 안내 창
+  setTimeout(() => {
+    if (viewer.classList.contains('on')) closeViewer();
+    $('#byeDiag').textContent = diag;
+    if (!$('#dBye').open) $('#dBye').showModal();
+  }, 500);
+}
+$('#btnExit').onclick = exitApp;
+$('#vExit').onclick = exitApp;
 const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
 const fsReq = () => { const d = document.documentElement; if (d.requestFullscreen) return d.requestFullscreen(); if (d.webkitRequestFullscreen) { d.webkitRequestFullscreen(); return Promise.resolve(); } return Promise.reject(new Error('no fullscreen')); };
 const fsExit = () => (document.exitFullscreen || document.webkitExitFullscreen || (() => { })).call(document);
@@ -1565,7 +1610,8 @@ async function openViewer(queue, qi, setName = '', startPage) {
   viewer.classList.add('on'); viewer.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden';
   viewer.classList.toggle('night', !!OPT.night); $('#vNight').classList.toggle('on', !!OPT.night);
   viewer.classList.toggle('nostrip', OPT.strip === false);
-  history.pushState({ viewer: 1 }, '');
+  if (!noHist) history.pushState({ viewer: 1 }, '');
+  else if ('CloseWatcher' in window) { if (cw) cw.destroy(); try { cw = new CloseWatcher(); cw.onclose = () => { cw = null; closeViewer(true); }; } catch (e) { cw = null; } }
   wakeOn();
   await loadScore(startPage);
   // v1.6.0: 새 화면에서 처음 악보를 열 때 한 번, 돌아가는 법을 목소리로 (악보 카드를 누른 직후라 소리가 남)
@@ -1607,7 +1653,8 @@ function closeViewer(fromPop) {
   if (V.doc) { V.doc.destroy(); V.doc = null; } V.cache.clear(); stage.innerHTML = '';
   wakeOff();
   if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
-  if (!fromPop) history.back();
+  if (cw) { const w = cw; cw = null; w.destroy(); }
+  if (!fromPop && !noHist) history.back();
   renderLib();
 }
 addEventListener('popstate', () => closeViewer(true));
@@ -2639,7 +2686,7 @@ tunUI();
 /* ---------- 설정·백업 ---------- */
 $('#btnSettings').onclick = async () => {
   $('#optTwo').value = OPT.two; $('#optFull').value = OPT.full; $('#optStrip').value = OPT.strip === false ? '0' : '1'; $('#optPen').value = OPT.pen; $('#optTheme').value = OPT.theme; $('#optGuide').value = OPT.guide === false ? '0' : '1';
-  $('#verInfo').innerHTML = '수드 악보 보기 ' + VERSION + ' · PDF 그리기: pdf.js (Apache-2.0) · <a href="LICENSES.txt" target="_blank">라이선스</a>';
+  $('#verInfo').innerHTML = '수드 악보 보기 ' + VERSION + ' · PDF 그리기: pdf.js (Apache-2.0) · <a href="LICENSES.txt" target="_blank">라이선스</a><br>기기 확인: ' + exitDiag();
   let info = '';
   try {
     const e = await navigator.storage.estimate(); const p = await navigator.storage.persisted?.();
